@@ -371,3 +371,46 @@ Media, especially online media, does their best to get your attention.  It's a s
 
 ## Rule #4 - Drain the Shallows
 
+Example of 37signals reducing from 5 days to 4 day workweek.  They did this by *cutting the fat* (reducing shallow work).  Reducing the amount of time makes your respect the time more. Become stingy with your time.
+
+The 37signals made an experiment where they temporarily removed all shallow work and allowed their staff to focus deeply on their own creative projects for 1 month.  This is in contrast to Google simply giving 20% of their time.  The results of the experiment were very positive and the company was able to put into production 2 of the proposed projects.
+
+There is a cognitive limit to deep work.  Beginners are about 1 hour and experts tap out around 4.  After this amount of time, you'll experience diminishing returns.
+
+> treat shallow work with suspicion because its damage is often vastly understimated and its importance vastly overestimated
+
+##### Schedule Every Minute of Your Day
+
+It's very easy to lose track of your time and have the impression that you spend less time in shallow activity than in reality.
+
+Ask yourself *"What makes the most sense right now?"* before taking any action.
+
+Strategy
+ - create time blocks for your whole work day
+ - assign activities to each of those blocks
+ - shallow work tasks can be batched to one of those blocks
+
+If things go wrong (interruptions or time-estimates are off), revise the schedule
+
+Tactics to account for when things go wrong
+ - recognize that almost definitely you're going to underestimate how much time you need
+ - create overflow conditional blocks (blocks that have a split purpose)
+    - if the task overruns, use the overflow block to keep working on it
+    - if the task is completed however, have another activity associated
+
+The goal of a schedule is about thoughtfulness for your day... not about constraints and rigidity to your day.  It allows for spontaneity if you consciously allow it to.
+
+> **Treat your time with respect**
+
+##### Quantify the Depth of Every Activity
+
+> **Shallow Work**: Noncognitively demanding, logistical-style tasks, often performed while distracted. These efforts tend not to create much new value in the world and are easy to replicate.
+
+
+Ask yourself:
+> "How long would it take (in months) to train a smart recent college graduate with no specialized training in my field to complete this task?
+
+This question is a thought experiment that helps quantify the depth of your work.  
+
+##### Ask Your Boss for a Shallow Work Budget
+
