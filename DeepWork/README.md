@@ -414,3 +414,47 @@ This question is a thought experiment that helps quantify the depth of your work
 
 ##### Ask Your Boss for a Shallow Work Budget
 
+Creating a budget for shallow work can impose limits on how much shallow work you will accept.  
+
+The idea is not to abandon core shallow obligations, but recognize a hard limit on shallow work so that it doesn't overtake the deep work.
+
+Having a conversation with your boss establishes an agreement from the workplace, so that you have cover when you turn down shallow work.
+
+The conversation can be data-driven.  "This is how much time I spent this week on shallow work".  
+
+One strategy is a fixed-schedule productivity.  Setting aggressive or drastic quotas for the amount of work you will get done will make you consider more carefully when to say "yes" to a shallow task.
+
+##### Become Hard to Reach
+
+> "we are slowly eroding our ability to explain - in a careful, complex way- why it is so wrong for us to compalin, resist, or redesign our workdays so that they are manageable." - *The Tyranny of E-mail*
+
+**Tip #1**: Make People Who Send You E-mail Do More Work
+*sender filter* - ask your correspondents to filter themselves before attempting to contact you
+The author gives an example by stating reasons why you would email to a specific address (e.g. interesting@calnewport.com)
+
+Reset your correspondents expectations.  This means stating that
+1. you may only respond to those things you find interesting
+2. you may only respond between certain hours
+3. telling them to review a FAQ to verify the question hasn't already been asked
+
+**Tip #2**: Do More Work When You Send or Reply to E-mails
+
+Vague interrogative emails invoke an initial instinct to respond with the quickest possible response.  
+The problem is that these quick responses only compound future shallow work because it will bounce back.  
+
+Ask yourself
+> *What is the project represented by this message, and what is the most efficient (in terms of messages generated) process for bringing this project to a successful conclusion?*
+
+Answer the question for yourself, and the response should describe the process you identified, points out the next current step, and emphasize the step that comes next.  This is called the *process-centric approach*
+
+The goal is to reduce the number of roundtrips (messages) needed to complete the thread.  
+
+**Tip #3**: Don't Respond
+
+The sender has to convince the receiver that a reply is worthwhile.
+
+Replies are assumed, regardless of the relevance or appropriateness of the message.  
+
+Some people may get confused or upset about the lack of response.  This is okay.
+
+> "Develop the habit of letting small bad things happen.  If you don't, you'll never find time for the life-changing big things." - Tim Ferris
