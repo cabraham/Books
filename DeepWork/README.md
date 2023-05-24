@@ -279,3 +279,95 @@ A strategy here is to select something that's high on the priority list, estimat
 
 > Deep work requires levels of concentration well beyond where most knowledge workers are comfortable.  *Roosevelt dashes* leverage artificial deadlines to help you systematically increase the level you can regularly achieve - providing, in some sense, **interval training** for the attention centers of your brain
 
+##### Meditate productively
+
+> The goal of productive meditation is to take a period in which you're occupied physically but not mentally - and focus your attention on a single well-defined professional problem
+
+This works by forcing you to resist distraction and return your attention repeatedly to a well-defined problem
+
+2 suggestions to improve ramp-up of this practice
+
+**#1:** *Be Wary of Distractions and Looping* 
+
+When first starting productive meditation, your mind may rebel and try to other things to fixate on (distraction) or your mind may avoid diving deeper into the problem by *looping* over what you already know.  
+
+**#2:** *Structure Your Deep Thinking*
+
+Steps for structuring your thinking
+
+1. Make note of relevant variables for solving the problem and keep those in your working memory
+2. After identifying the variables, define the specific *next-step question* you need to answer using these variables
+3. Consolidate your gains by reviewing clearly the answer you identified
+4. Start the process over
+
+##### Memorize a Deck of Cards
+
+> "We found that one of the biggest differences between memory athletes and the rest of us is in a cognitive ability that's not a direct measure of memory at all *but of attention*" - Roediger
+
+This is known as "attentional control"
+
+Memory athletes do not use rote memorization to practice their retention.  
+
+Our brains are great at memorizing many details associated with visual images and associations
+
+> Your ability to concentrate is only as strong as your commitment to train it
+
+## Rule #3 - Quit Social Media
+
+*Network tools* like Facebook, Twitter, etc fragment our time and reduce our ability to concentrate.  
+These tools steal your attention and willpower in bite-sized chunks with distraction and useless information.
+It may not be possible to quit social media altogether, but there is an optional middle-ground.
+
+Understand why you're using these tools.  They may provide some level of entertainment or friendship, but what these tools provide are light weight.  Are we using these tools because we lack entertainment options or deep connection?  Do these tools really provide the answer?
+
+Remember that social media tools are designed by for-profit companies to be addictive and grab your attention all the itme. 
+
+The "Any-Benefit" mindset - using a network tool if you can identify *any* possible benefit to its use
+
+Network tools are tools like any other tool.  You have to put thought into the tools you use.  Tools provide benefits, but also costs.  Sometimes the tool may be at odds with your main baseline goals.
+
+> **The Craftsman Approach to Tool Selection** - Identify the core factors that determine success and happiness in your professional and personal life.  Adopt a tool only if its positive impacts on these factors substantially outweight the negative impacts.
+
+##### Apply the Law of the Vital Few to Your Internet Habits
+
+Step 1 - Identify the main high-level goals for your professional and personal life.
+Step 2 - List for each of these goals, two or three most important activities that help satisfy the goal
+Step 3 - Evaluate each tool against the key activities and ask whether they have a *substantial positive impact* or a *substantial negative impact*
+
+
+> **The Law of the Vital Few**: In many settings, 80 percent of a given effect is due to just 20 percent of the possible causes.
+
+This is basically the 80/20 rule - the power law distribution over impact
+
+Highlight the idea that all activities take up your time and energy (both limited resources)... both low-impact and high-impact activities.  It's a **zero-sum game**.  Therefore we need to be wise where we put this.  
+
+Business do this already because they choose to *fire* their customers of lower value to invest in the needs of their higher impact customers
+
+##### Quit Social Media
+
+One strategy to quit is to put a temporary ban on all of it for a period of time (e.g. 30 days).  After the time period is up, ask yourself: 
+1. Would the last thirty days have been notably better if I had been able to use this service?
+2. Did people care that I wasn't using this service?
+
+If the answer is no, then you can quit entirely.
+
+This is similar to putting all your *stuff* in boxes and packing them away.  Do you ever touch them?  No?  Then you don't need it.
+
+Using social media gives us a false sense of importance.  Do people really care about what we say?  
+
+
+##### Don't Use the Internet to Entertain Yourself
+
+> The "great and profound mistake which my typical man makes in regard to his day," he elaborates, is that even though he doesn't particularly enjoy his work (seeing it as something to "get through"), "he persists in looking upon those hours from ten to six as 'the day,' to which the ten hours preceding them and the six hours following them are nothing but a prologue and epilogue." - Arnold Bennett
+
+You *should* and *can* make deliberate use of your time outside work
+
+Media, especially online media, does their best to get your attention.  It's a science and they know the psychology.  *Trending* and *popular* titles and images are targeted to keep us engaged.  Most of this stuff is utter garbage.
+
+> Put thought into your leisure time
+
+> *What? You say that full energy given to those sixteen hours will lessen the value of the business eight? Not so. On the contrary, it will assuredly increase the value of the business eight. One of the chief things which my typical man has to learn is that the mental faculties are capable of a continuous hard activity; they do not tire like an arm or a leg. All they want is change - not rest, except in sleep* - Bennett
+
+
+## Rule #4 - Drain the Shallows
+
