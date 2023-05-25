@@ -1,6 +1,8 @@
 
 # [Deep Work](https://www.amazon.com/Deep-Work-Focused-Success-Distracted/dp/1455586692)
 
+## [Todoist article](https://todoist.com/inspiration/deep-work)
+
 ## Introduction
 > **The Deep Work Hypothesis:** The ability to perform deep work is becoming increasingly rare at exactly the same time it is becoming increasingly valuable in our economy.  As a consequence, the few who cultivate this skill, and then make it the core of their working life, will thrive.
 
@@ -11,19 +13,24 @@
 
 3 groups have been identified that will be successful in the *The Intelligent Machine Age* 
 
-####  1. High-skilled workers
-- Low-skilled positions are being automated away but creates opportunities for high-skilled positions
+#####  1. High-skilled workers
+Low-skilled positions are being automated away but creates opportunities for high-skilled positions
 > "The key question will be: are you good at working with intelligent machines or not?"
 
-#### 2. The Superstars
- - technology has enabled new forms of work (remote).  
- > It no longer makes sense, for example, to hire a full-time programmer, put aside office space, and pay benefits, when you can instead pay one of the world's best programmers, like Hansson, for just enough time to complete the project at hand
- - talent is not a commodity you can buy in bulk
- > Hearing a succession of mediocre singers does not add up to a single outstanding performance
+##### 2. The Superstars
+Extremely talented individuals will stand out from the crowd.  
+> Hearing a succession of mediocre singers does not add up to a single outstanding performance
 
-#### 3. The Owners
- - those with the capital to invest in the new technologies
- - this book covers how to gain access to the first 2 groups
+> Talent is not a commodity you can buy in bulk
+
+They will have the ability to pick and choose according to their own terms the work they want to engage in. 
+Technology enables this even further because of remote work.
+
+##### 3. The Owners
+The owners are those with the capital to invest in the new technologies
+This book covers how to gain access to the first 2 groups
+
+---
 
 **Two Core Abilities for Thriving in the New Economy**
 1. The ability to quickly master hard things.
@@ -31,20 +38,29 @@
 
 **Deep Work Helps You Quickly Learn Hard Things**
 > To learn requires intense concentration (Sertillanges)
-- Research shows that *deliberate practice* is how to master cognitively demanding tasks
-- Deliberate practice requires
-  1. > your attention is focused tightly on a specific skill you're trying to improve or an idea you're trying to master
-  2. > you receive feedback so you can correct your approach to keep your attention exactly where it's most productive
 
-- deliberate practice cannot exist alongside distraction
-- *diffused attention* is the antithesis of *focused attention*
-- there is a neurological foundation for why deliberate practice works (myelin)
+Research shows that **deliberate practice** is how to master cognitively demanding tasks
 
-High-Quality Work Produced = (Time Spent) x (Intensity of Focus)
+Deliberate practice requires
+  1. your tightly focused attention on a specific skill you're trying to improve or an idea you're trying to master
+  2. feedback so you can correct your approach to keep your attention exactly where it's most productive
 
-#### Attention residue
-- when moving from one task to another, a portion of your attention (residue) remains on the previous task
-- this is one reason why multi-tasking is a myth
+Deliberate practice cannot exist alongside distraction
+**Diffused attention is the antithesis of focused attention**
+There is a neurological foundation for why deliberate practice works (*myelin*)
+
+
+> **High-Quality Work Produced = (Time Spent) x (Intensity of Focus)**
+---
+
+### Attention residue
+
+> when moving from one task to another, a portion of your attention (residue) remains on the previous task
+
+Another similar concept may be **context-switching**
+
+- Multi-tasking and deep work are not compatible.  Anything of value requires focused attention, which means multi-taskers tend to work on low-value tasks
+
 - communication tools such as e-mail, messaging, social media lower our ability to work deeply
   - even seeing an alert or a flashing window pulls our attention away and potentially causes anxiety to respond to the message/email
 
@@ -54,27 +70,27 @@ High-Quality Work Produced = (Time Spent) x (Intensity of Focus)
 
 ## Chapter 2 - Deep Work is Rare
 ---
-- There is a paradox.  If deep work is more valuable than ever before in our shifting economy, then why are other ideas prevailing?
-    - Serendipitous collaboration
-    - rapid communication
-        - Instant messaging is meant to be always active
-    - active presence on social media
-    - open offices
+There is a paradox.  If deep work is more valuable than ever before in our shifting economy, then why are other ideas prevailing?
+- *Serendipitous* collaboration
+- rapid communication
+    - Instant messaging is meant to be always active
+- active presence on social media
+- open offices
 
 > "interruption, even if short, delays the total time required to complete a task by a significant fraction"
 
-- An experiment in the Harvard Business Review quantified that Atlantic Media was spending over a million dollars a year to pay people to process e-mails
+- An experiment in the Harvard Business Review quantified that Atlantic Media was spending **over a million dollars a year to pay people to process e-mails**
 
-- It's difficult to measure the cost of distraction and the value of depth
+- It's difficult to measure the cost of distraction and the value of depth.
 
 - The culture of connectivity hurts employees' well-being and productivity
 
 **Principle of Least Resistance** - without clear feedback on the impact of various behaviors to the bottom line, we will tend toward behaviors that are easiest in the moment
 
-- cultures of connectivity persist because it's *easier*
-    1. getting answers to a specific piece of information immediately makes your life easier
-        - if this wasn't available, you'd have to do more advanced planning, be organized, and be prepared
-    2. you can run your day out of your inbox
+- **cultures of connectivity** persist because it's *easier*
+    1. Getting answers to a specific piece of information immediately makes your life easier
+        - If this wasn't available, you'd have to do more advanced planning, be organized, and be prepared
+    2. You can run your day out of your inbox.  This makes it seem like you're busy but in actuality you're probably delivery very low value
 
 - regularly occurring meetings for projects are *easier*
     - what is this accomplishing?  are we managing our time and obligations ourselves or letting the impending meeting each week force us to take action on a given project
@@ -86,7 +102,9 @@ High-Quality Work Produced = (Time Spent) x (Intensity of Focus)
 
 > Knowledge work is not an assembly line
 
-- We no longer discuss the trade-offs surrounding new technologies, balancing, the new efficiencies against the new problems introduced
+We no longer discuss the trade-offs surrounding new technologies, balancing, the new efficiencies against the new problems introduced.  
+- communication tools are just that, tools.  
+- there are tradeoffs and consequences of using new tools and modern businesses tend to jump on these technologies without understanding the ramifications
 
 
 ## Chapter 3 - Deep Work is Meaningful
@@ -104,25 +122,26 @@ High-Quality Work Produced = (Time Spent) x (Intensity of Focus)
 - connection between attention and happiness
 >  we tend to place alot of emphasis on our circumstances, assuming what happens to us (or fails to happen) determines how we feel
 - our brains construct our worldview based on *what we pay attention to*
-- deep endeavors require focus and prevvents you from noticing the many smaller and less pleasant things that persistently populate our lives
+  - even in a bad situation, if our attention is focused on the good, then we will be happier
+- deep endeavors require focus and prevents you from noticing the many smaller and less pleasant things that persistently populate our lives
+
 > a workday driven by the shallow, from a neurological perspective, is likely to be a draining and upsetting day, even if most of the shallow things that capture your attention seem harmless or fun
+
 
 ### Psychological argument for depth
 > The best moments usually occur when a person's body or mind is stretched to its limits in a voluntary effort to accomplish something difficult and worthwhile
- - Csikszentmihalyi calls this *flow*
- - Conventional thought is that relaxation makes people happy but
-> Ironically, jobs are actually easier to enjoy than free time, because like flow activities they have built-in goals, feedback rules, and challenges, all of which encourage one to become involved in one's work, to concentrate and lose onself in it. Free time, on the other hand, is unstructured, and requires much greater effort to be shaped into something that can be enjoyed
+This is also called **FLOW**
 
-- Gallagher's theory emphasizes the content, giving focused attention to something forced you to ignore shallow negative things
-- Csikszentmihalyi is mostly agnostic to the content
+Conventional thought is that relaxation makes people happy but
+> Ironically, jobs are actually easier to enjoy than free time, because like flow activities they have built-in goals, feedback rules, and challenges, all of which encourage one to become involved in one's work, to concentrate and lose onself in it. **Free time, on the other hand, is unstructured, and requires much greater effort to be shaped into something that can be enjoyed**
 
-- build your working life around the experience of flow produced by deep work
+Build your working life around the experience of flow produced by deep work
 
 ### Philosophical argument for depth
 - Notions of sacredness and meaning have evolved throughout history
 - From Descartes's skepticism came the radical belief that individual seeking certainty trumped a God or king bestowing truth (basis of Enlightenment)
 - In Post-Enlightenment, we ourselves identify what's meaningful and not... which seems arbitrary and ultimately nihilistic
-- Craftsmanship provides a key to reopening a sense of sacredness in a responsible manner
+- **Craftsmanship** provides a key to reopening a sense of sacredness in a responsible manner
 > The task of a craftsman, they conclude, "is not to *generate* meaning, but rather to *cultivate* in himself the skill of *discerning* the meanings that are *already there*."
 
 
@@ -131,13 +150,20 @@ High-Quality Work Produced = (Time Spent) x (Intensity of Focus)
 ## Rule 1 - Work Deeply
 
 > You have a finite amount of willpower that becomes depleted as you use it
+
+Willpower is in limited supply.  Attention and decisions are also in limited supply.  
+Any intelligent person knows that limited resources must be planned and budgeted.
+
 - You must move beyond good intentions and implement *routines* and *rituals* designed to minimize distractions
 
-### 6 strategies
+
 #### Decide on your depth philosophy
- - Monastic philosophy - eliminate or radically minimize shallow obligations
+ - **Monastic philosophy** - eliminate or radically minimize shallow obligations
+    - lowest level of context switching
+    - unrealistic for most people because of the various types of work most people must do
  - Bimodal philosophy of Deep Work Scheduling - divide your time, dedicating some clearly defined stretches to deep pursuits and leaving the rest open to everything else
     - a minimum amount of time is required to reach maximum cognitive intensity.  The period tends to be at least one full day
+    - meant for larger chunks of time like weeks or months
  - Rhythmic Philosophy of Deep Work Scheduling - having a simple regular habit
     - Seinfeld's chain method is an example where he placed big red Xs on the calendar when he's done work
     - the segments of time dedicated should be on a regular schedule.  Adhoc scheduling isn't compatible with this philosophy
@@ -147,20 +173,28 @@ High-Quality Work Produced = (Time Spent) x (Intensity of Focus)
     - not for a deep work novice
     - switching into Deep Work mode doesn't come naturally and depletes your willpower reserves rapidly
 
+
 #### Ritualize
  - build rituals of the same level of strictness and idiosyncrasy 
  > *Great creative minds think like artists but work like accountants."* - David Brooks from NYT
 
  Any effective ritual must address the following: 
- - **where you'll work and for how long** (specify a location and give a specific time frame)
- - **How you'll work once you start to work** - rules and processes to keep your efforts structured
-   - examples are to eliminate internet usage or maintain a metric of words produced per twenty-minute interval
- - **How you'll support your work** - ensure your brain gets the support it needs to keep operating at a high level of depth
-   - examples are getting a good cup of coffee or organizing raw materials of your work to minimize energy-dissipating friction
-   - don't try to figure out what you need in the moment.  Systematize this
+ - **Location**
+    - Distraction free location conducive to long periods of focus
+    - Pick a consistent place
+ - **Duration**
+    - Decide how long your deep work session will be
+ - **Structure**
+    - **How you'll work once you start to work** - rules and processes to keep your efforts structured
+    - Will the phone be on or off?
+    - How do you measure the success of a session?
+ - **Requirements** 
+    - **How you'll support your work** - ensure your brain gets the support it needs to keep operating at a high level of depth
+    - examples are getting a good cup of coffee or organizing raw materials of your work to minimize energy-dissipating friction
+    - play music? access to software? 
 
 #### Make Grand Gestures
-> By leveraging a a radical change to your normal environment, coupled perhaps iwth a significant investment of effort or money, all dedicated toward supporting a deep work task, you increase the perceived importance of the task
+> By leveraging a a radical change to your normal environment, coupled perhaps with a significant investment of effort or money, all dedicated toward supporting a deep work task, you increase the perceived importance of the task
 - An example of this are J.K. Rowling writing the Deathly Hallows.  She checked herself into a luxurious hotel that cost $1,000 per day.  
 - Another example is Bill Gates taking Think Weeks and retreat to a cabin (giving up his work and family obligations for that period)
 > Sometimes to go depe, you must first go big
@@ -178,10 +212,12 @@ High-Quality Work Produced = (Time Spent) x (Intensity of Focus)
 The 4 Disciplines of Execution (4DX)
 
 ##### Discipline 1: Focus on the Wildly Important
- - Wildly Important Goals (WIGs)
- > *"If you want to win the war for attention, don't try to say 'no' to the trivial distractions you find on the information smorgasbord; try to say 'yes' to the subject htat arouses a terrifying longing, and let the terrifying longing crowd out everything else."* - The Art of Focus by David Brooks
+**Wildly Important Goals (WIGs)**
+ > *"If you want to win the war for attention, don't try to say 'no' to the trivial distractions you find on the information smorgasbord; try to say 'yes' to the subject that arouses a terrifying longing, and let the terrifying longing crowd out everything else."* - The Art of Focus by David Brooks
  [Hell Yeah or No](https://www.amazon.com/Hell-Yeah-No-whats-worth/dp/1988575117) - by Derek Sivers
- 
+ Deep Work hours should focus on WIGs
+
+
 ##### Discipline 2: Act on the Lead Measures
 2 types of measures.  
 *Lag* measure - describe the thing you're ultimately trying to improve
@@ -193,18 +229,20 @@ The 4 Disciplines of Execution (4DX)
 Lead measures provide feedback quicker (like Agile vs Waterfall)
 
 ##### Discipline 3: Keep a Compelling Scoreboard
-A public place to record and track lead measures.  A scoreboard is a great example
-- It provides a reinforcing source of motivation
+A public place to record and track lead measures.  A scoreboard is a great example.
+It provides a reinforcing source of motivation
 > Once the team notices their success with a lead measure, they become invested in perpetuating this performance
+
+Keep a pen-and-paper tally of how many hours you spend on deep work
 
 
 ##### Discipline 4: Create a Cadence of Accountability
 > Put in place "a rhythm of regular and frequent meetings of any team that owns a wildly important goal"
 - team members must confront their scoreboard, commit to specific actions to help improve the score before the next meeting
+
 This works even in deep work for a single person.  
 You can decide to have a weekly review to measure good or bad weeks and identify causes for bad weeks.  This helps to ensure future good weeks.
-The rhythm and cadence of the deep work tends to outweigh the intensity of the deep work
-
+**The rhythm and cadence of the deep work tends to outweigh the intensity of the deep work**
 
 #### Be Lazy
 Allow your brain to reset and disconnect from the deep work.  
@@ -225,7 +263,7 @@ Examples:
  - playing a game with your children
  - cooking dinner
 
-The important piece here is that you are completely disconnected from the Deep Work.  Checking emails or responding to messages after shutdown prevents the recovery of concentration
+The important piece here is that you are **completely disconnected** from the Deep Work.  Checking emails or responding to messages after shutdown prevents the recovery of concentration
 
 ##### Reason 3: The Work That Evening Downtime Replaces Is Usually Not That Important
 Your brain's capacity for deep work is limited to a few hours. Therefore work performed after the shutdown, you're beyond the point where you can continue to effectively work deeply.  
@@ -255,21 +293,21 @@ Filling all moments of free time to look at our smartphones has rewired our brai
 
 ##### Don't Take Breaks from Distraction.  Instead Take Breaks from Focus.
 
-> If you eat healthy just one day a week, you're unlikely to lose weight, as the majorify of your time is still spent gorging.
+> If you eat healthy just one day a week, you're unlikely to lose weight, as the majority of your time is still spent gorging.
 
 Temporary *Internet Sabbaths* does not cure the problem of our rewired brains.  There are benefits but it doesn't cure the problem.
 
 Schedule in advance when you'll allow distractions (e.g. YouTube, Social Media, etc).  
 
-**Point #1**: *This strategy works even if your job requires lots of Internet use and/or prompt e-mail replies*
-- Schedule to your needs
+**Point #1**: This strategy works even if your job requires lots of Internet use and/or prompt e-mail replies
+*If you need to access the distraction sites, then schedule it*
 
-**Point #2**: *Regardless of how you schedule your Internet blocks, you must keep the time outside these blocks absolutely free from Internet use*
-- resist temptation if you end up with free time.  One distraction can lead to the next
+**Point #2**: Regardless of how you schedule your Internet blocks, you must keep the time outside these blocks absolutely free from Internet use
+*If you end up having free time, resist temptation to be distracted.  One distraction can lead to the next.  Don't fill your free time with distractions.*
 
-**Point #3**: *Scheduling Internet use at home as well as at work can further improve your concentration training*
-- effort put in work can be undone by afterwork distractions.  continue this practice at home
-- the goal here isn't to avoid or even reduce the total amount of time spent engaging in distracting behavior, but to resist switching to these distracting behaviors when bored
+**Point #3**: Scheduling Internet use at home as well as at work can further improve your concentration training
+*Effort put in work can be undone by afterwork distractions.  Continue this practice at home*
+*The goal here isn't to avoid or even reduce the total amount of time spent engaging in distracting behavior, but to resist switching to these distracting behaviors when bored*
 
 ##### Work like Teddy Roosevelt
 - He was known to have many interests like boxing, wrestling, body building, dance, etc.  Despite all of these interests, he still was able to entertain these AND do well in school
