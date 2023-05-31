@@ -496,3 +496,14 @@ Replies are assumed, regardless of the relevance or appropriateness of the messa
 Some people may get confused or upset about the lack of response.  This is okay.
 
 > "Develop the habit of letting small bad things happen.  If you don't, you'll never find time for the life-changing big things." - Tim Ferris
+
+
+---
+
+### Personal notes: 
+
+> **Parkinson's law** - the notion that work expands to fill the time available for its completion
+
+The book doesn't explicitly call out this rule in name, but the idea is discussed.  
+
+> **Pareto principle** - 80% of consequences come from 20% of the causes
