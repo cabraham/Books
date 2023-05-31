@@ -50,3 +50,16 @@ It's not enough to replicate it yourself, you need to seek an independent replic
 
 ##### The Duper Effect
 
+*Duper* - a person who deliberately lies or mirepresents information to produce a false positive or to get what they want
+
+Dupers exist because of they are responding and reacting to the *incentive structures*
+
+Examples
+1. Brian Wansink and the food industry
+2. Elizabeth Homes and Theranos
+
+
+The most hazardous obstacle to successful scaling is not ignorance, but the *illusion of knowledge* which can arise from
+- misleading data
+- hidden biases
+- outright deception
