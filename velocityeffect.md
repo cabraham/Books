@@ -65,3 +65,7 @@ The most hazardous obstacle to successful scaling is not ignorance, but the **il
 - misleading data
 - hidden biases
 - outright deception
+
+---
+
+You need a **challenge function** to counter the cognitive biases.
