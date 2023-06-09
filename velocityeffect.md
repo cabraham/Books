@@ -69,3 +69,53 @@ The most hazardous obstacle to successful scaling is not ignorance, but the **il
 ---
 
 You need a **challenge function** to counter the cognitive biases.
+
+
+### 2. Know Your Audience
+
+Example of Lyft experimenting with a membership program.  
+
+The main problem here is that a subscription model only works if it gave access to goods or services unavailable in other platforms.  Uber is another platform providing essentially the same service and easily accessible.
+
+Costco and Netflix do not suffer the same problems here.  For Costco, you can get certain products that you don't get elsewhere, but that doesn't prevent someone from shopping elsewhere for other things.
+
+With Netflix, people don't impulsively switch to another streaming platform.  They often stick with Netflix for their exclusive content.
+
+With Lyft, there wasn't enough differentiation to get loyalty from their customers.
+
+##### The Disneyland Dilemma
+
+Two-part tariff - a business requiring customers pay an entree fee to gain access to products that they then pay for (Costco model)
+
+Two types of customers
+1. JoGoods - better deals incentivize them to purchase *even more* goods
+2. NoGoods - buy membership because it's a good deal, but it doesn't move them to increase their purchases
+
+The big failure with the Lyft membership program is that those who signed up were already using the service extensively.  The people benefiting from the membership perks were not riding more (not an increase in revenue, but a decrease considering the discounts).
+
+The goal was not to be concerned with how many people joined; but who joined.  
+
+Lyft Pink was born after adding targeted features that they could only get with membership, like waived cancellation fees, priority airport pickups, and exclusive savings deals.
+
+##### Know Your Audience
+
+The question to ask is "How broadly will the idea work?"
+
+You have to consider many factors such as cultures, climates, geographies, socioeconomic groups, etc.  Ideas may work with one demographic but fail in others.  To truly scale, you need universal appeal.
+
+Example of Kmart's Bluelight special.  Initially this was a special program where the store managers had the power to pick the items on sale, knowing their own customer population and distinct needs.  This program was a great success until it failed when Kart decided to manage this centrally and have the *same* items on sale across the board.
+
+##### From Selection Biases to WEIRD People
+
+You need to understand not only your current customers or audience, but your future one.  In other words, the initial test audience may not be a representative snapshot of the larger group.  This is known as *representativeness of population*.
+
+Selection bias - when non-representative selection happens accidentally
+Example of the McDonald's and the ArchDeluxe
+
+WEIRD - western, educated, industrialized, rich, democratic
+
+##### Broadening Your Audience
+
+What to do if we discover that the current model will not scale past a certain point, yet you still want to expand.
+
+Example of GoPuff.  Started as a company that served college students.  They were wildly successful but wanted to break into new markets.  Adults had different spending habits and product needs.
