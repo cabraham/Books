@@ -119,3 +119,57 @@ WEIRD - western, educated, industrialized, rich, democratic
 What to do if we discover that the current model will not scale past a certain point, yet you still want to expand.
 
 Example of GoPuff.  Started as a company that served college students.  They were wildly successful but wanted to break into new markets.  Adults had different spending habits and product needs.
+
+
+### 3 - Is It the Chef or the Ingredients?
+
+Example of Jamie Oliver's restaurant
+
+The chef's special touch is a something that can't be scaled, in other words, *talent can't be scaled*.
+
+Jamie Oliver's restaurant scaled well initially, mainly because Jamie's strategy was to keep the necessary skills and ingredients simple.  It was an everyman approach.
+
+What caused the scaling to fail was not food or ingredients, but other less visible ingredients so essential to his empire.  His managing director was especially skilled at hiring the right talent, knowing when and where to expand, and keeping employee morale high.  Jamie also was unable to be present because he overstretched himself.  In other words, there were key people and they were spread too thin.  **Humans don't scale**
+
+
+##### Negotiables versus Non-negotiables
+
+a.k.a. 
+- must have vs nice to have
+- critical path vs non critical path
+- foundational vs non-foundational
+
+Identify if your business is successful because of the chef or the ingredients.  
+
+If it is the chef, then there will be scaling limitations.  It can be profitable for sure, but it cannot be large scale.  
+
+**Hedonic pricing** - a model that prices a good or service based on its characteristic, not the good itself.  
+
+In terms of non-negotiables vs negotiables, we can see this in practice everywhere.  Non-negotiables to a car are the parts that get it from A to B.  Negotiables are the nav system, leather seating, etc.
+
+
+##### Keeping the Faith
+
+To achieve high voltage, you need to maintain fidelity to your scalable, non-negotiable sources of success.
+
+"Use" is a non-negotiable in almost every enterprise at scale.  People need to engage with it.  How do they use it?
+Examples are: 
+- getting patients to take their medication in a clinical trial
+- encouraging parents to be involved in their children's education
+
+Lack of fidelity to the non-negotiables leads to *program drift* (a.k.a. mission drift).  This creates an entirely different program offered at scale which have different needs and metrics to scale effectively.  When these don't align, the enterprise often fails.
+
+Counteracting the program drift requires ddressing the economic and psychological incentives.  How do you make the benefits more immediately apparent?
+
+##### Smart Technologies, Dumb People
+
+Technology, especially digital technology, should be inherently scalable.  There is a human component however that has to be considered.  No matter the technology, if people misuse how it was originally intended, it can have disastrous effects to your scaling enterprise.
+
+Compliance (*use*) should be easy.  It will take more investment up front (time, money, legwork, research) but given Murphy's law, it will be worth it to cover your bases early.
+
+To avoid voltage drops, start by imaginging what success would look like at scale applied to the *entire* population.  To do this, you have to start by identifying your non-negotiables.
+
+Example: 
+- if the goal is to roll out a program to 50k teachers, then you can't cherry-pick the best teachers at the start of a pilot study because it wouldn't be representative. This is also called **backward induction**.
+
+
