@@ -120,6 +120,7 @@ What to do if we discover that the current model will not scale past a certain p
 
 Example of GoPuff.  Started as a company that served college students.  They were wildly successful but wanted to break into new markets.  Adults had different spending habits and product needs.
 
+---
 
 ### 3 - Is It the Chef or the Ingredients?
 
@@ -172,4 +173,43 @@ To avoid voltage drops, start by imaginging what success would look like at scal
 Example: 
 - if the goal is to roll out a program to 50k teachers, then you can't cherry-pick the best teachers at the start of a pilot study because it wouldn't be representative. This is also called **backward induction**.
 
+
+---
+
+### 4 - Spillovers
+
+Another term is **unintended consequences**
+
+Example: 
+Ralph Nader's rally against automobiles and safety.  His rally required all vehicles to be outfitted with seatbelts.  The unintended consequence is that people felt safer and ended up driving more recklessly.
+
+The phenomenon is called *risk compensation* - the theory that we make different choices depending on how secure we feel in any given situation
+
+##### Spillovers That Emerge at Scale
+
+> Just because you deesign something to have one effect doesn't mean it won't yield other effects too
+
+*General equilibrium effects* - shifts in an overall market or system that likely don't manifest on a small scale
+
+Example: 
+Uber increasing pay for a small subset of Uber drivers by increasing their base fare.  At small scale, this was a great success.  As it scaled up, it attracted more drivers (supply-side went up), which means that the # of rides a driver got went down.
+
+Unintended consequences do not always have to be bad however.
+Example: Cash investments to randomized families in rural Kenya not only stimulated the local economy, but also had a positive benefit to families who weren't even given the money (local employment opportunities).
+
+##### The Social Side of Spillovers
+
+There is incentives, but also disincentives.  
+
+*[Resentful demoralization](https://en.wikipedia.org/wiki/Resentful_demoralization)* - an issue in controlled experiments where the control group becomes resentful and becomes angry, depressed, or is not compliant with the procedures of the experiment
+
+Example: 
+Transparency of your peer's salary can disincentivize you from performing at a high level if you are earning a lower wage than others.  However, knowing the salary of the level above you can incentivize you to work harder.
+
+##### High-Voltage Social Spillovers
+
+*Network effect* - when the use of some product or adoption of a policy amplifies the benefits or costs for all users/adopters.  
+
+Example: 
+The CHECC program had a direct impact on the students and parents who participated in the program.  It ALSO had an impact on the parents who were not selected in the program because the parents wanted the same outcomes for their children.  Rather than creating resentment for not being selected, the parents were inspired to instill the same values in their own children.
 
