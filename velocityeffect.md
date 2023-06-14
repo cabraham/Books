@@ -187,7 +187,7 @@ The phenomenon is called *risk compensation* - the theory that we make different
 
 ##### Spillovers That Emerge at Scale
 
-> Just because you deesign something to have one effect doesn't mean it won't yield other effects too
+> Just because you design something to have one effect doesn't mean it won't yield other effects too
 
 *General equilibrium effects* - shifts in an overall market or system that likely don't manifest on a small scale
 
@@ -212,4 +212,59 @@ Transparency of your peer's salary can disincentivize you from performing at a h
 
 Example: 
 The CHECC program had a direct impact on the students and parents who participated in the program.  It ALSO had an impact on the parents who were not selected in the program because the parents wanted the same outcomes for their children.  Rather than creating resentment for not being selected, the parents were inspired to instill the same values in their own children.
+
+---
+### 5 - The Cost Trap
+
+Starts with the story of Arivale's personalized health company.  The operational costs mandated a high sticker price which customers simply were not willing to pay.  Despite having hit all other marks on scaling, the cost ultimately drove the company to fail.
+
+##### The Cost Side of Scaling
+
+Adam Smith's *The Wealth of Nations* outlines the idea of the "invisible hand" - the unseen forces in a free market that keeps supply and demand in a state of shifting but healthy equilibrium.  
+
+Adam Smith identified **economies of scale**
+
+Up-front investments would normally be considered a *fixed cost* that must be recuperated.
+
+The idea of economies of scale is that prices for a product or service can go down over time as the efficiencies are gained.
+
+There is an inverse to economies of scale which would be **diseconomies of scale**.  This happens when a key resource necessary for production is scarce.
+
+> The lesson here is that in order to successfully scale an enterprise, you need to figure out not only how many people like your idea but also what they are willing to pay for it and, importantly, how much it will cost to provide.
+
+Example: Wise Acre Frozen Treats - wildly successful locally but failed 
+
+
+---
+## Four Secrets to High-Voltage Scaling
+
+---
+
+### 6 - Incentives that Scale
+
+Financial incentives are not the only way to encourage a desired behavior.
+
+**Loss Aversion** - a cognitive bias the describes why, for individuals, the pain of losing is psychologically twice as powerful as the pleasure of gaining.
+
+Humans hate losses of any kind, to the point that we avoid losses more than we pursue equivalent gains.  
+
+*Loss Aversion* does not deal with only material resources, but also other types such as *social* losses.
+- loss of status
+- we don't like to be viewed negatively by others
+
+Example: 
+Uber was evaluating different strategies for encouraging tipping.  When the social stigma of *not tipping* was removed (tipping process was separated from driver dropoff and only after the driver reviewed the passenger), passengers did not feel the pressure to tip and so tipping drastically reduced.
+
+
+##### The $100 Million Nudge and the Power of Social Norms
+
+Example: Dominican Republic was unable to collect taxes effectively.  They created a campaign which either punished citizens with jail time for not paying taxes, or publicly shaming those who did not pay their taxes.  Both strategies were effective, but the public-shaming strategy was easier to scale (you didn't have to incur the cost of jailing someone).
+
+> an aversion to the loss of social standing is part of human nature - and incentivizing people to preserve their reputation by adhering to certain norms can clearly have an acute influence on behavior, often in positive ways.  
+> the more widespread someone believes the norm to be-or in other words, the more than violating that norm becomes stigmatized - the more incentivized they are to comply with it
+
+
+##### The Clawback Approach
+
+Giving incentive rewards upfront with the threat of losing the reward tends to be much more powerful than an incentive at the end.  This is building on top off the *loss aversion* principle; give someone a reward up front and they will believe they own it and work hard to NOT lose their reward.
 
