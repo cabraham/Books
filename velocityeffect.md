@@ -322,8 +322,26 @@ Actively generate alternatives.  When you have lots of alternatives, quitting wi
 
 > sometimes it's not enough to be the best at something.  You have to be the best at something **that people need and want**.
 
-
-
 ### 9 - Scaling Culture
+
+Individualistic meritocracy can only go so far.  It may be a good strategy for small-scale businesses, but it probably doesn't scale.  The reason for this is trust.  At a small startup, every contributor trusts in the other's ability to perform.  Relationships are tight-knit, though it can be argumentative.
+
+Concepts of "trust", "fairness", and "care for the well-being of others" scale well.
+
+At Uber, "extreme meritocracy" was the norm.  You had to prove your idea was worth it.  As the company scaled however and more people were brought on, the loud voices tended to win over the quieter ones.  This means that the best ideas don't always win out... simply the ones that were presented the loudest.
+
+##### Putting Trust and Teamwork First
+
+cross-functional collaboration is more and more necessary as you scale
+
+incentive structures should be for *coopetition* rather than individualistic competition
+
+*moral licensing* - the belief that when we do a good thing, it gives us permission to later do a not-so-good thing
+
+diversity - the idea that a more diverse population comes up with better ideas
+
+inclusivity - **this doesn't seem like it has a specific definition here**
+
+
 
 ### Conclusion
