@@ -268,3 +268,40 @@ Example: Dominican Republic was unable to collect taxes effectively.  They creat
 
 Giving incentive rewards upfront with the threat of losing the reward tends to be much more powerful than an incentive at the end.  This is building on top off the *loss aversion* principle; give someone a reward up front and they will believe they own it and work hard to NOT lose their reward.
 
+### 7 - Revolution on the Margins
+
+Evaluating things on average over time is not a good metric.  
+
+Sometimes the first units of money or effort has much more ROI than the last few.
+
+> Benefit-cost averages that lumped all the dollars together were obscuring more specific figures revealing that *certain policies became much less impactful the more they were scaled*
+
+##### The Marginal Revolution
+
+** Utility function ** - theory of utility that describes the amount of satisfaction or utility we receive when paying to own an object or use a service.  This determines its value
+
+** marginal utility ** - the value of the most recent unit
+
+A general rule is that there is exists a law of *diminishing marginal utility*
+
+Applying these types of concepts is difficult because it requires work and our brains are wired for quick heuristics.
+
+Government programs tend to be very inefficient because of the bureaucracies in place.  Each agency has at its first priority its self-preservation, and *then* how much it's actually using.  They are incentivized to spend and disincentivized to save.
+
+##### Experimenting on the Margins
+
+You have to pull many different levers and combinations of levers to identify where efficiencies and marginal utility is maximized.
+
+##### Let Bygones be Bygones
+
+**Bygones principle** or **marginal principle** - money spent in the past should have no influence over rational decisions made in the present
+
+Learn to curb your losses while you can.  
+
+**Sunk cost fallacy** - the phenomenon whereby a person is reluctant to abandon a strategy or course of action because they have invested heavily in it, even when it is clear that abandonment would be more beneficial.
+
+### 8 - Quitting Is for Winners
+
+### 9 - Scaling Culture
+
+### Conclusion
