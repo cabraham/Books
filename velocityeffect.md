@@ -302,6 +302,28 @@ Learn to curb your losses while you can.
 
 ### 8 - Quitting Is for Winners
 
+Identify false-positives.  Sometimes you can trick yourself into thinking that you are meant for greatness in one field or venture (especially because of success at smaller scales), but you may be holding yourself back from greater success elsewhere.
+
+"Winners never quit and quitters never win" is a common American saying.  Unfortunately it's a terrible saying because quitting is one of the things we must do when things are not working out.
+
+##### Time Is Money
+
+Knowing *when to quit* will help you avoid massive *opportunity costs*.
+
+You need to have identified options where time or money can be invested.  This way you can be better prepared to make a choice and evaluate whether or not an investment is better spent in one place or another.
+
+Actively generate alternatives.  When you have lots of alternatives, quitting will be much less painful.
+
+##### Scale What You Do Best
+
+* comparative advantage * - the ability of an individual or group to carry out a particular economic activity (such as making a specific product) more efficiently than another activity.
+
+* pivot * - to trade a comparative disadvantage for possible future advantages
+
+> sometimes it's not enough to be the best at something.  You have to be the best at something **that people need and want**.
+
+
+
 ### 9 - Scaling Culture
 
 ### Conclusion
