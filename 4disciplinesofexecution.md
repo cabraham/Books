@@ -55,6 +55,17 @@ The **whirlwind** is the day job... the day to day priorities that must be done 
 
 ### Rules to focus the organization
 
+```mermaid
+graph TD;
+    WIG[WAR]
+    WIG1[BATTLE]
+    WIG2[BATTLE]
+    WIG3[BATTLE]
+    WIG --> WIG1
+    WIG --> WIG2
+    WIG --> WIG3
+``` 
+
 **Rule #1 - No team focuses on more than two WIGs at the same time.**
 This prevents overloading any single leader, team, or individual
 
@@ -68,3 +79,4 @@ Senior leaders pick the WIGs, but they must allow front-line leaders to primaril
 
 **Rule #4 - All WIGs mut have a finish line in the form of *"from X to Y by when"***
 This framework defines every WIG into a measurable result that must be achieved by a specific date.
+
