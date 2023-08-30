@@ -278,9 +278,9 @@ Sometimes the first units of money or effort has much more ROI than the last few
 
 ##### The Marginal Revolution
 
-** Utility function ** - theory of utility that describes the amount of satisfaction or utility we receive when paying to own an object or use a service.  This determines its value
+**utility function** - theory of utility that describes the amount of satisfaction or utility we receive when paying to own an object or use a service.  This determines its value
 
-** marginal utility ** - the value of the most recent unit
+**marginal utility** - the value of the most recent unit
 
 A general rule is that there is exists a law of *diminishing marginal utility*
 
@@ -316,9 +316,9 @@ Actively generate alternatives.  When you have lots of alternatives, quitting wi
 
 ##### Scale What You Do Best
 
-* comparative advantage * - the ability of an individual or group to carry out a particular economic activity (such as making a specific product) more efficiently than another activity.
+**comparative advantage** - the ability of an individual or group to carry out a particular economic activity (such as making a specific product) more efficiently than another activity.
 
-* pivot * - to trade a comparative disadvantage for possible future advantages
+**pivot** - to trade a comparative disadvantage for possible future advantages
 
 > sometimes it's not enough to be the best at something.  You have to be the best at something **that people need and want**.
 
@@ -340,7 +340,7 @@ incentive structures should be for *coopetition* rather than individualistic com
 
 diversity - the idea that a more diverse population comes up with better ideas
 
-inclusivity - **this doesn't seem like it has a specific definition here**
+inclusivity - 
 
 
 
