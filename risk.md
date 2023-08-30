@@ -79,3 +79,44 @@ The 4 tests to determine is communciation is effective
 3. The quality of the message (accurate, complete, timely, relevant)
 4. The receipt of the information (able or unable to digest and understand the message)
 
+
+### Symptoms of Communication Challenges
+|Symptom | Description |
+|---|---|
+|**Failure to Transmit** |A failure to send information guarantees it won't e received.  But how often do we as individuals or organizations fail to share key knowledge?|
+|**Failure to Receive** |An inability or unwillingness to receive or "hear" information also negates its value|
+|**Lack of a Pathway**|More common in earlier days with less sophisticated technology, the physical inability to share information in a timely fashion often results in uncoordinated efforts|
+|**Misunderstood Message(s)**|A lack of clarity from the sender or insufficient knowledge or context in the recipient can render otherwise critical communication ineffective|
+|**Overloaded Communications**|An excessive volume of information can cause truly essential "signal" to be lost in the "noise"|
+|**Distorted or Corrupted Message(s)**|When key information is unintentionally misstated or misinterpreted, it is rendered potentially dangerous|
+|**Intentional Misinformation**|Information is intentionally corrupted to deceive or confuse, as in propoganda and in similar efforts|
+
+---
+War story: September 11th attack
+- Findings from the 9/11 Commission Report
+    - There had been many messages and signals warning important decision-makers of an impending attack
+    - The CIA selected between six and eight articles or briefings for the President's Daily Brief (PDB)
+    - Entries related to Usama Bin Laden was mentioned at least 40 times, often of impending attack, but with not enough clarity of what country
+    - Only 3% of the PDB entries were devoted to Usama Bin Laden, with just a sliver of that pertaining to the likelihood of domestic attack
+    - No one could connect the dots.  The message was incomplete and the reports were not pieced together to create a coherent story
+    > the system was blinking red on several separate dashboards, each with hundreds of other flashing lights
+
+> *"What gets us into trouble is not what we don't know. It's what we know for sure that just ain't so."* - Mark Twain
+
+#### War On Truth
+
+It is human nature to seek out a signal, especially simple and one-dimensional slogans could be used to appeal to people's emotions.  
+
+**Examples:**
+- Nazi propaganda - restoring the Fatherland to its former greatness
+- Tobacco company propaganda - to instill doubt that smoking leads to cancer
+
+
+#### Join or Die
+
+<img src="images/joinordie.png" alt="join or die" width="400"/>
+
+"Join or Die" is a famous American Revolution slogan reminding the colonies that they must fight together.  A snake cut into pieces will not survive.
+
+> The Bottom Line: Communication allows the Risk Immune System to work. Get this right or we fail.
+
