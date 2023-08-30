@@ -102,7 +102,7 @@ This framework defines every WIG into a measurable result that must be achieved 
 
 This diagram shows how teams can align their team WIGs to a Sub-WIG (Battle) at an intermediate level or the Primary WIG at the highest level:
 
-![Alt text](images/image.png)
+![Alt text](images/wigs.png)
 
 ---
 ## Discipline 2 - Act on the Lead Measures
