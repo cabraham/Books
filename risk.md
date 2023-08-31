@@ -157,3 +157,34 @@ Example:
 
 > The Bottom Line: When our narrative is misaligned to our purpose, values, or strategy, we invite risk into our organization
 
+---
+
+## Chapter 5 - Structure
+
+War Story: Korean war
+- American and allies forces were struggling to establish a coherent line of defense
+
+
+We function best as part of a whole, within a structure that operates like a machine
+
+> Our own structures often exacerbate, not alleviate, already tricky national security dangers
+
+### Symptoms of Structure Porblems
+|Symption|Description|
+|---|---|
+|**Unclear Roles and Responsibilities**|Individuals and subordinate organizations are unsure of who is supposed to be doing what. And so much gets left undone |
+|**Duplicative Efforts**|An ill-defined organization leads to multiple parties attempting to accomplish the same tasks|
+|**Gaps Where Seams Should Be Tight**|Everyone thinks someone else was supposed to bring the beer to the party|
+|**Tortured Communications**|Information travels painfully slow through the labyrinth - typically too late to address the need|
+|**The Longest Chain**|You have to get approval from your boss's boss's boss-and you're not even sure who that is|
+
+Formal reorganization efforts are difficult because they are plagued with bureaucratic hurdles.  Making changes "provisionally" and making things cross-functional however is something that can be iterated on.
+
+> Structure *informs* power
+- The structure informs who can work with whom, who exerts influence, and who is subject to power
+
+Often organizations have units that are responsible for managing risk, but these units are often prevented from influencing decision-making.
+
+> **The Bottom Line**: Structure enables or inhibits the effective functionining of any organization's Risk Immune System.  
+> Understanding structure's impact on our processes and culture, positive or negative, is critical
+
