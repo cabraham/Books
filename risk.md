@@ -120,3 +120,40 @@ It is human nature to seek out a signal, especially simple and one-dimensional s
 
 > The Bottom Line: Communication allows the Risk Immune System to work. Get this right or we fail.
 
+---
+
+## Chapter 4 - Narrative - The Mind of the Beholder
+
+War story: The Battle of the Alamo
+- although the battle was ultimately lost, the narrative created gives a sense of pride to the *Texicans*
+
+
+Example: 
+- In 1957, VP Richard Nixon attended a ceremony celebrating Ghana's independence
+- He approached a black guest and asked "How does it feel to be free"
+- The man responded, "I wouldn't know.  I'm from Alabama"
+- Although the narrative of the US is about freedom and that all men are created equal, it seemed Ghana was living up to the narrative better than the US
+
+
+### Symptoms of Narrative Misalignment
+|Symptom | Description |
+|---|---|
+|**Cynicism**|Team members conclude that the organization's narrative does not adequately or accurately describe what they are actually asked to do|
+|**The "Say-Do" Gap**|Leaders espouse one thing - and then do another. Lofty values sound good, but employees know when the bottom line and other interests trump ideals. And most resent it.|
+|**Muddled Priorities**| When we aren't clear on who we are or what we're trying to do, it's hard to prioritize actions|
+|**Tensions**|Misunderstood or conflicting narratives can undermine confidence and committment|
+|**Brand Damage**|Untrue or ineffective brand narratives can destroy the credibility of our products and businesses|
+
+Example: 
+- Google's slogan was "Don't be evil"
+- This made the employees of Google feel like their work mattered and that they were changing the world
+- Google then had project Maven (contract with the DoD), and Project DragonFly (contract with Chinese government for censorship)
+
+Example: 
+- Uncle Sam "I want you for U.S. Army"
+- The Army had a number of campaigns to encourage young men to enlist
+- The "What's your warrior" campaign is the latest one.  
+    - The author believes that the word *warrior* doesn't capture the whole picture.  Warriors fight.  Soldiers also have to consider the law, ethics, and morality.
+
+> The Bottom Line: When our narrative is misaligned to our purpose, values, or strategy, we invite risk into our organization
+
