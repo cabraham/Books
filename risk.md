@@ -13,7 +13,7 @@ We can't focus simply on the probability of something happening, but on what we 
 - **Learn** so that we are well prepared if the risk reappears
 
 The author makes comparisons to the immune system of the body.  
-> The miracle of hte immune system lies in its ability to rapidly and accurately identify friend (good cell), from foe (potentially harmful pathogen), mount an effective response to defend the body, and then remember what it learned
+> The miracle of the immune system lies in its ability to rapidly and accurately identify friend (good cell), from foe (potentially harmful pathogen), mount an effective response to defend the body, and then remember what it learned
 
 > Time and again we see that ***the greatest risk to us as individuals, and to our organizations, is us***.
 
@@ -169,7 +169,7 @@ We function best as part of a whole, within a structure that operates like a mac
 
 > Our own structures often exacerbate, not alleviate, already tricky national security dangers
 
-### Symptoms of Structure Porblems
+### Symptoms of Structure Problems
 |Symption|Description|
 |---|---|
 |**Unclear Roles and Responsibilities**|Individuals and subordinate organizations are unsure of who is supposed to be doing what. And so much gets left undone |
@@ -187,4 +187,103 @@ Often organizations have units that are responsible for managing risk, but these
 
 > **The Bottom Line**: Structure enables or inhibits the effective functionining of any organization's Risk Immune System.  
 > Understanding structure's impact on our processes and culture, positive or negative, is critical
+
+---
+
+## Chapter 6 - Technology - The Turbulent Marriage of Man and Machine
+
+War Story: Soviet Russia and nuclear arms
+- Lieutenant Colonel Petrov of the Soviet Union didn't trust the alerts by their computer systems.
+- He had a "feeling" in his gut that there was something wrong w/ the alerts
+- The signals he was receiving from various systems didn't line up
+
+
+
+---
+
+## Chapter 7 - Diversity - Blind men and Elephants
+
+The chapter starts off with the story of the brutal attack by police and deputized whites against those marching for securing voting rights for African Americans.
+
+The civil rights movement was about *equality*, not *diversity*.  
+
+According to the author, demographic diversity is insufficient on its own.
+Diversity of thought is more important.
+Diversity of capability
+
+### Symptoms of Diversity Challenges
+|Symption|Description|
+|---|---|
+|**Stale Preservation of the Status Quo**|People who have similar thoughts and abilities recommend the same actions - often sustaining the status quo|
+|**Finger-pointing**|When balls are dropped because new angles haven't been considered, organizations that lack diversity point fingers inward rather than look for fresh perspectives from the outside|
+|**Why Didn't I Think of That?**|A classic indignant question asked when a diverse perspective *outside* the team breeds a better, more creative idea|
+|**Who Could Have Known?**|A lack of diversity always increases the odds that those in charge will fail to identify possible risks because of their limited perspective|
+|**Outpaced by Innovation**|Diversity brings a freshness of ideas - organizations that lack diversity are slower to innovate|
+|**Groupthink**|When teams are pressured to accept the shared consensus, they're less likely to share new (or potentially controversial) ideas|
+
+War Story: failure in the Bay of Pigs
+- secret plan developed by the CIA, not the Pentagon, where expertise in such operations traditionally lay
+- when the Joint Chiefs of Staff (JCS) were asked to give their opinion on the plan, they didn't do a good job pointing out the pitfalls
+
+War Story: Cuban missile crisis
+- Kennedy also pulled in Executive Committee of the National Security Council (ExComm)
+- JCS wanted to address the problem with aggressive military postures
+- ExComm had a different take and suggested using blockades
+
+Theranos - although Elizabeth Holmes seemed to be the paragon of diversity.. her board members were not
+    - the board members had no medical or biotech expertise
+
+> **The Bottom Line**: Diversity isn't a nice-to-do, it's a need-to-do.  Different perspectives and skills increase our effectiveness.  Achieving diversity requires deliberate action.
+
+---
+
+## Chapter 8 - Bias - Filters that Distort
+
+> Leaders who are perceived as being successful aren't always given a crown, but often do get a hall pass
+
+### Symptoms of Common Types of Biases
+|Symption|Description|
+|---|---|
+|**Common Information Sampling Bias**|The bias to spend more energy and time on information everyone already knows rather than information that is new and could likely be helpful (communication)|
+|**Confirmation Bias**|The bias to lean on an existing belief and continually search for information to support it. (narrative)|
+|**Halo effect**|The bias to see someone favorably, regardless of actions. (leadership)|
+|**Status Quo Bias**|The bias to believe the current state of affairs is the preferable option (action)|
+|**Hindsight Bias**|The bias to believe, after an event has occurred, that they would have predicted what the outcome of the event would have been (timing)|
+|**Plan-Continuation Bias**|The bias to not alter the course of action when situations change (adaptability)|
+|**Ingroup Bias**|The bias to think those within a group are superior than those outside of it (diversity)|
+
+
+**Red-teaming**: a process that uses an outside team to search for weakness in a plan or an organization
+
+> **The Bottom Line**: Biases are the lens through which we see the world. Often rooted in our experiences and self-interests, they are largely unavoidable - but can dangerously distort our perspectives.
+
+---
+
+## Chapter 9 - Action - The Coefficient of Friction
+
+> there is no action unless inertia is overcome
+> coefficient of friction: how much action is required to either move an object that is at rest or continue moving an object already in motion 
+
+War story: the US was aware of Bin Laden even back in the 90s
+- We had the UAV capability even back in the 90s, but it wasn't actually used
+- there were probably many reasons why, but in the end, Bin Laden's momentum continued to grow uninterrupted
+
+### Symptoms of Common Types of Biases
+|Symption|Description|
+|---|---|
+|**Slow Reaction Time**|Organizations that are biased for inaction tend to be slower to react and sluggish to adapt|
+|**Missed Chances**|Teams plagued by inertia fail to take advantage of opportunities, too set in their ways to change|
+|**Contradictory Efforts**|Teams experience whiplash when actions conflict and distract from a goal|
+|**Playing Catch-up with Competitors**|Teams that don't act quickly and effectively are rapidly surpassed by more aggressive and decisive organizations|
+|**Analysis Paralysis**|We fail to act at all when we are laser-focused on identifying options and paralyzed by the number of choices available to us|
+|**Reactive Posture**|We tend to react (sometimes emotionally) when we are not properly positioned for action|
+
+War story: the "Night raids" 
+- Afghans found the night raids abhorrent
+- entering the house of someone uninvited is an extreme taboo
+- > the process we employed to improve our security directly challenged Afghan concepts of security
+
+> **The Bottom Line**: Ultimately, what we do (or don't do) determines the outcome.
+
+
 
