@@ -314,7 +314,9 @@ Examples:
 ### Three Pit Stops
 - The story of 1998 Hungarian Grand Prix, Michael Schumacher racing in the Ferrari against two McLarens (three-pit-stop strategy).
 
-> Slow is Smooth, Smooth is Fast
+> *Slow is Smooth, Smooth is Fast*
+
+> **The Bottom Line**: A correct response to a threat can be entirely ineffective if poorly timed. Acting too early can be as wrong as acting too late.
 
 --- 
 
@@ -342,4 +344,47 @@ Examples:
 - Nokia had to give up its mobile device business and was thought to have lost everything
 - They shifted their focus to the firm's "corporate orphan", Nokia Siemens Network (NSN)
 - The company had to do a major shift but ultimately was successful in its adaptation 
+
+> **The Bottom Line**: Every threat is different - so too must be our responses.  Constantly changing threats demand continuous adaptation
+
+---
+
+## Chapter 12 - Leadership - The Indispensible Factor
+
+### Symptoms of Weak Leadership
+|Symptom|Description|
+|---|---|
+|**An Unclear Mission**|The organization does not understand what it's trying to do. This is all too common|
+|**Lack of a Strategy - or Failure to Follow It**|There is a lack of alignment across the team on "how" the mission is to be accomplished. Often strategies brief well but are either unrealistic or simply ignored.|
+|**Poor Communication**|The parts of the organization that must be coordinated and synchronized don't talk to one another|
+|**Inability to Seek Information and Adapt**|Teammates fail to raise their head and look around the horizon to adapt to conditions as they are and will be|
+|**Poor Morale and Cohesion**|Team members lack a sense of belonging and commitment to the organization - and to one another|
+|**The System Doesn't Function**|The leader fails to make the overall system work - to pull together and function. This is difficult to measure directly, but it is the ultimate test|
+
+> *"If three people are responsible for feeding the dog -0 the dog is going to starve"*
+
+In other words, you need to figure out who is responsible.  If you're a leader and you can't confirm others have the responsibility - assume you do.
+
+> **The Bottom Line**: The Risk Immune System is an organic process but it does not function automatically.  Leadership is essential to orchestrate the interactions and synergy of the Risk Control Factors
+
+---
+
+## Chapters 13 and 14
+
+I didn't particularly care for these chapters so I'm not bothering with them.
+
+
+## Chapter 15 - Assessing the System
+
+Assessing a Risk Immune System consists of 3 parts
+1. Quantitative assessment
+2. Qualitative assessment
+3. Mature judgment - knowing what really matters
+
+Mature judgment
+ - if you want assess how well a car is maintained, you listened to the engine, take it for a drive, and pump the brakes
+ - if you want to assess how well an organization functions, observe the teams in action
+ - if something doesn't smell or feel right, trust your instincts and dig deeper
+
+ 
 
