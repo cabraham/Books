@@ -252,6 +252,8 @@ Theranos - although Elizabeth Holmes seemed to be the paragon of diversity.. her
 |**Plan-Continuation Bias**|The bias to not alter the course of action when situations change (adaptability)|
 |**Ingroup Bias**|The bias to think those within a group are superior than those outside of it (diversity)|
 
+> When all you have is a hammer, everything looks like a nail
+In the book, the military always preferred aggressive postures in conflicts.  There are however alternatives.
 
 **Red-teaming**: a process that uses an outside team to search for weakness in a plan or an organization
 
@@ -285,5 +287,59 @@ War story: the "Night raids"
 
 > **The Bottom Line**: Ultimately, what we do (or don't do) determines the outcome.
 
+---
 
+## Chapter 10 - Timing - Slow Buses and Fast Cars
+
+> Actions taken to mitigate risk must account for appropriate timing.
+
+Examples: 
+- Taiwan had a rapid response to COVID, while the US didn't.   The delay in US action (even by just a few weeks), caused a major impact
+- Response to Hurricane Katrina was a failure in timing on many levels.  
+    - Pre-storm decision making lagged badly and Lousiana didn't declare a state of emergency on time.  
+    - Bussing people from their homes to the SuperDome and then from there to a safer location
+    - Bus drivers had already evacuated the area leaving buses filled with gas but parked
+    - Coordination between FEMA and DOT was poor.  FEMA needed to make a decision earlier to allow DOT to perform transportation.
+    - Bus drivers got lost when trying to find the Superdome
+
+### Symptoms of Timing Challenges
+|Symption|Description|
+|---|---|
+|**Hurry Up and Wait**|Poorly timed decisions can often cause some parts of the plan to be rushed, and others to be painfully delayed|
+|**Undercooked Cake**|Taking a cake out of the oven too early means a soggy, unappetizing mess. Cutting corners and speeding up processes can compromise the end result.|
+|**Jumping the Gun**|Sprinters who take off before the starting gun are disqualified from the race. Acting too early (though often in eagerness) can prevent the successful execution of a plan.|
+|**Too Little, too Late**|We often don't know how long processes take until we're knee-deep in them.  Thinking ahead can save you time overall.|
+|**Creating More Work**|Those who make decisions too quickly will often have to make new decisions once the conditions inevitably change|
+
+### Three Pit Stops
+- The story of 1998 Hungarian Grand Prix, Michael Schumacher racing in the Ferrari against two McLarens (three-pit-stop strategy).
+
+> Slow is Smooth, Smooth is Fast
+
+--- 
+
+## Chapter 11 - Adaptability - Willing and Able
+
+### The Fosbury Flop
+- change in high-jump technique
+- hard landing grounds had changed gritty sandpits and heaps of sawdust into cushiony foam pits.  It was safer to try bold maneuvers
+- Dick Fosbury was *willing* to to push the boundaries
+
+### Symptoms of Adaptability Struggles
+|Symptom|Description|
+|---|---|
+|**Two Beats Behind**|Teams that do not adapt lag their more agile competitors - with predictable results|
+|**Frozen by Fear of Failure**|Frightened by the specter of failure (or accepting responsibility for an adaptation that didn't work), leaders and their organizations remain unchanged as failure overwhelms them|
+|**Supercharging a Losing Engine**|Teams that rely on a relentless pursuit of maximizing an approach they have long used - unwilling to adapt to changing conditions and competition - watch the ship of progress sail by.  Soon after Fosbury's win, competitors who didn't do the Fosbury Flop were weeded out of the competition|
+|**Unable to Innovate**|Organizations so set in their ways fail to look up, see what the new world demands, and innovate accordingly|
+|**"Why Didn't I Think of That?"**|Teams that don't have an adaptive mentality are often stumped as to why they hadn't thought of cutting-edge solutions to new issues and problems.|
+
+### The iPhone Killer
+- Nokia initially being the undisputed choice for mobile devices very quickly lost ground
+- Nokia's hubris and inaction caused it to rest on its laurels.  Apple and Android crept into the market
+- The new abilities of these new smartphones changed consumer preferences
+- Consumers used to buy Nokia because of their indestructibles phones, but consumers now purchased based on what the phone could do
+- Nokia had to give up its mobile device business and was thought to have lost everything
+- They shifted their focus to the firm's "corporate orphan", Nokia Siemens Network (NSN)
+- The company had to do a major shift but ultimately was successful in its adaptation 
 
