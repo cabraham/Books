@@ -198,3 +198,24 @@ Good operability means making these routine tasks easy and allowing the operatio
 - self-healing where appropriate, but also giving admins manual control over the system state when needed
 - exhibiting predictable behavior, minimizing surprises
 
+
+#### Simplicity: Managing Complexity
+
+Symptoms of complexity
+- explosion of the state space
+- tight coupling of modules
+- tangled dependencies
+- inconsistent naming and terminology
+- hacks aimed at solving performance problems
+- special-casing to work around issues elsewhere
+- etc
+
+Complex software introduces room for bugs because it is hard to reason about and understand the consequences, hidden assumptions, unexpected interactions, etc.
+
+Best tool for removing accidental complexity is **abstraction**
+
+#### Evolvability: Making Change Easy
+
+System requirements will almost always change over time.  This is due to new facts, new and unanticipated use-cases, business priority changes, market changes, platform and technology changes, legal or regulatory requirements, etc.  
+
+The *Agile* process is a good methodology for managing change.  Coupled with TDD, this becomes a great asset.  However, when dealing with distributed systems, we aren't changing one application.
