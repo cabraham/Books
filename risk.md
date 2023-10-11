@@ -381,10 +381,25 @@ Assessing a Risk Immune System consists of 3 parts
 2. Qualitative assessment
 3. Mature judgment - knowing what really matters
 
-Mature judgment
+### Quantitative assessment
+    - do we have enough resources? (e.g. head-count)
+    - are all resources counted equally? (are all resources ready to act? properly trained? pass inspection?)
+
+### Qualitative assessment
+    - this is often more ephemeral
+    - is there cohesion between the resources? 
+    - commitment to the cause? (e.g. alignment)
+    - how is the morale?
+    - how experienced is the group?
+
+### Mature judgment
  - if you want assess how well a car is maintained, you listened to the engine, take it for a drive, and pump the brakes
  - if you want to assess how well an organization functions, observe the teams in action
  - if something doesn't smell or feel right, trust your instincts and dig deeper
 
- 
+War Story: France and Britain's forces were more technically capable and more numerous in resources but the Blitzkrieg campaign by the Germans was successful because of failures in leadership and France's inability to maintain a cohesive effort.
+
+> **The Bottom Line**: Effectively strengthening the Risk Immune System first reuqires understanding where it is strong and where it is weak
+
+---
 
