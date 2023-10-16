@@ -68,8 +68,8 @@ Humans are inherently unreliable.  Most errors are caused by configuration error
 
 How to address this? 
 - Design systems in a way that minimizes opportunity for errors (simplified APIs and interfaces).  **Path of success**
-- Decouple the places where people make the most mistakes from the places where they can cause failure.   Also provide sandbox environments.
-- Test thoroughly at all levels (unit-tets, integration tests, manual tests)
+- Decouple (*separate*) the places where people make the most mistakes from the places where they can cause failure.   Also provide sandbox environments.
+- Test thoroughly at all levels (unit-tests, integration tests, manual tests)
 - Allow for quick rollback from user-errors
 - Setup detailed and clear monitoring
 - Provide good training
@@ -97,11 +97,11 @@ Load can be described with *load parameters*.  Examples of load parameters are:
 
 **Latency** and **response time** are NOT the same.  
 
-*Response time* 
+Response time
 : is what the client sees from end-to-end.
 *this includes network delays, queueing delays, response processing and other factors*
 
-*Latency*
+Latency
 : however is how long the request was *latent* (waiting to be processed).
 
 ##### Measuring response times
