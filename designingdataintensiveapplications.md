@@ -219,3 +219,111 @@ Best tool for removing accidental complexity is **abstraction**
 System requirements will almost always change over time.  This is due to new facts, new and unanticipated use-cases, business priority changes, market changes, platform and technology changes, legal or regulatory requirements, etc.  
 
 The *Agile* process is a good methodology for managing change.  Coupled with TDD, this becomes a great asset.  However, when dealing with distributed systems, we aren't changing one application.
+
+
+---
+## Chapter 2 - Data Models and Query Languages
+
+> Data models are perhaps the most important part of developing software, because they ahve such a profound effect: not only on how the software is written, but also on how we *think about the problem* that we are solving.
+
+Applications are built by layering one data model on top of another (abstractions).
+    1. Objects and data-structures
+    2. How to store the data structures - JSON, XML, relational, graph?
+    3. How to store the data in terms of bytes in memory, on disk, or on a network
+    4. Electrical currents, pulses of light, magnetic fields, etc.
+
+Each data-model carries with it assumption on how it will be used.  Some models fit specific use-cases better than others.
+
+The *Relational Model* became the defacto general purpose model and has stayed that way for a long time.  This model worked well for transaction processing, batch processing, etc.  
+
+As computers became more powerful and networked, the types of workloads became increasingly diverse.  Relational databases generalized very well and so have been applied to many modern workloads.
+
+Driving forces for NoSQL
+- A need for greater scalability than relational databases can achieve easily (e.g. very large data-sets or high write througput)
+- A preference for free and open-source software over commercial products
+- Specialized query operations that aren't well supported in the relational model
+- Frustration with restrictiveness of relational schemas
+
+
+### Object-relational mismatch
+- application objects and their representation do not match completely with the relational model.  
+- tools have been developed to reduce the amount of boilerplate code required to address the mismatch, but there is still an **impedance mismatch**
+
+[Impedance Mismatch](https://www.geeksforgeeks.org/impedance-mismatch-in-dbms/)
+: when two systems or components that are supposed to work together have different data models, structures, or interfaces that make communication difficult or inefficient
+
+Storing complex object structures in relational vs document styles has pros and cons.
+- Relational style spreads the data across various tables through normalization.  Query operations become more complex
+- Document style keeps the data together in one record.  Limited query options are available here however but much simpler to retrieve and update.
+
+Shredding
+: the relational technique of splitting a document-like structure into multiple tables
+
+
+#### Access patterns in document databases
+Accessing data in a document-model has caveats.  You can't directly access a nested item within a document.  You have to refer to it through the parent.  This may not be a problem is the document isn't deeply nested.
+
+If using a document database, you can reduce the number of joins by denormalizing the data.  However this can increase application complexity because the application now has to do extra work to keep the denormalized data consistent.
+
+If using a document database, you can emulate joins in the application code.  This however requires more queries, more complexity in the application, and is slower since the specialized code within the a database can handle join operations much faster.
+
+
+#### Schema
+Document databases do not enforce any schema on the data in the documents.  This leads people to think that they are *schemaless*, but this is misleading because the application that reads and works with the data would have a schema.  The more accurate term would be *schema-on-read*.  
+
+Schema-on-read
+: schema is implicitly enforced by the application that reads the data
+
+Schema-on-write
+: schema is explicit and enforce on write (database ensures all data written conforms to the schema).  Most commonly seen in relational style databases
+
+Schema-on-read approach may be advantageous if the items in the collection don't all have the same schema.
+1. if there are many different types of objects and it isn't practical to put each in their own tables
+2. the structure of the data is determined by external systems over which you have no control
+
+
+#### Data locality for queries
+If your application often requires access to the entire document, there is a performance advantage in document style databases due to *storage locality*.  A relational model may not work well due to the number of seeks it requires on disk to retrieve it.  This only really applies if you need large parts of the document at the same time.
+
+Keeping documents small is the recommendation here.  
+
+#### Convergence of relational and document models
+
+Many popular relational databases also have support for document style data stored in columns (XML or JSON).
+
+
+### Query Languages for Data
+
+[Imperative language](https://en.wikipedia.org/wiki/Imperative_programming)
+: uses statements that change a program's state
+
+[Declarative language](https://en.wikipedia.org/wiki/Declarative_programming)
+: express the logic of a computation without describing its control flow
+
+SQL is a declarative language because we're defining patterns as opposed to specific steps.  
+
+Declarative languages are typically better suited for parallel execution.  This is because imperative code specifies steps to be executed in a particular order whereas declarative languages only specificy the pattern of the results, not the algorithm that is used to determine the results.
+
+
+### Graph-Like Data Models
+
+Used when there are many-to-many relationships are common in the system.
+
+Vertices
+: nodes or entities
+
+Edges
+: relationships or arcs
+
+There are declarative query languages for graph databases such as: 
+- [Cypher query language](https://neo4j.com/developer/cypher/)
+- [SPARQL](https://en.wikipedia.org/wiki/SPARQL) - an [RDF](https://en.wikipedia.org/wiki/Resource_Description_Framework) query language
+- [Datalog](https://en.wikipedia.org/wiki/Datalog) - a subset of Prolog.  Has a functional feel to it where queries can be composed from other parts.
+
+In the **triple-store** model, data is stored in a simple three-part statement (*subject, predicate, object*)
+
+NoSQL comes in multiple flavors
+ - Document style databases - store a complex structure within the same database.  Relationships are self-contained within the document
+ - Graph database - opposite direction of document style.  Everything can be related to anything else.
+
+There are other data models not covered as well.  Examples are full-text search and Big Data-style large-scale analytics like used at LHC
