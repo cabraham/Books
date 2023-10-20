@@ -1,6 +1,12 @@
 # [Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems](https://www.amazon.com/Designing-Data-Intensive-Applications-Reliable-Maintainable/dp/1449373321)
 
 
+# Part 1. Foundations of Data Systems
+
+---
+
+## Chapter 1 - Reliable, Scalable, and Maintainable Systems
+
 #### Terms
 
 Data-Intensive 
@@ -327,3 +333,64 @@ NoSQL comes in multiple flavors
  - Graph database - opposite direction of document style.  Everything can be related to anything else.
 
 There are other data models not covered as well.  Examples are full-text search and Big Data-style large-scale analytics like used at LHC
+
+---
+
+## Chapter 3 - Storage and Retrieval
+
+#### Terms
+
+log
+: an append-only data file (*not to be confused with application log, which outputs text describing what is happening*)
+
+index
+: an additional structure that is derived from the primary data.  Used for speeding up reads (efficient lookup) at the cost of additional writes
+
+compaction
+: discard duplicate keys in a log.  Often performed with merging
+
+merging
+: bringing together multiple segments.  Often performed with compaction
+
+tombstone
+: a special entry in a log that signifies deletion of data
+
+### Hash Indexes
+
+Hash indexes are similar to dictionary types or hashmaps.  They often store the key and a byte offset like below.
+
+|key|byte offset|
+|---|---|
+|123|0|
+|456|64|
+
+Some database engines store these indexes in memory while the actual data resides on disk.
+
+When using a log-structure for writes, we can run out of space very quickly.  A common solution to this problem is breaking the log into segments of a certain size.  When a segment fills up, we close it and start a new one.  We then perform *merging and compaction*.
+
+When performing a merge and compaction, the newly merged segment is written as a new segment in the log and the older entries are then deleted.
+
+When merging, the a *tombstone* record signifies that all previous values for the deleted key can be discared.
+
+##### Crash recovery
+> when a database is restarted, all in-memory hash maps are lost (volatile memory).  You can restore the hashmap by reading all of the segments and keeping track of the most recent value.  This can be sped up however by maintaining *snapshots*.
+
+##### Partially written records
+> a database may crash at any time, including while writing a record to the log.  In this case, checksums are used to detect and ignore corrupted portions
+
+##### Concurrency control
+> writes are appended in a strict sequential order.  This often means that writes are done by one thread but reads may be done by many.
+
+#### Append-only design
+Pros
+- generally much faster than random writes, especially on magnetic disks
+- concurrency and crash recovery are much simpler
+- segments are immutable
+- merging old segments avoids the problem of data files getting fragmented over time
+
+Cons
+- the hash table must fit in memory.  It's must tricker to get a performant hash map on disk which requires lots of random I/O
+- range queries are not efficient
+
+
+
