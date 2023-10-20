@@ -393,4 +393,69 @@ Cons
 - range queries are not efficient
 
 
+### SSTables and LSM-Trees
+
+SSTable (sorted string table)
+: key-sorted append-only key-value storage
+
+LSM-tree
+: a layered data structure based on a balanced tree that allows SStables to exist without the controvery of both being sorted and append-only
+
+Similar to hash indexes but the key-value pairs are *sorted by key*.  
+
+Merging segments is simple and efficient and uses an approach similar to the [*merge-sort* algorithm](https://www.youtube.com/watch?v=4VqmGXwpLqc).
+
+![Alt text](images/sstable_compaction.png)
+
+With an SSTable, we don't have to store the whole hashmap in-memory.  Because the keys are sorted, we can lookup values *between* other values.  This means the in-memory index can be sparse.  Simply lookup the closest values and scan from there.
+
+##### Constructing and maintaining SSTables
+
+When a write comes in, add it to a balanced B-Tree like an AVL or Red-Black tree.  This in-memory tree is also called a *memtable*
+
+When a memtable gets past a threshold, write it to disk as an SStable. It's already sorted so this write is efficient.  If new writes are coming in during this operation, they can write to a new memtable instance.
+
+```mermaid
+flowchart LR
+request[[Write Record]]
+memtable
+log[[unsorted log]]
+threshold{threshold}
+segment999
+request-->log
+log-->memtable
+memtable-->threshold
+threshold-->segment999
+```
+
+The unsorted log is used simply for crash recovery.  Once the memtable is written to disk, the associated log is deleted.
+
+
+Read requests will start at the memtable, then work their way backwards through the most recent on-disk segments and work their way to older segments.
+
+```mermaid
+flowchart LR
+request[[Find ID 123]]
+memtable
+segment999
+segment998
+request --> memtable
+memtable --> segment999
+segment999 --> segment998
+```
+
+A background thread may combine segment files and discard overwritten or deleted values.
+
+Note: Lucene, an indexing engine for full-text search (used by ElasticSearch and Solr), uses a similar method.  The key in this case is the search term, and the value would be the IDs of the documents that contains these terms.
+
+##### Performance implications
+
+Read requests in an LSM can be slow if the key does not exist in the database, especially if there are many/large segments.  
+
+One solution to this is to use [bloom filters](https://en.wikipedia.org/wiki/Bloom_filter) which excel at telling you if the key exists in the db.  
+
+Another solution is to tune how the SSTables are compacted and merged.  
+
+Because LSM trees are written sequentially, they support high write throughput.
+
 
