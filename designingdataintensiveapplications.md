@@ -459,3 +459,17 @@ Another solution is to tune how the SSTables are compacted and merged.
 Because LSM trees are written sequentially, they support high write throughput.
 
 
+### B-Trees
+
+B-trees are the most widely used indexing structure.
+
+Log-structured indexes break the database down into variable-size segments.
+
+B-trees break the database down into fixed-size blocks or pages.
+- this aligns closer to the underlying hardware as disks are also arranged in fixed-size blocks
+
+<img src="images/btree_lookup.png" alt="drawing" width="600"/>
+
+- Search starts at the *root* of the B-tree.  
+- Each child is responsible for a continuous range of keys.  The keys between the references indicate where the boundaries between those ranges lie.
+- The page containing the individual keys (*leaf page*), are where the values (or at least references to the pages) are found
