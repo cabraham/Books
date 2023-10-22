@@ -515,6 +515,11 @@ LSM-trees are typically faster for writes whereas B-trees are typically faster f
 
 #### Advantages of LSM trees
 
+Write-amplication
+: the effect of one write to the database resulting in multiple writes tot he disk over the course of the database's lifetime
+
+In write-heavy applications, the more writes to disk, the fewer writes per second it can handle within the available disk bandwidth
+
 - LSM generally have fewer write operations overall compared to B-tree.  
   - This is because B-tree has to write to the WAL first, then update the page, and maybe even create new pages
 
@@ -533,3 +538,60 @@ LSM-trees are typically faster for writes whereas B-trees are typically faster f
 
 - A log-structured storage engine may have multiple copies of the same key in different segments.  This affects transactional semantics.
 
+
+### Other Indexing Structures
+
+Clustered Index
+: when an indexed row is stored directly within an index.  These are stored in a specific order
+
+[Secondary index](https://www.geeksforgeeks.org/secondary-indexing-in-databases/#)
+: Secondary indexing is a database management technique used to create additional indexes on data stored in a database. The main purpose of secondary indexing is to improve the performance of queries and to simplify the search for specific records within a database. A secondary index provides an alternate means of accessing data in a database, in addition to the primary index.
+
+Heap-file
+: location where row content is stored if apart from the document or vertex.  Data is not stored in any particular order
+
+#### Storing values within the index
+
+The main difference between a primary index and secondary is that a secondary does not have to be unique.
+
+Updating data in a *heap-file* can be more complicated if the new data is bigger than the old.  New space will have to be allocated and after the update, the references will have to point to the new location.  
+
+A compromise between clustered (storing all row data within the index) and non-clustered indexes (storing only references to the data) is a *covering index* or *index with included columns*.
+
+#### Multi-column indexes
+
+concatenated index
+: combines several fields into one key by appending one column to another (in a specific order)
+
+> multi-dimensional indexes are a more general way of querying several columns at once
+
+They are particularly useful for geospatial data.  
+
+``` sql
+SELECT * FROM restaurants WHERE latitude > 51.238 AND latitude < 51.439
+  AND longitude > 12.381 AND longitude < 12.670
+``` 
+*this query would perform poorly on a B-tree or LSM structure.  They can query on a range of latitudes OR longitudes, but not both simultaneously.
+
+Options for geospatial data are 
+- combine the latitude and longitude values to a single value using a space-filling curve and using that value in a B-tree index
+- use [R-tree](https://en.wikipedia.org/wiki/R-tree)
+
+#### Full-text search and fuzzy indexes
+
+Indexes of this sort have to consider *similar* keys.  Some examples would be: 
+- misspelling
+- synonyms
+- root or derived words (e.g. calculation -> calculate)
+
+#### Keeping everything in memory
+
+As RAM has become cheaper over time and many datasets are not that big, some solutions have been to put all the data in memory.
+
+There are products that are simply key-value (Memcachedd) and others that implement a relational model (VoltDB and MemSQL).
+
+In-memory is volatile but there are solutions for this as well such as battery-powered RAM.
+
+Other solutions include use an *anti-caching* approach, which is to use LRU data on disk, similar to how OS manage virtual memory.
+
+The performance of in-memory actually comes from not having to encode in-memory data structures to disk.
