@@ -461,11 +461,15 @@ Because LSM trees are written sequentially, they support high write throughput.
 
 ### B-Trees
 
+leaf-page
+: final page where the individual keys and values (or reference to the values) are stored
+
+branching factor
+: the number of references to child pages in one page
+
 B-trees are the most widely used indexing structure.
 
-Log-structured indexes break the database down into variable-size segments.
-
-B-trees break the database down into fixed-size blocks or pages.
+B-trees break the database down into fixed-size blocks or pages as opposed to log-structured indexes which are variable-size segments.
 - this aligns closer to the underlying hardware as disks are also arranged in fixed-size blocks
 
 <img src="images/btree_lookup.png" alt="drawing" width="600"/>
@@ -473,3 +477,121 @@ B-trees break the database down into fixed-size blocks or pages.
 - Search starts at the *root* of the B-tree.  
 - Each child is responsible for a continuous range of keys.  The keys between the references indicate where the boundaries between those ranges lie.
 - The page containing the individual keys (*leaf page*), are where the values (or at least references to the pages) are found
+
+Updating a value for an existing key consists of
+1. searching for the leaf page containing the key
+2. changing the value in that page
+3. writing the page back to disk
+
+Adding a new key consists of
+1. Find the page whose range encompasses the new key and add it to that page
+2. If there isn't enough free space in the page to accommodate the new key, split it into two half-full pages
+   1. then update the parent page with the new subdivision of ranges
+
+<img src="images/growing_btree.png" alt="drawing" width="600"/>
+
+This algorithm ensures a balanced tree with a depth of O(log *n*)
+
+#### Making B-trees reliable
+
+B-tree write operations happen directly on the pages themselves.  Some operations (as mentioned above), require updates to multiple pages.  These can potentially be dangerous operations if the database crashes during the operation.  
+
+To make this more reliable, an additional data structure is used called a Write-Ahead-Log (WAL).  The operations are first written to the WAL so that in-case there is a failure, the log is used to bring the database back up to a consistent state.
+
+Concurrent read operations however require careful concurrency control.  Multiple threads accessing the B-tree means there may be an inconsistent read.  *Latches* are typically used to protect this from happening.
+
+#### B-tree optimizations
+
+Instead of WAL for crash recovery, some databases use a *copy-on-write* scheme.  This means a modified page is first copied to a new location, and the parent is updated pointing at the new location.
+
+Having a higher *branching factor* means that there are fewer levels.
+
+B-tree implementations try to layout the tree so that leaf pages appear in sequential order on disk.  LSM-trees do this by design.
+
+
+### Comparing B-Trees and LSM-Trees
+
+LSM-trees are typically faster for writes whereas B-trees are typically faster for reads.  These are general statements and actually depend on the workload.
+
+#### Advantages of LSM trees
+
+Write-amplication
+: the effect of one write to the database resulting in multiple writes tot he disk over the course of the database's lifetime
+
+In write-heavy applications, the more writes to disk, the fewer writes per second it can handle within the available disk bandwidth
+
+- LSM generally have fewer write operations overall compared to B-tree.  
+  - This is because B-tree has to write to the WAL first, then update the page, and maybe even create new pages
+
+- LSM writes out data sequentially and compactly whereas B-tree can get fragmented on disk over time.
+
+- LSM has lower write amplication, especially on SSDs because the SSD firmware uses a log-structured algorithm to turn random writes into sequential writes.
+
+#### Downsides of LSM trees
+- The compaction process can sometimes interfere with ongoing reads and writes
+  - at higher percentiles, response times can be quite high due to the impact of compaction
+
+- As the database grows in size, more disk bandwidth is required for compaction
+
+- If write throughput is high and compaction is not configured properly, compaction may not keep up with the rate of writes
+  - this means you'll run out of disk space and also have many unmerged segments
+
+- A log-structured storage engine may have multiple copies of the same key in different segments.  This affects transactional semantics.
+
+
+### Other Indexing Structures
+
+Clustered Index
+: when an indexed row is stored directly within an index.  These are stored in a specific order
+
+[Secondary index](https://www.geeksforgeeks.org/secondary-indexing-in-databases/#)
+: Secondary indexing is a database management technique used to create additional indexes on data stored in a database. The main purpose of secondary indexing is to improve the performance of queries and to simplify the search for specific records within a database. A secondary index provides an alternate means of accessing data in a database, in addition to the primary index.
+
+Heap-file
+: location where row content is stored if apart from the document or vertex.  Data is not stored in any particular order
+
+#### Storing values within the index
+
+The main difference between a primary index and secondary is that a secondary does not have to be unique.
+
+Updating data in a *heap-file* can be more complicated if the new data is bigger than the old.  New space will have to be allocated and after the update, the references will have to point to the new location.  
+
+A compromise between clustered (storing all row data within the index) and non-clustered indexes (storing only references to the data) is a *covering index* or *index with included columns*.
+
+#### Multi-column indexes
+
+concatenated index
+: combines several fields into one key by appending one column to another (in a specific order)
+
+> multi-dimensional indexes are a more general way of querying several columns at once
+
+They are particularly useful for geospatial data.  
+
+``` sql
+SELECT * FROM restaurants WHERE latitude > 51.238 AND latitude < 51.439
+  AND longitude > 12.381 AND longitude < 12.670
+``` 
+*this query would perform poorly on a B-tree or LSM structure.  They can query on a range of latitudes OR longitudes, but not both simultaneously.
+
+Options for geospatial data are 
+- combine the latitude and longitude values to a single value using a space-filling curve and using that value in a B-tree index
+- use [R-tree](https://en.wikipedia.org/wiki/R-tree)
+
+#### Full-text search and fuzzy indexes
+
+Indexes of this sort have to consider *similar* keys.  Some examples would be: 
+- misspelling
+- synonyms
+- root or derived words (e.g. calculation -> calculate)
+
+#### Keeping everything in memory
+
+As RAM has become cheaper over time and many datasets are not that big, some solutions have been to put all the data in memory.
+
+There are products that are simply key-value (Memcachedd) and others that implement a relational model (VoltDB and MemSQL).
+
+In-memory is volatile but there are solutions for this as well such as battery-powered RAM.
+
+Other solutions include use an *anti-caching* approach, which is to use LRU data on disk, similar to how OS manage virtual memory.
+
+The performance of in-memory actually comes from not having to encode in-memory data structures to disk.
