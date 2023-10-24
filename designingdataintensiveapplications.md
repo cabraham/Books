@@ -595,3 +595,36 @@ In-memory is volatile but there are solutions for this as well such as battery-p
 Other solutions include use an *anti-caching* approach, which is to use LRU data on disk, similar to how OS manage virtual memory.
 
 The performance of in-memory actually comes from not having to encode in-memory data structures to disk.
+
+### Transaction Processing or Analytics
+
+OLTP (*online transaction processing*)
+: type of processing that consists of executing a number of transactions occurring concurrently.  typically small number of records per transaction and used for interactive patterns
+
+OLAP (*online analytic processing*)
+: type of processing that is used for analytical purposes.  typically querying large amounts of data to perform analytics to inform business decisions
+
+*Characteristics of OLTP vs OLAP*
+|Property|OLTP|OLAP|
+|---|---|---|
+|Main read pattern|Small number of records per query, fetched by key|Aggregate over large number of records|
+|Main write pattern|Random-access, low-latency writes from user input|Bulk import (ETL) or event stream|
+|Primarily used by|End user/customer, via web application|Internal analyst, for decision support|
+|What data represents|Latest state of data (current point in time)|History of events that happened over time|
+|Dataset size|Gigabytes to terabytes|Terabytes to petabytes|
+
+#### Data Warehousing
+
+Data-warehouse
+: a separate database that analysts can query
+
+
+These databases are full of historic data from various OLTP systems and loaded via ETL (*Extract-Transform-Load*) processes.
+
+Analytics queries can be quite performance heavy due to the number of records and adhoc nature of the queries.  If these queries were executed against OLTP systems, they could potentially fail.
+
+This is even more true with distributed systems such as microservices where each service has its own database.
+
+ ![Alt text](images/etl_datawarehouse.png)
+
+ 
