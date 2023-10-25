@@ -1,3 +1,6 @@
+<style>
+  img {width: 600px;}
+</style>
 # [Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems](https://www.amazon.com/Designing-Data-Intensive-Applications-Reliable-Maintainable/dp/1449373321)
 
 
@@ -625,6 +628,70 @@ Analytics queries can be quite performance heavy due to the number of records an
 
 This is even more true with distributed systems such as microservices where each service has its own database.
 
- ![Alt text](images/etl_datawarehouse.png)
-
+ <img src="images/etl_datawarehouse.png" alt="drawing" width="600"/>
  
+ The internals of OLAP systems are optimized for analytical query patterns.  Some databases like SQL server may support both transactional and analytical models, they are increasingly diverging paths.  Most database vendors focus on supporting either transaction processing OR analytical workloads.
+
+ ### Stars and Snowflakes: Schemas for Analytics
+
+ star schema
+ : denormalized business data into facts and dimensions.  the fact table is at the center
+
+ ![Alt text](images/starschema.png)
+
+Facts are captured as individual events.  These allows maximum flexibility when doing analysis.
+
+Typically in a data warehouse, tables are often very wide.  Fact tables can have over 100 columns, sometimes several hundred.  
+
+### Column-Oriented Storage
+
+In most OLTP databases, storage is laid out in a *row-oriented* fashion.  This means that all data on disk is stored next to each other.
+This is also true for document databases as an entire document is stored as one contiguous sequence of bytes.
+
+This can be problematic when querying data where you're only interested in parts of the data.  If you're interested in 3 or 4 columns but are querying against a table that has 100+ columns, the row-oriented store will have to load all columns from disk into memory, parse them, and filter out those that don't apply to the query.  This can take a long time and is resource intensive.
+
+In column-oriented storage, the data for each column is stored together.  
+
+<img src="images/columnvsrow.png" alt="drawing" width="600"/>
+
+#### Column Compression
+
+Column-oriented storage lends itself very well to compression.  
+[Compression Techniques for Column Oriented Databases](https://chistadata.com/compression-techniques-for-column-oriented-databases/)
+
+You can use bitmap-indexed storage or dictionary based encoding.
+![Alt text](images/dictionarycompression.png)
+
+Another alternative is run-length encoding (applicable to sorted data)
+![Alt text](images/runlengthcompression.png)
+
+
+Sort-order for column-oriented storage must be the same across all tables, otherwise there would be no way to correlate the data between tables.
+
+Column-oriented storage has many optimizations available to make reads very performant.  
+Writes on the other hand are more difficult.
+- you can't update-in-place like B-trees with compressed columns
+- you can't insert into the middle of a sorted table (if would affect ALL other tables)
+
+LSM-trees however are suitable for this type of store.
+
+
+### Aggregation: Data Cubes and Materialized Views
+
+If aggregate functions such as COUNT, SUM, AVG, MIN, or MAX are used often, it may make sense to cache this data to avoid wasteful crunching of these values.
+
+materialized view
+: copy of the query results written to disk
+
+Materialized views are not often used in OLTP systems because they need to be updated per transaction.
+
+data cube (a.k.a. OLAP cube)
+: a data structure that can store data in more than 2 dimensions
+
+Data-cubes are essentially a grid of aggregates grouped by different dimensions.
+
+![Alt text](images/olapcube.png)
+
+Advantages of datacubes are that they are pre-computed to make reads very quick and efficient.  
+Disadvantages is that there is no way to break the data down further than the aggregates without referring to the raw-data.
+
