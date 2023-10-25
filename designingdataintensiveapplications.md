@@ -408,7 +408,7 @@ Similar to hash indexes but the key-value pairs are *sorted by key*.
 
 Merging segments is simple and efficient and uses an approach similar to the [*merge-sort* algorithm](https://www.youtube.com/watch?v=4VqmGXwpLqc).
 
-![Alt text](images/sstable_compaction.png)
+![SSTable compaction](images/sstable_compaction.png)
 
 With an SSTable, we don't have to store the whole hashmap in-memory.  Because the keys are sorted, we can lookup values *between* other values.  This means the in-memory index can be sparse.  Simply lookup the closest values and scan from there.
 
@@ -475,7 +475,7 @@ B-trees are the most widely used indexing structure.
 B-trees break the database down into fixed-size blocks or pages as opposed to log-structured indexes which are variable-size segments.
 - this aligns closer to the underlying hardware as disks are also arranged in fixed-size blocks
 
-<img src="images/btree_lookup.png" alt="drawing" width="600"/>
+![B-tree Lookup](images/btree_lookup.png)
 
 - Search starts at the *root* of the B-tree.  
 - Each child is responsible for a continuous range of keys.  The keys between the references indicate where the boundaries between those ranges lie.
@@ -491,7 +491,7 @@ Adding a new key consists of
 2. If there isn't enough free space in the page to accommodate the new key, split it into two half-full pages
    1. then update the parent page with the new subdivision of ranges
 
-<img src="images/growing_btree.png" alt="drawing" width="600"/>
+![Growing B-tree](images/growing_btree.png)
 
 This algorithm ensures a balanced tree with a depth of O(log *n*)
 
@@ -621,23 +621,22 @@ OLAP (*online analytic processing*)
 Data-warehouse
 : a separate database that analysts can query
 
-
 These databases are full of historic data from various OLTP systems and loaded via ETL (*Extract-Transform-Load*) processes.
 
 Analytics queries can be quite performance heavy due to the number of records and adhoc nature of the queries.  If these queries were executed against OLTP systems, they could potentially fail.
 
+![ETL datawarehouse](images/etl_datawarehouse.png)
+
 This is even more true with distributed systems such as microservices where each service has its own database.
 
- <img src="images/etl_datawarehouse.png" alt="drawing" width="600"/>
- 
- The internals of OLAP systems are optimized for analytical query patterns.  Some databases like SQL server may support both transactional and analytical models, they are increasingly diverging paths.  Most database vendors focus on supporting either transaction processing OR analytical workloads.
+The internals of OLAP systems are optimized for analytical query patterns.  Some databases like SQL server may support both transactional and analytical models, they are increasingly diverging paths.  Most database vendors focus on supporting either transaction processing OR analytical workloads.
 
- ### Stars and Snowflakes: Schemas for Analytics
+### Stars and Snowflakes: Schemas for Analytics
 
- star schema
- : denormalized business data into facts and dimensions.  the fact table is at the center
+star schema
+: denormalized business data into facts and dimensions.  the fact table is at the center
 
- ![Alt text](images/starschema.png)
+![star schema](images/starschema.png)
 
 Facts are captured as individual events.  These allows maximum flexibility when doing analysis.
 
@@ -652,7 +651,7 @@ This can be problematic when querying data where you're only interested in parts
 
 In column-oriented storage, the data for each column is stored together.  
 
-<img src="images/columnvsrow.png" alt="drawing" width="600"/>
+![column vs row-oriented storage](images/columnvsrow.png)
 
 #### Column Compression
 
@@ -660,10 +659,10 @@ Column-oriented storage lends itself very well to compression.
 [Compression Techniques for Column Oriented Databases](https://chistadata.com/compression-techniques-for-column-oriented-databases/)
 
 You can use bitmap-indexed storage or dictionary based encoding.
-![Alt text](images/dictionarycompression.png)
+![column store dictionary compression](images/dictionarycompression.png)
 
 Another alternative is run-length encoding (applicable to sorted data)
-![Alt text](images/runlengthcompression.png)
+![column store runlength compression](images/runlengthcompression.png)
 
 
 Sort-order for column-oriented storage must be the same across all tables, otherwise there would be no way to correlate the data between tables.
@@ -690,7 +689,7 @@ data cube (a.k.a. OLAP cube)
 
 Data-cubes are essentially a grid of aggregates grouped by different dimensions.
 
-![Alt text](images/olapcube.png)
+![Example of OLAP cube](images/olapcube.png)
 
 Advantages of datacubes are that they are pre-computed to make reads very quick and efficient.  
 Disadvantages is that there is no way to break the data down further than the aggregates without referring to the raw-data.
