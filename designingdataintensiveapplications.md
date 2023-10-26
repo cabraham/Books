@@ -694,3 +694,65 @@ Data-cubes are essentially a grid of aggregates grouped by different dimensions.
 Advantages of datacubes are that they are pre-computed to make reads very quick and efficient.  
 Disadvantages is that there is no way to break the data down further than the aggregates without referring to the raw-data.
 
+---
+
+## Chapter 4 - Encoding and Evolution
+
+An evolving system by its definition changes over time.  In large applications, change typically does not happen all at once because it would cause downtime.
+
+- Server-side applications typically go through a *rolling upgrade* where a few nodes have the newly updated code (and schema).  This is so that the application can be tested and verified and then deployed to more nodes until all the nodes have been updated.  This allows new versions to be deployed without downtime.
+
+- Client-side applications however, it is up to the user to install the update and therefore, may not update the install for some time.
+
+The above scenarios means that new and old version of the code will run simultaneously and must continue to run smoothly.
+
+Backward compatibility
+: newer code can read data that was written by older code
+
+Forward compatibility
+: older code can read data that was written by newer code
+
+### Formats for Encoding Data
+
+Data is represented in one of two ways:
+
+1. In-memory - these are data-structures like lists, arrays, objects, trees, etc.  To be used by the CPU
+2. Serialized - data stored on disk or sent over the network must be encoded as a sequence of bytes
+
+There needs to be translation between the 2 general forms
+
+encoding
+: translating an in-memory representation to a byte sequence (a.k.a. *serialization* or *marshalling*)
+
+decoding
+: translating a byte sequence into an in-memory representation (a.k.a. *deserialization*, *parsing*, or *unmarshalling*)
+
+### Consideration to language-specific formats
+It's generally a bad idea to use a specific language's built-in encoding because you are implicitly locking yourself into a specific language.
+
+In order to restore data to the same object types, the decoding process needs to be able to instantiate arbitrary classes.  An attacker can use this vector to instantiate arbitrary classes and execute malware
+
+The language provided methods may not be efficient.  
+
+### JSON, XML, and Binary Variants
+
+These are more standard formats that can be used by many programming languages and applications.  
+
+There are downsides however
+- there is ambiguity around encoding of numbers.  
+  - how to tell the difference between a number and a string composed of numeric digits?
+    - often you will need some sort of external schema
+    - JSON can distinguish between numbers and strings, but not between integer and floating point
+    - there are numeric range limitations with JSON
+- many tools that use JSON don't respect the schema (not as much a problem for XML however)
+- CSV does not have any schema so the complexity lies inthe application
+  - what about escaping characters?  not all parsers do this well
+- JSON and XML increase the payload size (especially XML with its verbosity)
+
+
+
+#### Binary Encoding
+
+Binary encoding is much more compact than JSON and XML.  
+
+![Message Pack encoding](images/messagepackencoding.png)
