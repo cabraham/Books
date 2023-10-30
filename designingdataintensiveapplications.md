@@ -750,7 +750,6 @@ There are downsides however
 - JSON and XML increase the payload size (especially XML with its verbosity)
 
 
-
 #### Binary Encoding
 
 Binary encoding is much more compact than JSON and XML.  
@@ -835,6 +834,34 @@ Despite the problems above, RPC isn't going away and has made some positive prog
 If supporting RPC across organizational boundaries, the provider of the service often has no control over its clients and can't force clients to upgrade.  This forces the service provider to consider backwards compatibility.
 
 
+#### Message-Passing Dataflow
 
+- using a message-broker has several advantages
+  - it can act as a buffer if the recipient is unavailable or overloaded and thus improve reliability
+  - it can autoamatically redeliver messages to a process that has crashed, preventing message loss
+  - avoids the sender needing to know the IP address and port of the receipient
+  - allows messages to be sent to several recipients
+  - logically decouples sender and receiver (sender doesn't care who consumes the message)
 
+The main difference with message driven systems is that the communication is typically one-way.  
+- the sender doesn't wait for a response
+- If a response is required, it is sent on a different channel. 
 
+##### Actor frameworks
+- designed for concurrency in a single process
+- message delivery is not guaranteed
+  - what does guaranteed mean?
+  - message was sent out on the network?
+  - message is received by the other host?
+  - message is put into the target actor's mailbox?
+  - message is starting to be processed by target actor?
+  - message is processed successfully by the target actor?
+
+A distributed actor framework essentially integrations a message broker and the actor programming model into a single framework.
+You will still need to consider forward and backwards compatibility as message versions may have evolved.
+
+3 popular actor frameworks
+1. Akka
+  - [Akka.NET](https://getakka.net/index.html) uses protobuf
+2. Orleans
+3. Erlang OTP
