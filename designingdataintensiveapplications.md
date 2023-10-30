@@ -756,3 +756,85 @@ There are downsides however
 Binary encoding is much more compact than JSON and XML.  
 
 ![Message Pack encoding](images/messagepackencoding.png)
+
+[Apache Thrift](https://thrift.apache.org/), [Protocol Buffers (protobuf)](https://protobuf.dev/), and [Apache Avro](https://avro.apache.org/) are all schema-based binary encoding libraries.  Each have their own implementation but in general solve for the same problem of encoding and decoding an evolving data contract.
+
+Similarities
+- rather than having the schema field names in the message itself (like JSON), the schema is used at encoding/decoding.  This means the sender and receiver have the schema information and the document can point to references in the schema
+- the binary data sent over is comprised of lengths, types, and field tags (though Avro does not use field-tags)
+
+![Example of protobuf encoding](images/protobufencoding.png)
+
+Differences
+- Avro has the concept of reader and writer schemas
+- Avro supports dynamically generated schemas because it doesn't contain field-tags like Protobuf and Thrift
+
+
+#### Benefits of Schemas
+- they are more compact since they can omit field names from the encoded data
+- the schema can serve as a valuable form of documentation (source code)
+- keeping a database of schemas allow you to check forward and backwards compatibility of schema changes
+- allows for compile time checking in statically typed programming languages
+
+
+### Modes of Dataflow
+
+When sending data to another process which doesn't share the same memory space, the data must be encoded to be sent.  This can happen either over a network or to a file.
+
+The most common ways of data flow are: 
+1. Via databases
+2. Via service calls
+3. Via asynchronous message passing
+
+#### Dataflow Through Databases
+
+A process that writes to the database encodes the data.  The process that reads the data decodes it.  
+
+Even in a single process scenario, where both writing and reading is done by the same application, the reader should still be considered as a later version of the same process.
+Another way to think of it is *sending a message to your future self*.
+
+**Data outlives code** and therefore we should be aware of how the data will be handled in its lifetime.
+
+
+#### Dataflow Through Services: REST and RPC
+
+The most common configuration for network communication is having two roles: *clients* and *servers*
+The API implementation is application specific though the protocols and technologies (HTTP, JSON, XML) are ubiquitous.  
+The client and the server must agree on the specifics for communication to happen
+
+Two common protocols are SOAP and REST.
+- SOAP is an xml-based protocol for making network API requests, most commonly used over HTTP
+  - SOAP uses a Web Services Description Language (WSDL) to describe the API
+  - Code generation tools allow for creation of clients using local classes and simulates method calls (RPC)
+- REST is not really a protocol but a design philosophy.  
+  - emphasizes simple data formats using URLs to identify resources
+  - uses HTTP features for cache control, authentication, content-type negotation, etc
+  - tools like OpenAPI ([Swagger](https://swagger.io/specification/)) help to describe RESTful APIs
+
+##### Remote-Procedure Calls (RPCs)
+
+The concept of RPC is to make calls to a service seem as if it were local.  
+- this makes it very convenient to develop against as it abstracts away the details of making the service call
+- this abstraction is called *location transparency*
+
+**RPCs have many problems however**
+1. a local function call is predictable because it is all in the same process and accesses the same memory space.  RPC however has a network hop to make, which can fail for any number of reasons. 
+2. a local function will return a result, throw an exception, or get stuck in a loop.  RPC however may succeed but fail on the response back.  
+3. retrying a failed network request may actually be succeeding on the receiver, but the response back could be failing.  In this case, you would be duplicating requests.  You would have to consider deduplication of these requests.  Local functions do not have this issue
+4. local functions are much more predictable in the amount of time it takes to execute.  RPC is not.  In the case of a slow network or network congestion, it can take many seconds or even timeout
+5. local functions are efficient because you can pass references to points in memory. RPC has to be encoded into a sequence of bytes and read on the other end.  The larger the payload, the longer this may take
+6. local functions will always work with the same datatypes.  RPC however has to worry about translating data-types.  
+    - an example of this is JavaScripts inability to handle numbers greater than 2<sup>53</sup>
+
+Despite the problems above, RPC isn't going away and has made some positive progress
+- newer generations of RPC frameworks are more explicit that it is a remote request
+  - the concept of [*futures* (promises)](https://en.wikipedia.org/wiki/Futures_and_promises) makes this explicit
+- gRPC supports streams where a call consists of not just one request and response, but many over time
+- some of the frameworks support *service discovery*, which allows a client to find out which IP address and port a service is running
+
+If supporting RPC across organizational boundaries, the provider of the service often has no control over its clients and can't force clients to upgrade.  This forces the service provider to consider backwards compatibility.
+
+
+
+
+
