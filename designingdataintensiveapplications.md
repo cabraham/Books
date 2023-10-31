@@ -861,7 +861,47 @@ A distributed actor framework essentially integrations a message broker and the 
 You will still need to consider forward and backwards compatibility as message versions may have evolved.
 
 3 popular actor frameworks
-1. Akka
-  - [Akka.NET](https://getakka.net/index.html) uses protobuf
-2. Orleans
+1. Akka - uses the JVM serializer by default which does not provide forward or backward compatibility.  Can be configured to use another serializer however.
+  - [Akka.NET](https://getakka.net/index.html) uses protobuf by default
+2. Orleans - uses a custom data encoding format which does not provide forward or backward compatibility which prevents rolling upgrades.  
+  - typically you have to setup a new cluster, configure traffic to it, and take down the old one
+  - can be configured to use a different serializer
 3. Erlang OTP
+
+---
+
+# Part 2 - Distributed Data
+
+Part 1 discussed aspects of data systems that apply when data is stored on a single machine.  Part 2 will focus on when the data is distributed among multiple machines.
+
+Reasons to distribute data across multiple machines
+Scalability
+: to be able to read/write data beyond what a single machine can handle
+
+Fault tolerance/high availability
+: to continue working even when a machine goes down via redundancy
+
+Latency
+: to be geographically closer to users to reduce time in network hops
+
+###Two styles of scaling
+
+####Scaling-up (vertical scaling)
+- making the machine more powerful
+- simpler to reason about
+- much more expensive to scale
+
+####Scaling-out (horizontal scaling)
+- adding more nodes 
+- (a.k.a. shared-nothing architecture)
+- harder to reason about as its more complex
+
+
+Replication
+: keeping a copy of the same data on separate nodes to provide redundancy in case of failure
+
+Partioning
+: splitting up the data into smaller subsets called partitions (a.k.a. *sharding*)
+
+Replication and partitioning is often used together to both achieve scaling, fault tolerance, and latency needs
+
