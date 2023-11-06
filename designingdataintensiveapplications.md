@@ -905,3 +905,81 @@ Partioning
 
 Replication and partitioning is often used together to both achieve scaling, fault tolerance, and latency needs
 
+---
+## Chapter 5 - Replication
+
+Common reasons to replicate data
+1. keep data geographically close to the client (to reduce latency)
+2. allow the system to continue functioning even when some of its parts fail (increase availability)
+3. to scale the number of machines that can serve read requests (increase read throughput)
+
+Three popular algorithms for replicating changes between nodes
+1. single-leader
+2. multi-leader
+3. leaderless
+
+![leader-based replication](images/leader-based%20replication.png)
+
+### Leaders and followers
+
+The goal is to ensure all replicas get a copy of the changeset.  The most common method of doing this is by designating one of the replicas as the *leader*.  
+- the leader's responsibility is to serve write requests.  Once the leader has processed the write request, the follower nodes receive a copy of the change and processes it
+- the *follower*'s responsibility is to read from replication log or change stream and process it locally to stay in sync with the leader.  
+
+When a client wants to read from the database, it can query the leader or any of the followers.
+
+Replication can be done synchronously or asynchronously.  With a synchronous model, data may be more consistent however at the cost of availability if the replicating system goes down.  With an asynchronous model, availability is higher but at the cost of data consistency.  It is possible to mix these models as well with some nodes being synchronous while others being asynchronous.  This mixed model is called *semi-synchronous*.
+
+Failover
+: changing one of the followers to be promoted as the new leader
+
+
+#### Setting up new followers
+
+Setting up a new follower without downtime is fairly straight forward.  The typical process is as follows: 
+1. Take a consistent snapshot of the leader (if possible, without locking the entire database)
+2. Copy the snapshot to the new follower
+3. Follower connects to leader and asks for data since the snapshot.  
+    - Most databases have some sort of method to identify the exact position of the leader's replication log
+4. Follower "catches up" to the leader and then can continue processing writes going forward
+
+
+#### Handling Node Outages
+
+##### Follower failure
+  - the followers have their own log which can be used to recover
+  - they simply have to start at the end of the log and request all changes from the leader since the last entry in the follower's log
+
+##### Leader failure
+
+Failure of the leader is trickier as there are a number of steps involved.
+- One of the followers needs to be promoted to the new leader
+- clients need to be reconfigured to send their writes to the new leader
+- other followers need to start consuming data changes from teh new leader
+
+Automatic failure processes consist of the following steps: 
+1. Determining there is a failure
+    - there are many reasons why a leader can fail including hardware failure, network partitions, power outages, etc
+    - there is no foolproof way to determine a failure has happened.  
+    - the most common method is simple timeouts between leader and followers
+2. Choosing a new leader
+    - this can be done algorithmically or by a previously elected *controller node*
+    - the best candidate would be the one with the most up-to-date data changes from the old leader
+3. Reconfiguring the system to use the new leader
+    - something to consider is if an old leader comes back online, it has to recognize that it is now a follower
+
+
+Things that can go wrong in a failover
+- The new leader may have not received all the writes from the old leader.  When the old leader comes back online, what should happen with those writes?  Does this violate the clients' durability expectations?
+
+- If other storage systems outside of the database need to be coordinated with the database contents, this is especially dangerous.  
+    - GitHub suffered this very thing when an out-of-date follower was promoted to leader.  The MySql database used an auto-incrementing index which was also used in an external Redis store.  When the follower was promoted, some of the keys ended up being re-used in Redis.  This caused some user-data to be leaked to the wrong users.
+
+- Two nodes think they are the leader (a.k.a. *split-brain*).  There is no good way to resolve conflicts and data may be lost or corrupted.
+
+- Timeout durations are not configured well.  
+    - A longer timeout means longer time to recovery and more lost data.  
+    - A shorter duration may cause unnecessary failovers.  A system under high-load will undergo further complications with an unnecessary failover.
+
+There are no silver bullets to these problems.  This is why some operations teams may prefer manual failover processes rather than automatic, even if the software supports automatic failover.
+
