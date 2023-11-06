@@ -983,3 +983,48 @@ Things that can go wrong in a failover
 
 There are no silver bullets to these problems.  This is why some operations teams may prefer manual failover processes rather than automatic, even if the software supports automatic failover.
 
+### Implementation of Replication Logs
+
+**Statement-based replication** - forwarding the SQL statements to the followers 
+
+There are problems with this approach: 
+- statements can include non-deterministic functions such as ```NOW()``` or ```RAND()```.  These are likely to generate different values on each replica
+- if the statement uses an auto-incrementing column or if they depend on existing data, then statements must be executed in the exact order on each replica.  This can be problematic when there are multiple concurrently executing transactions
+- statements that have side effects (e.g. triggers, stored procs, UDFs) may result in different side-effects in each replica
+
+**Write-ahead log (WAL) shipping** - using the built-in append-only logs used by SSTables and B-Trees (different implementation details)
+
+Challenges with this approach
+- These details are very low level.  They include details regarding which bytes changed on which disk blocks.  
+- This means that these details are very tightly-coupled with the storage engine
+- It's common that if the database changes its storage format from one version to another, the logs are unable to be processed in the new format
+- This is particularly important regarding operational impact.  It essentially means the replication protocol may not support zero-downtime upgrade of the database software.
+
+**Logical (row-based) log replication** - a decoupled implementation separate from the internal storage engine that represents data at the row-level
+- An *inserted row*, the log contains the new values for all columns
+- A *deleted row*, the log contains enough information to uniquely identify the row that was deleted (usually by primary key).  If there is no primary key, then all the column values may be used.
+- An *updated row*, the log can contain as little info it needs to identify the unique record and the new values for the affected columns
+- Also called *change data capture* (CDC)
+
+**Trigger-based replication**
+- This can be used when you want finer-grained controls over what is replicated
+
+Advantages with this approach
+- greater flexibility and control, especially if you want to consider conflict resolution
+
+Disadvantages with this approach
+- has greater overhead
+- is typically tied to the transaction and is prone to bugs (since code is written)
+  - if something fails in the trigger, the transaction will roll-back
+
+### Problems with Replication Lag
+
+Leader-based replication requires all writes to go through a single node.  Read queries however can be scaled out to many nodes.
+
+For read-heavy workloads, the simple formula is to add more follower nodes to distribute the read load.
+
+It isn't practical to add more followers in a synchronous replication however.  The more follower nodes you have, the longer the writes would take.
+
+This leaves us with asynchronous replication.  Asynchronous replication means that the data will be inconsistent with the leader for a period of time.  This inconsistency is temporary and will eventually catch up.  This is called *eventual consistency*.
+
+The term eventual consistency however is vague.  There is no limit on how far behind a replica can fall behind.  For this reason, it's important to take measurements and be aware of the *replication lag*.
