@@ -1115,3 +1115,59 @@ It's important to design solutions with replication lag in mind.  A simple quest
 
 It would be a big mistake to pretend that replication is synchronous.
 
+
+### Multi-Leader Replication
+
+Leader-based replication has one major downside, that all writes must go through the leader.  An extension of this design is to allow for multiple leaders.  
+
+Normal leader-based replication is configured to have the leader in *one* of the datacenters.  
+
+Multi-leader configuration however allows you to have a leader in *each* datacenter.  The leaders also act as followers to the other leaders.
+
+Advantages
+- Performance - rather than routing all write traffic to one datacenter, write traffic can be routed to the one with the lowest latency and then replicated to the others
+- Tolerance of datacenter outages - each data center can operate independently of the others
+- Tolerance of network problems - single-leader configuration is very sensitive to network outages between data-centers because writes are made synchronously over this link.  Multi-leader configuration allows writes to continue even in the case of network interruption.
+
+Disadvantages
+- the biggest downside is conflicts
+
+#### Other types of multi-leader replication
+- Clients with offline operation, like mobile calendar, email, etc, are considered a type of multi-leader configuration.  
+- Collaborative editing like Google Docs shares many of the same aspects of multi-leader configuration.  
+
+### Handling Write Conflicts
+
+It wouldn't make sense to have write-conflicts handled synchronously in a multi-leader configuration.  If synchronous write-conflict handling was required, then single-leader is the only viable option.
+
+![write conflict](images/writeconflict.png)
+
+Avoiding conflicts is the simplest strategy.  This is typically done by routing all user-traffic to the same datacenter.  In the case of a datacenter outage, this may break down.
+
+The database must resolve conflicts in a *convergent* way, which means that all replicas arrive at the same final value when all the changes have been replicated.  This can be achieved by the following: 
+1. Assign every write a unique ID and pick the write with the highest ID as the *winner*.  This is called *last write wins (LWW)*
+2. Give each replica a unique ID and let writes that have the higher replica number take precedence.  This implies data loss
+3. Merge the values together (concatenate them)
+4. Record the conflict in an explicit data structure and write application code that resolves the conflict later
+
+##### Custom conflict resolution logic
+
+*On write* - when the database detects a conflict in the log of replicated changes, it calls a conflict handler (custom piece of code)
+
+*On read* - when a conflict is detected, all the conflicting values are stored.  On read, the conflict is raised to the application.
+
+##### Automatic Conflict Resolution
+
+Some research has been done into automatically resolving conflicts caused by concurrent data modifications.  Of note are: 
+- *Conflict-free replicated datatypes (CRDTs)* - a family of data structures for sets, maps, ordered lists, and counters that can be concurrently edited by multiple users which automatically resolve conflicts in sensible ways
+- *Mergeable persistent data structures* - similar to Git and uses a three-way merge function
+- *Operational transformation* - used for concurrent editing of an ordered list of items (like characters that constitute a text document)
+
+### Multi-Leader Replication Topologies
+
+![multi-leader replication topologies](images/multileader-replication-topologies.png)
+
+The main problem with circular and star topologies is that replicated data may have to travel through multiple nodes before reaching all destinations.  If one of the nodes is down, the replication will fail.
+
+All-to-all topologies have their own downside which is some replication messages may overtake others.  This is a problem of causality.
+![all-to-all topology](images/alltoall-topology.png)
