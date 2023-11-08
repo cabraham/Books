@@ -1031,7 +1031,7 @@ Leader-based replication requires all writes to go through a single node.  Read 
 ```mermaid
 flowchart TD
 
-request[📝 Writes]
+request[Writes]
 
  leader[(Leader)]
  follower1[(Follower)]
@@ -1044,16 +1044,16 @@ request[📝 Writes]
  reader4[Read]
  reader5[Stale Read]
 
-  request --> leader
-  leader -. async .-> follower1
-  leader -. async .-> follower2
-  leader -. async .-> follower3
+ request --> leader
+ leader -. async .-> follower1
+ leader -. async .-> follower2
+ leader -. async .-> follower3
 
-  follower1 --> reader1
-  follower2 --> reader2
-  follower3 --> reader3
-  follower1 --> reader4
-  follower3 --> reader5
+ follower1 --> reader1
+ follower2 --> reader2
+ follower3 --> reader3
+ follower1 --> reader4
+ follower3 --> reader5
 
  linkStyle 3 stroke:red;
  linkStyle 6 stroke:red;
