@@ -1019,12 +1019,99 @@ Disadvantages with this approach
 
 ### Problems with Replication Lag
 
+
+replication lag
+: the delay between the time when data is written to the leader and when it is replicated on the follower
+
+eventual consistency
+: the guarantee that when an update is made to the leader, that the update will eventually be reflected in all the follower nodes
+
 Leader-based replication requires all writes to go through a single node.  Read queries however can be scaled out to many nodes.
+
+```mermaid
+flowchart TD
+
+request[📝 Writes]
+
+ leader[(Leader)]
+ follower1[(Follower)]
+ follower2[(Follower)]
+ follower3[(Follower)]
+
+ reader1[Read]
+ reader2[Read]
+ reader3[Stale Read]
+ reader4[Read]
+ reader5[Stale Read]
+
+  request --> leader
+  leader -. async .-> follower1
+  leader -. async .-> follower2
+  leader -. async .-> follower3
+
+  follower1 --> reader1
+  follower2 --> reader2
+  follower3 --> reader3
+  follower1 --> reader4
+  follower3 --> reader5
+
+ linkStyle 3 stroke:red;
+ linkStyle 6 stroke:red;
+ linkStyle 8 stroke:red;
+```
+*An application that reads from an asynchronous follower may see outdated information*
 
 For read-heavy workloads, the simple formula is to add more follower nodes to distribute the read load.
 
-It isn't practical to add more followers in a synchronous replication however.  The more follower nodes you have, the longer the writes would take.
+It isn't practical to add more followers in a synchronous replication however.  The more follower nodes you have, it takes longer to write and increases chance of failure.
 
 This leaves us with asynchronous replication.  Asynchronous replication means that the data will be inconsistent with the leader for a period of time.  This inconsistency is temporary and will eventually catch up.  This is called *eventual consistency*.
 
-The term eventual consistency however is vague.  There is no limit on how far behind a replica can fall behind.  For this reason, it's important to take measurements and be aware of the *replication lag*.
+> The term *eventual consistency* however is vague.  There is no limit on how far behind a replica can fall behind.  For this reason, it's important to take measurements and be aware of the *replication lag*.
+
+### Reading Your Own Writes
+
+read-after-write consistency
+: guarantee that a user's writes will be available to be read by the same user (*a.k.a. read-your-writes consistency*)
+
+Many applications will let the user submit some data and view what they have submitted immediately.  With asynchronous replication, this can pose a challenge as the writes may not have yet propogated to the follower nodes.  To counteract this, we need *read-after-write consistency*.
+
+![read-after-write](images/read-after-write.png)
+
+Techniques for implementing read-after-write consistency
+- Read from the leader.  For data that may have changed, read from the leader, otherwise a follower.  A simple example would be to load the user's profile from the leader, but others' profiles from followers.
+- Track the last time of update and for a period of time, make all reads from the leader, and then after, from the followers.
+- Have the client remember the timestamp of its most recent write.  The system can then ensure that the replica for that user reflects updates at least until that timestamp.
+
+A complication to the above techniques is if you have to consider cross-device read-after-write consistency.  If posting on desktop but then the user switches to mobile, approaches where the client tracks timestamps will not work.  That data will need to be centralized.
+- If your approach requires reading from the leader, you may first have to route ALL of the user's requests (from all devices) to the same datacenter.
+
+### Monotonic Reads
+
+monotonic read
+: a read consistency guarantee that promises after a process reads a result, it will never see an older value of the same result
+
+It's possible when making several reads from different replicas, that the results may seem as if things are moving *backward in time*.  
+
+![monotonic reads](images/monotonicreads.png)
+
+One way of achieving this is by ensuring each user always makes their reads from the same replica.
+
+
+### Consistent Prefix Reads
+
+consistent prefix reads
+: guarantee that if a sequence of writes happens in a certain order, then anyone reading those writes will see them appear in the same order
+
+Asynchronous replication can lead to violations of causality.  In a distributed and partitioned database, each partition operates independently and therefore there is no global ordering of writes.
+
+![consistency-prefix-reads](images/consistency-prefix-reads.png)
+
+One solution to this is to ensure that writes that are causally related are written to the same partition.
+
+### Solutions for Replication Lag
+
+It's important to design solutions with replication lag in mind.  A simple question to ask is: "If the replication lag increases to several minutes or hours, does that cause a problem for the users?"
+
+It would be a big mistake to pretend that replication is synchronous.
+
