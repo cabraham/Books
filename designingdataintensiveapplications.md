@@ -1232,3 +1232,35 @@ Writes and reads still require *w* and *r* successful responses, however the res
 When the network partition resolves, the database can move the writes to their appropriate home *n* nodes.  This is called **hinted handoff**.
 
 Sloppy quorums are useful when you want to increase write availability but at the cost of reliably retrieving the latest value when reading.
+
+
+#### Concurrent Writes
+
+Dynamo-style databases allow several clients to write to the same key concurrently.  This means where will be conflicts, especially as there is no well-defined ordering.
+
+![concurrent writes in dynamo](images/concurrent_writes_dynamo.png)
+
+To become eventually consistent, the replicas need to converge to the same value however the db may not do this automatically.  There are some approaches to address this.
+
+##### Last-write wins
+Last-write wins (LWW) - apply a timestamp to all writes and pick the largest timestamp.  This is at the cost of durability however.  When a client writes data, it will receive a successful response, but ultimately the write may be thrown away due to not having the latest timestamp.  **You can lose data**.
+
+The only real way to address this is by giving each write a unique key such as a UUID in LWW. 
+
+##### Causality
+
+In Figure 5-9, we can determine that A's insert happens before B's update.  This means it is causally dependent.
+In Figure 5-12 however the operations are concurrent because A and B do not know of each other's write operations.
+
+> Concurrent sounds like things happening *at the same time*, but it doesn't really have to do with time.  It has more to do with if the operations are unaware of each other.  
+
+![Capturing causal dependencies](images/causal_dependencies.png)
+
+To capture causality, in Figure 5-13, each client is stating what it is aware of when sending a write along with version # info provided by the database.  The database also responds with the data and version it currently has.  This process creates multiple "value" entries which eventually have to be merged to get the final value.  These value entries signify concurrent write operations.  Riak calls these *siblings*.
+
+To remove values, it's not enough to delete an item from a value because a sibling may have the same value.  When merging the dataset, the item will then reappear in the value.  To address this problem, you have to add a *tombstone* marker.
+
+
+##### Version Vectors
+
+Figure 5.13 only shows how things would work in a single replica.  When moving to a leaderless multi-replica configuration, then each replica must keep track of its own version number per key.  This is called a [*version vector*](https://martinfowler.com/articles/patterns-of-distributed-systems/version-vector.html).
