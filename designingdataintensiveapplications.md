@@ -1171,3 +1171,64 @@ The main problem with circular and star topologies is that replicated data may h
 
 All-to-all topologies have their own downside which is some replication messages may overtake others.  This is a problem of causality.
 ![all-to-all topology](images/alltoall-topology.png)
+
+### Leaderless Replication
+
+Single and multi-leader replication is based on the idea that writes are sent through a leader which are then replicated to the followers.
+
+In leaderless replication, there is no *failover* of the leader.  Clients simultaneously send write and read requests multiple replicas.  These are *dynamo* style databases.
+
+> Dynamo style databases include Dynamo, Riak, Cassandra, and Voldemort.
+
+![quorum write](images/quorum_write.png)
+
+On reads, the client may get different versions of data.  Version numbers are used to determine which value is newer.
+
+To ensure eventual consistency, Dynamo-style databases use two common mechanisms, read repair and anti-entropy.
+
+Read repair
+: the client, upon identifying an older version of data from a replica in a read operation, will write the newer value back to the outdated replica
+
+Anti-entropy process
+: a background process that looks for differences between replicas and copies any missing data from one replica to another.  
+
+> **Important Note**: the anti-entropy process does not copy writes in any particular order and there may be a significant delay before data is copied
+
+##### Quorums for reading and writing
+
+Formula for quorum
+:  ```w + r > n```
+
+**n** = number of nodes a given value is stored on
+**w** = number of write nodes
+**r** = number of read nodes
+
+When the formula is satisfied, we can expect to have received the most up-to-date value or that a write was successful.
+
+The n, w, and r values are configurable and can be tuned to specific workloads.  For high-read and low-write, a good option is to keep the w value high and the r value low.  
+
+![quorum replicas](images/quorum_replicas.png)
+
+There are limitations to quorum consistency
+- If using sloppy quorums, there is no guaranteed overlap between *r* nodes and the *w* nodes
+- In the case of concurrent writes, it isn't clear which happened first.  The only safe option is to merge the values.  If picking a winner based on timestamp, writes can be lost due to clock skew
+- There is no guarantee on which value you receive in concurrent read and write operations
+
+##### Monitoring staleness
+
+Monitoring staleness in a leaderless system is more complicated because there is no fixed order in which writes are applied.  
+If only using *read repair* (with no anti-entropy), there is no limit how old a value may be if the values are infrequently read.
+
+##### Sloppy Quorum
+
+Quorums are not fault tolerant!  Network interruptions can cut off a client from a large number of database nodes.
+
+A tradeoff that needs to be considered when considering fault-tolerance
+- is it better to return errors when a quorum can't be reached?
+- or should we accept writes anyway and write them to some nodes (that are reachable) but aren't among the *n* nodes on which the value usually lives?
+
+Writes and reads still require *w* and *r* successful responses, however the responses may come from nodes that are not the designated *n* nodes for a value.  
+
+When the network partition resolves, the database can move the writes to their appropriate home *n* nodes.  This is called **hinted handoff**.
+
+Sloppy quorums are useful when you want to increase write availability but at the cost of reliably retrieving the latest value when reading.
