@@ -124,7 +124,7 @@ It's usually better to use percentiles.
 - This means half of the requests are faster than the median, and half are slowest.
 - You can take this further by taking higher percentiles (95%, 99%, 99.99%).
 
-Tail latencies
+##### Tail latencies
 : high percentiles of response times (e.g. 99th percentile)
 
 Sometimes you have to pay attention to the tail latencies because they can be driven by your most valued consumers (highest paying consumer may have the most data or requests).
@@ -1264,3 +1264,104 @@ To remove values, it's not enough to delete an item from a value because a sibli
 ##### Version Vectors
 
 [Figure 5-13](#figure5-13) only shows how things would work in a single replica.  When moving to a leaderless multi-replica configuration, then each replica must keep track of its own version number per key.  This is called a [*version vector*](https://martinfowler.com/articles/patterns-of-distributed-systems/version-vector.html).
+
+---
+
+## Chapter 6 - Partionining
+
+partition
+: dividing your tables and indexes into smaller pieces
+
+In terms of a distributed database, partitions would be spread between nodes.
+
+Partitioning and replication are often combined for scalability and availability needs.
+
+![combining replication and partitioning](images/partition_and_replication.png)
+
+The goal of partitioning is to spread the data and the query load evenly across the nodes.  
+- this isn't as easy as taking all data and splitting them up at random
+  - consider looking for an item, how do you know which partition it's on?  You'd have to query all partitions
+- if some partitions have more data or query load, then it is *skewed*, which makes the partioning less effective
+- you have to consider the write/query patterns
+
+### Partition by key range
+
+A real-world example of partioning by key range are encyclopedias, which are partioned alphabetically by term.
+
+![encyclopedia partition](images/encyclopedia_partition.png)
+
+Within each partition, we can keep the keys in sorted order which allows for fast range scans.
+
+
+
+A downside of key range partitioning is that certain access patterns can lead to hotspots.  
+For example: 
+- consider collecting sensor data from many sensors which are written to timestamp partitions
+- if a partition is by day, that means that all writes will go to the same partition on the same day
+- this means that the day's partition can be overloaded while the other partitions remain idle
+![partitioning sensor](images/partition_sensor.png)
+
+One way to address the above issue is to use a different value than the timestamp as the first element in the key.  If it's partitioned first by the sensor name and then by time, the write-load can be evenly distributed.
+
+
+### Partition by Hash of Key
+
+hashing
+: the deterministic process of mapping a key to an index where the distribution of keys is uniform
+
+[consistent hashing](https://en.wikipedia.org/wiki/Consistent_hashing)
+: a hashing technique such that when a hash table is resized, only *n*/*m* keys need to be remapped on average where *n* is the number of keys and *m* is the number of slots
+
+Hash algorithms do not have to be cryptographically strong but they have to be deterministic and fast.
+
+The down-side of using the hash of a key is that you lose the ability to do efficient range queries because the keys are spread across different partitions.
+
+Range queries are not supported by many distributed databases like Riak, Couchbase, and Voldemort.
+
+Cassandra has a compromise where combination of key range and hash is combined using a *compound primary key* (combining multiple columns).
+- the first part of the key is used to determine the partition
+- the rest of the keys are used for range scans
+- this means the first part of the key cannot be used for range, but the others can
+
+##### A note on skewed workloads and hotspots
+
+Even if all keys were partitioned evenly across the database, there may still be hotspots due to the type of workload.  An example would be social media.  Most user workloads can be partitioned fairly evenly but a celebrity has orders of magnitude more activity (followers).  
+
+Most data systems are unable to automatically compensate for such a highly skewed workload.  This makes handling such a scenario a responsibility of the application.
+
+One simple way to address the celebrity scenario is to append a 2-digit random number to the key.  This can split the load across different partitions.  This however comes with the complexity of having to stitch the data back together when querying.  There is also the overhead of keeping track of which keys are being split.
+
+
+### Partitioning and Secondary Indexes
+
+All the partitioning schemes discussed so far rely on key-value data model where the key uniquely identifies a record.  Things become more complicated when a secondary index is involved because that does not uniquely identify a record.
+
+The main problem with secondary indexes is that they don't map neatly into partitions.  There are two main approaches, document-based and term-based partitioning.
+
+#### Document-based secondary index
+
+![Figure 6.4 - secondary index by document](images/secondaryindex_documentpartition.png)
+
+In a document-based secondary index partition, each partition manages indexes on its own partitioned data.  This means each partition has its own *local index*.  
+
+To query the database in this approach, a *scatter-gather* has to be used.  The reason is that there is no global way of knowing where the data resides and so all partitions must be queried.
+
+The scatter-gather approach can make read operations quite expensive due to [tail latency amplification](#tail-latencies).
+
+> Most database vendors recommend that you structure your partitioning scheme so that secondary index queries can be served from a single partition
+
+#### Term-based secondary index
+![Figure 6.4 - secondary index by term](images/secondaryindex_termpartition.png)
+
+In a term-based secondary index partition, a *global* index is used.  The secondary indexes are partitioned differently than the primary.
+
+The advantage in this approach is that querying the data can be much more efficient.  
+- We can partition by the term itself, or by a hash.
+- partition by the term gives access to range queries but potentially hotspots
+- partition by hash removes hotspots but lost efficiency for range-based queries
+
+The downside of global (term-partitioned) indexes is that writes are slower and more complicated.  
+- A write to a single document may now affect multiple partitions of the index.  
+- To do this synchronously, it would require some distributed transaction across all partitions affected by a write
+- It's recommended to do this asynchronously and accept that the index will be eventually consistent
+
