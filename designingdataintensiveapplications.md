@@ -1365,3 +1365,76 @@ The downside of global (term-partitioned) indexes is that writes are slower and 
 - To do this synchronously, it would require some distributed transaction across all partitions affected by a write
 - It's recommended to do this asynchronously and accept that the index will be eventually consistent
 
+### Rebalancing Partitions
+
+rebalancing
+: moving data from one node to another as part of increasing or reducing the number of machines
+
+Over time, things change and for various needs, you will need to add or remove machines.  As this is done, the data will also need to be rebalanced (move data from one node in the cluster to another)
+
+Expected requirements after rebalancing
+1. the load of storage, request, and write should be fair across all nodes
+2. while rebalancing is occurring, the database should continue to serve read and write requests
+3. no more data than necessary should be moved between nodes to minimize network and disk I/O
+
+#### Strategies for Rebalancing
+
+##### What not to do
+```hash mod N``` is definitely not the way to do it.  This approach moves way too much data around
+
+##### Fixed number of partitions
+At the outset, plan for a large # of partitions.  Entire partitions are moved between nodes.
+
+![Figure 6.6 - fixed number partitioning](images/fixedpartitionrebalancing.png)
+
+Advantage is that this is operationally simpler.
+Disadvantage is that the # of partitions is fairly static and not easy to change.
+
+The higher the # of partitions, the more management overhead there is.
+
+Determining the right # of partitions may be challenging.
+
+##### Dynamic partitioning
+
+Databases that use key range partitioning would struggle with fixed partitioning.  If the boundaries were set wrong, there's a chance for an imbalanced distribution.
+
+Key range-partitioned databases handle this by creating partitions dynamically.  
+
+An advantage of dynamic partitioning is that the partitions adapt to the total data volume.
+
+This method works well with both key-range and hash-partitioned data.
+
+You can keep the # of partitions proportional to the size of the dataset. 
+
+Another option is to make the number of partitions proportional to the # of nodes.  This means a fixed number of partitions per node.
+
+##### Operations: Automatic or Manual Rebalancing
+
+This is not necessarily a binary choice.  Some database technologies generate a suggested partition assignment but require an administrator to commit it.
+
+Fully automated can be convenient, but can be unpredictable.  It's easy to overload the network or the nodes, or harm the performance of the system while rebalancing is in progress.
+
+It's suggested to have a human in the loop for rebalancing.
+
+### Request Routing
+
+How does a client know which node to connect to?
+
+3 options
+1. allow clients to contact any node and allow the node to redirect them to the appropriate node
+2. send requests to a routing tier
+3. require the clients to be aware of the partitioning and assignment
+
+![partition routing](images/partition_routing.png)
+
+Zookeeper is a common solution for a routing tier.
+
+Each database has its own method of handling request routing.
+
+### Parallel Query Execution
+
+massively parallel processing (MPP)
+: disconnected and distributed nodes are coordinated to handle complex query logic
+
+So far we've only discussed simple queries that are usually looked up by primary or secondary indexes.  
+
