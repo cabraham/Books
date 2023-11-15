@@ -1438,3 +1438,54 @@ massively parallel processing (MPP)
 
 So far we've only discussed simple queries that are usually looked up by primary or secondary indexes.  
 
+Data warehouse queries are a different style of querying used for analytics.  Data is joined, filtered, grouped, and aggregated in complex says.  MPP does this by breaking these needs into discrete stages and partitions.  
+
+---
+## Chapter 7 - Transactions
+
+Reasons why things can fail in a data system
+- database software or hardware may fail, even in the middle of a write
+- the application may crash, even halfway through a series of operations
+- interruptions in the network
+- several clients write at the same time to the database, overwriting each other's changes
+- a client may read data that doesn't make sense because it's only been partially updated
+- race conditions between clients 
+
+To be reliable, the systems need to deal with these faults and avoid catastrophic failure.
+
+*[Transactions](https://en.wikipedia.org/wiki/Database_transaction)* are an abstraction that deals with these kinds of failures.  Rather than the application having to deal with all of the failure scenarios, the database takes on the responsibility of ensuring that all the related writes and reads execute all together.  If not, then it aborts or rolls back the transaction.
+
+Although transactions guarantees safety of the data (*safety guarantees*), not all workloads require them and use them.  There is a performance and availability cost to using transactions.
+
+As NoSQL databases gained popularity, new data models were introduced which included replication and partitioning.  Transactions as a concept were discarded in favor of a weaker set of guarantees.
+
+Popular belief is that transactions are the antithesis of scalability.  The flip-side of this belief is that only valuable data is stored transactionally.
+
+### The meaning of ACID
+
+ACID
+: *Atomicity, Consistency, Isolation, and Durability*
+
+BASE
+: *Basically Available, Soft state, and Eventual consistency*
+
+#### Atomicity
+
+- Atomicity is NOT about concurrency and what happens when multiple processes try to access the same data
+> Atomicity describes what happens if a client wants to make several writes but a fault occurs after some of the writes have been processed
+
+In an atomic transaction, all the writes grouped under that transaction are **committed** together or the transaction is **aborted** and all the writes are discarded.
+
+When an application uses a transaction, the application can trust that either the changes were made, or that they were aborted.
+
+#### Consistency
+
+- *consistency* is a terribly overloaded term which has multiple meanings depending on the context used. 
+
+> In the context of ACID, consistency refers to an application-specific notion of the database being in a good state.
+
+Consistency deals with *invariants* (statements about your data that must always be true).  These invariants are application-specific and may use database-specific concepts like constraints to ensure that the data is in a good state.
+
+According to Kleppman, *consistency* is not necessarily a property of the database because the *invariants* come from the application.
+
+
