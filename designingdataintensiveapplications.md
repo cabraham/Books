@@ -1488,4 +1488,65 @@ Consistency deals with *invariants* (statements about your data that must always
 
 According to Kleppman, *consistency* is not necessarily a property of the database because the *invariants* come from the application.
 
+#### Isolation
+
+Isolation is about *concurrency*, and another word for this is *serializability*.  
+- essentially this means that each transaction pretends as if it's the only one running in the entire database
+- this means that when the transactions has committed, the database ensured that the results had run *serially* (one after the other)
+
+> ...concurrently executing transactions are isolated from each other: they cannot step on each other's toes
+
+![ACID - race condition example for isolation](images/isolation_acid.png)
+
+Serializable isolation is rarely ever used however because it carries a performance penalty.
+
+#### Durability
+
+> Durability is the promise that once a transaction has committed successfully, any data it has written will not be forgotten, even if there is a hardware fault or the database crashes.
+
+Durability is handled using something like a write-ahead log or replicating the data.  
+
+Durability is not guaranteed, no matter the marketing material
+  - if writing to a disk and the machine dies, the data may not be lost but is inaccessible until the machine is repaired
+  - a power outage can knock out all replicas losing any data that is only in memory (which is why writing to disk is still relevant)
+  - asynchronously replicated systems may lose recent writes when the leader is unavailable
+  - subtle interactions between the storage engine and file-system implementations can lead to bugs
+  - data can gradually become corrupted over time
+  - SSDs are prone to bad blocks.  Magnetic HDDs have lower rates of bad sectors, but higher rate of complete failure.
+
+
+### Single and Multi-Object Operations
+
+![Figure 7-2 - violating isolation](images/violating_isolation.png)
+
+![Figure 7-3 - atomicity](images/atomicity.png)
+
+Multi-object transactions require some way of determining which read and write belongs to the same transaction.  In typical RDBMS, it's usually done with the client's TCP connection to the db server.
+
+#### Single-object writes
+
+Even single-object writes need to consider transactionality.  A large record may only be partially transmitted or written.  
+
+Most storage engines almost universally aim to provide atomicity and isolation on the level of a single object.  
+- Although this guarantee may exist, some vendors may market their product as "light-weight transactions" or ACID, but it's misleading.
+- *transaction* means multi-object in common parlance
+
+
+#### The need for multi-object transactions
+
+> Many distributed datastores have abandoned multi-object transactions because they are difficult to implement across partitions
+
+We can model the data in which single-object operations are sufficient, but there are many cases this isn't possible.
+
+- Consider referencing other data.  
+  - in a relational db, foreign keys refer to other records
+  - in a graph db, the edges refer to other vertices
+- In document databases, fields that need to be updated together is usually modeled within the same document
+  - however because they lack join functionality, denormalization is encouraged
+  - denormalized data also needs to be updated
+- secondary indexes are different database objects from a transaction point of view
+  - without atomicity and isolation, it's possible for a record to appear in one index but not another
+
+Many distributed database systems actually do away with transactional guarantees and approach it as a "best-effort" model.
+  - this means that they expect errors to happen and it is up to the application to address this
 
