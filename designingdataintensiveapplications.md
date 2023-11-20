@@ -1496,7 +1496,7 @@ Isolation is about *concurrency*, and another word for this is *serializability*
 
 > ...concurrently executing transactions are isolated from each other: they cannot step on each other's toes
 
-![ACID - race condition example for isolation](images/isolation_acid.png)
+<a name="figure7-1">![Figure 7.1 - ACID - race condition example for isolation](images/isolation_acid.png)</a>
 
 Serializable isolation is rarely ever used however because it carries a performance penalty.
 
@@ -1517,9 +1517,9 @@ Durability is not guaranteed, no matter the marketing material
 
 ### Single and Multi-Object Operations
 
-![Figure 7-2 - violating isolation](images/violating_isolation.png)
+<a name="figure7-2">![Figure 7-2 - violating isolation](images/violating_isolation.png)</a>
 
-![Figure 7-3 - atomicity](images/atomicity.png)
+<a name="figure7-3">![Figure 7-3 - atomicity](images/atomicity.png)</a>
 
 Multi-object transactions require some way of determining which read and write belongs to the same transaction.  In typical RDBMS, it's usually done with the client's TCP connection to the db server.
 
@@ -1549,4 +1549,67 @@ We can model the data in which single-object operations are sufficient, but ther
 
 Many distributed database systems actually do away with transactional guarantees and approach it as a "best-effort" model.
   - this means that they expect errors to happen and it is up to the application to address this
+  - leaderless datastores do not undo work that it has already done (i.e. does not abort and retry a transaction in case of a failure)
+
+> Such applications can still be implemented without transactions.  However, error handling becomes much more complicated without atomicity, and the lack of isolation can cause concurrency problems...
+
+#### Handling errors and aborts
+
+The whole point of an abort is to enable safe retries.  Retrying an aborted transaction is a simple and effective error handling mechanism however: 
+- If a transaction succeeded but the network failed while the server was acknowledging the successful commit, the client may retry the transaction.  This means a deduplication mechanism should exist.
+- If the error is due to overload, retrying the transaction can make the situation worse instead of better as the retries will pile on.
+  - One option is to use exponential backoff, limited # of retries, or handling over-loaded scenarios differently
+- Retrying is only worth doing when it's a transient error, not a permanent one.  (e.g. deadlock vs constraint violation)
+- Transactions that have side-effects outside of the database may happen even if the transaction is aborted (e.g. sending an email as part of the transaction)
+  - you can implement a two-phase commit to ensure all systems commit at the same time
+  - another option is to model the system so that side-effects are not part of the same transaction
+- If the client process fails while retrying, any data it was trying to write to the database is lost
+
+### Weak Isolation Levels
+
+Concurrency issues arise when multiple clients are trying to interact with the same data simultaneously.
+
+Concurrency bugs are hard to find and test for because it is based on timing, not the state of the data.
+
+Databases try to hide concurrency issues from application developers by providing *transaction isolation*, which helps us pretend that no concurrency is happening.
+
+The *serializable* isolation level guarantees that the transactions will have the same effect as if they ran *serially*.  It is the strongest isolation level.
+
+Serializable isolation however has a large performance cost and most databases don't encourage or support that level of isolation.  Therefore, there are other weaker levels of isolation to protect from some levels of concurrency.
+
+#### Read Committed
+
+Makes 2 guarantees
+1. You will only see data that has been committed (no *dirty reads*)
+2. When writing to the database, you will only overwrite data that has been committed (no *dirty writes*)
+
+##### No dirty reads
+
+<a name="figure7-4">![Figure 7.4 - No dirty reads](images/dirty_reads.png)</a>
+
+Reasons why to prevent dirty reads
+- If a transaction needs to update several objects, a dirty read means that another transaction can read some of the updates but not others.  This can be confusing to the users and may cause them to take improper action
+- If a transaction is rolled back, a dirty read means another transaction can read the uncommitted data, which is later rolled back.  This can be very confusing to reason about.
+
+##### No dirty writes
+
+When two transactions concurrently try to update the same object, we normally assume that the later write overwrites the earlier write.
+
+However, what if the earlier write was part of a transaction that hasn't yet been committed.  This is a *dirty write*.
+
+<a name="figure7-5">![Figure 7.5 - dirty writes](images/dirty_writes.png)</a>
+
+In [Figure 7.5](#figure7-5), the data from two different transactions are updated to an inconsistent state with one user having purchased an item but the other getting the invoice.  Read-committed prevents such mishaps.
+
+Read-committed does not prevent the race condition between two counter increments as found in [Figure 7.1](#figure7-1)
+
+
+#### Implementing read committed
+
+Most databases prevent dirty writes by using row-level locks.  When a transaction wants to write, it must first acquire a lock on that object.  Other transactions have to wait for the transaction to abort or commit before acquiring the lock.
+
+Preventing dirty-reads means using the same lock functionality to execute the read.  This ensures a read can't happen while an object has a dirty, uncommitted value (because the lock would be held by the writing transaction).  
+
+The process of acquiring a read-lock however has serious performance implications if there are many read-only transactions.  Response-times can get very slow.  For this reason, the database remembers the old committed value and new uncommitted value.  While the write transaction is continuing execution, read transactions are served the old committed value as illustrated in [Figure 7.4](#figure7-4)
+
 
