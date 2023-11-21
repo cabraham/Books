@@ -1700,7 +1700,7 @@ Object-relational mapping frameworks make it easy to accidentally write code tha
 #### Explicit locking
 
 The application can acquire an explicit lock.  In this method, a read-modify-write cycle can occur safely as it prevents other transactions from accessing the object.  
-
+<a name="example7-1">Example 7.1</a>
 ``` sql
 BEGIN TRANSACTION;
 
@@ -1747,3 +1747,95 @@ In replicated databases, this problem is much more complex since there are multi
 As discussed in [Concurrent Writes](#concurrent-writes), a common approach is to allow conflicting versions (a.k.a. *siblings*), and use application code or special data structures to resolve and merge these versions after the fact.
 
 [Commutative](https://en.wikipedia.org/wiki/Commutative_property) operations can work well in a replicated context.  In comparison, [*last write wins* (LWW)](#last-write-wins) conflict resolution is prone to lost updates.
+
+### Write Skew and Phantoms
+
+Dirty writes and lost updates are two kinds of race conditions when different transactions are concurrently writing to the same objects.  Write-skew and phantoms are other kinds of race conditions.
+
+<a name="figure7-8">![Figure 7.8 - Write Skew](images/write_skew.png)</a>
+
+In [Figure 7.8](#figure7-8), the business rule is that at least one doctor must be on-call.  The application checks for a value and then decides to make an update based on the value returned.  This is different from the *read-modify-write* cycle mentioned earlier because different records are being affected.  This anomaly is called *write skew*.
+
+<dl>
+  <dt>write skew</dt>
+  <dd>when an update is made within a transaction based on stale data</dd>
+</dl>
+
+The solutions for addressing lost update may not be available for write skew.
+- atomic single-object operations don't work as multiple objects are involved
+- write skew is not automatically detected in many database engines
+- contraints across multiple objects may not be supported
+
+One solution option for [Figure 7.8](#figure7-8) is to explicitly lock the rows as follows:
+
+``` sql
+BEGIN TRANSACTION;
+SELECT * FROM doctors 
+  WHERE on_call = true
+  AND shift_id = 1234 FOR UPDATE; -- the FOR UPDATE locks all the rows returned
+
+UPDATE doctors 
+  SET on_call = false
+  WHERE name = 'Alice'
+  AND shift_id = 1234;
+
+COMMIT;
+```
+
+Other examples of write-skew:
+
+***Meeting room booking system***
+You want to enforce that there cannot be two bookings for the same meeting room within the same timeslot.
+<a name="example7-2">Example 7.2</a>
+```sql 
+BEGIN TRANSACTION;
+
+-- Check for any existing bookings
+SELECT COUNT(*) FROM bookings
+  WHERE room_id = 123 AND
+  end_time > '2015-01-01 12:00' and start_time < '2015-01-01 13:00';
+
+-- If the previous query returned zero;
+INSERT INTO bookings
+  (room_id, start_time, end_time, user_id)
+  VALUES (123, '2015-01-01 12:00', '2015-01-01 13:00', 1874)
+```
+
+Snapshot isolation doesn't prevent another user from concurrently inserting data.  There's no record here to which we can apply a lock.
+
+***Multiplayer game***
+In [Example 7.1](#example7-1), the multiplayer game used a lock to prevent lost updates.  This means that 2 different users can't move the same piece.  What if there was an additional logic constraint that says that 2 different users can't move 2 *different* pieces to the same location?
+
+***Claiming a username***
+Two users may try to create the same unique username.  The application may check if the username is taken and if not, create an account with that name.  The problem here is that the operation makes a decision based on *stale data*.  A simple solution here is to add a unique-constraint in the database.  The second transaction will fail due to violating the unique constraint.
+
+***Preventing double-spending***
+A service that allows users to spend currency needs to check that a user doesn't spend more than they have.  With write skew, it's possible to have 2 items added simultaneously and have the balance go negative.
+
+
+##### Phantoms causing write skew
+
+The above examples follow a similar pattern.
+
+1. ***Read*** - a select query checks whether some requirement is satisfied
+2. ***Decision*** - a decision made based on what is returned in step 1
+3. ***Write*** - the effect of this write changes the precondition of the decision in step 2
+
+<dl>
+  <dt>phantom</dt>
+  <dd>a write in one transaction changes the result of a search query in another transaction</dd>
+</dl>
+
+Snapshot isolation avoids phantoms in read-only queries, but in read-write transactions, phantoms lead to write skew.
+
+One point to consider is that for transactions that involve updates, it may be possible to avoid write skew by applying locks in the appropriate place (as in the on-call doctor's example).  However, for scenarios that check for the *absence* of rows, if the write *adds* a row matching the same condition, the ```SELECT FOR UPDATE``` lock has nothing to attach to.
+
+##### Materializing conflicts
+
+In [Example 7.2](#example7-2), one option is to artifically create rows to which we can apply locks.  In this example, we could create a table consisting of timeslots and rooms.  This table isn't used for entering data, but simply to apply locks.  This approach is called *materializing conflicts*.
+
+<dl>
+  <dt>Materializing conflicts</dt>
+  <dd>the approach of taking a phantom and turning it into a lock conflict on a concrete set of rows</dd>
+</dl>
+
