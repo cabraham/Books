@@ -1613,3 +1613,59 @@ Preventing dirty-reads means using the same lock functionality to execute the re
 The process of acquiring a read-lock however has serious performance implications if there are many read-only transactions.  Response-times can get very slow.  For this reason, the database remembers the old committed value and new uncommitted value.  While the write transaction is continuing execution, read transactions are served the old committed value as illustrated in [Figure 7.4](#figure7-4)
 
 
+### Snapshot Isolation and Repeatable Read
+
+<a name="figure7-6">![Figure 7-6 - Read skew](images/read_skew.png)</a>
+
+[Figure 7.6](#figure7-6) illustrates an issue called *read skew* (a.k.a. *nonrepeatable read*).  There is a moment in time where Alice can see $900 in her balance instead of $1000.  Reading the data afterwards would show the right amount, however in some cases, such temprary inconsistency cannot be tolerated.
+
+##### Backups
+Taking a backup of the entire database, which is a long-running operation, will likely overlap with continued writes to the database.  You could end up with some parts of the backup containing an older version of the data, and other parts containing the newer version.  
+
+##### Analytics queries and integrity checks
+A long-running query like an analytics query can scan over large parts of the database.  These queries can likely return nonsensical results because they will return values at different points in time.
+
+*Snapshot isolation* is the most common solution to this problem.  In snapshot isolation, each transaction reads from a *consistent snapshot* of the database, that is, the transaction sees the committed data at the start of the transaction.  
+
+#### Implementing snapshot isolation
+
+A key principle of snapshot isolation is *readers never block writers*, and *writers never block readers*.  
+
+The database must potentially keep several different committed versions of an object, because various in-progress transactions may need to see the state of the database at different points in time.  This technique is known as *multi-version concurrency control* (MVCC).
+
+<a name="figure7-7">![Figure 7.7 - Snapshot Isolation](images/snapshot_isolation.png)</a>
+
+[Figure 7.7](#figure7-7) shows how snapshot isolation is implemented in PostgreSQL.  Each row has a ```created_by``` field and a ```deleted_by``` field (which is initially empty).  If a transaction deletes a row, it is marked for deletion by setting the ```deleted_by``` field to the transaction Id that requested it.  At a later time, after the transaction is completed and when it is certain that no transaction can access the deleted data, a garbage collection process removes the rows marked for deletion and frees up the space.
+
+An update translates to a delete and a create.
+
+##### Visibility rules
+
+> When a transaction reads from the database, transaction IDs are used to decide which objects it can see and which are invisible.  
+
+The following are the visibility rules.
+1. At the start of each transaction, the database makes a list of all the other transactions that are in progress.  All writes made by those transactions are ignored
+2. Any writes made by aborted transactions are ignored
+3. Any writes made by transactions with a later transaction ID is ignored, regardless of whether they have committed
+4. All other writes are visible to the application's queries
+
+A long-running transaction can continue to use the snapshot, continuing to read values as if the data has not been overwritten or deleted.  The database can provide a consistent snapshot while incurring only a small overhead.
+
+##### Indexes and snapshot isolation
+
+Indexing in an *MVCC database* requires that the database point to multiple versions of the data.  There are multiple ways of doing this however and they almost always require some sort of garbage collection.
+
+- PostgreSQL for example has optimizations for avoiding index updates if different versions of the same object can fit on the same page
+- CouchDB, Datomic, and LMDB use a different approach.  Although they use B-Trees, they use an append-only/copy-on-write variant that creates a new copy of each modified page.  Parent pages, up to the root of the tree, are copied and updated to point to the new versions of the data.  
+  - In essence, every write transaction is immutable.  Subsequent writes can't update existing B-trees, so there's no need to filter out objects based on transaction IDs in this model.
+
+##### Repeatable read naming confusion
+
+Many databases call snapshot isolation by different names.  In Oracle, it is called *serializable*, and in PostgreSQL and MySQL, it's called *repeatable read*.
+
+There is no SQL standard for the concept of snapshot isolation because it actually comes from System R's 1975 definition of isolation levels.  Snapshot isolation wasn't yet invented.
+
+Many databases implement "repeatable read" but there are big differences between the guarantees they actually provide.
+
+> As a result, nobody really knows what repeatable read means.
+
