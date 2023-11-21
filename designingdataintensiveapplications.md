@@ -1858,3 +1858,70 @@ In [Example 7.2](#example7-2), one option is to artifically create rows to which
   <dd>the approach of taking a phantom and turning it into a lock conflict on a concrete set of rows</dd>
 </dl>
 
+### Serializability
+
+It's not easy to deal with race conditions.  Write skew and phantoms are some examples of race conditions that are difficult to code for.  This is especially difficult because: 
+- isolation levels are hard to understand (e.g. definitions of "repeatable read" vary greatly)
+- it's difficult to tell what application code is safe to run at a particular isolation level, especially in a large application where you may not be aware of what is happening concurrently
+- there aren't good tools to detect race conditions
+
+The serializable isolation level is the strongest isolation level that seems to answer all of these tricky concurrency issues.  
+
+Most databases employ one of three techniques to implement serializable isolation.
+1. literally executing transactions in a serial order
+2. two-phase locking
+3. optimistic concurrency control techniques such as serializable snapshot isolation
+
+#### Actual Serial Execution
+
+> The simplest way of avoiding concurrency problems is to remove concurrency entirely.
+
+A single-threaded loop for executing transactions is now a feasible option, especially because of two developments: 
+1. RAM is much cheaper now.  Many workloads can keep the [entire active dataset in memory](#keeping-everything-in-memory)
+2. Database designers realized that OLTP transactions are usually short and make a small number of reads and writes
+
+It's possible that a single-threaded execution model can sometimes perform better than a system that supports concurrency because it avoids the coordination overhead of locking.
+
+Throughput however is limited to that of a single CPU core.  In order to optimize for the single thread, transactions have to be structured differently than their traditional form.
+
+##### Encapsulating transactions in stored procedures
+
+Early database design would encompass an entire flow of user activity through a single database transaction.  This doesn't map well to real life however.
+
+There are many real-life scenarios where many users want to interact with the data at the same time.  Imagine the flow of booking an airline ticket (searching for routes, fares, deciding on an itinerary, booking seats, entering passenger details, and making payment).
+- Humans are very slow in this process
+- OLTP databases are designed to keep transactions short
+- Databases cannot keep concurrent transactions open for a long period of time efficiently
+- This means that on the web, each HTTP call will translate to one transaction.  
+
+Even if we were to take humans out of the equation, applications still have to query, read the results, make decisions on that result, and potentially execute another query.  These queries and results are sent over the network between the application and the database server.
+
+Disallowing concurrency in this model would make transaction time ***extremely*** slow.
+
+For this reason, single-threaded serial transaction processing doesn't allow for interactive multi-statement transactions.  The application must submit everything at once so that the database can execute very fast without having to wait for network or disk I/O.
+
+![Figure 7.9 - stored procedure](images/ddia/stored_procedure.png)
+
+##### Pros and cons of stored procedures
+
+- Each database has its own language for stored procedures which haven't kept up with the general-purpose programming languages
+- Code running in a database is difficult to manage (harder to debug, keep in version control, deploy, test, and monitor)
+- Databases are much more performance-sensitive than application servers.  A badly written stored proc can cause much more trouble than badly written application code
+
+These issues can be overcome however as modern databases have addressed these.  Some databases support Java, Clojure, Lua, and other languages.
+
+Stored procedures and in-memory data can achieve alot of throughput.
+
+##### Partitioning
+
+Forcing all writes to go through a single CPU can be a serious bottleneck.  
+
+In order to scale, you have to partition across multiple nodes.  This only works however if the data can be modeled so that all data that needs to be read and written can isolated to a single partition. 
+
+Transactions that cross multiple partitions must coordinate across all the affected partitions.  This is orders of magnitude slower.
+
+##### Summary of serial execution
+- every transaction must be small and fast because one slow transaction can slow all processing
+- limited to use-cases where the entire active dataset can fit in memory
+- write throughput must be low enough to be handled by a single CPU
+- cross-partition transactions are possible but at the cost of a serious performance penalty
