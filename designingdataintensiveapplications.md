@@ -408,7 +408,7 @@ Similar to hash indexes but the key-value pairs are *sorted by key*.
 
 Merging segments is simple and efficient and uses an approach similar to the [*merge-sort* algorithm](https://www.youtube.com/watch?v=4VqmGXwpLqc).
 
-![SSTable compaction](images/sstable_compaction.png)
+![SSTable compaction](images/ddia/sstable_compaction.png)
 
 With an SSTable, we don't have to store the whole hashmap in-memory.  Because the keys are sorted, we can lookup values *between* other values.  This means the in-memory index can be sparse.  Simply lookup the closest values and scan from there.
 
@@ -475,7 +475,7 @@ B-trees are the most widely used indexing structure.
 B-trees break the database down into fixed-size blocks or pages as opposed to log-structured indexes which are variable-size segments.
 - this aligns closer to the underlying hardware as disks are also arranged in fixed-size blocks
 
-![B-tree Lookup](images/btree_lookup.png)
+![B-tree Lookup](images/ddia/btree_lookup.png)
 
 - Search starts at the *root* of the B-tree.  
 - Each child is responsible for a continuous range of keys.  The keys between the references indicate where the boundaries between those ranges lie.
@@ -491,7 +491,7 @@ Adding a new key consists of
 2. If there isn't enough free space in the page to accommodate the new key, split it into two half-full pages
    1. then update the parent page with the new subdivision of ranges
 
-![Growing B-tree](images/growing_btree.png)
+![Growing B-tree](images/ddia/growing_btree.png)
 
 This algorithm ensures a balanced tree with a depth of O(log *n*)
 
@@ -625,7 +625,7 @@ These databases are full of historic data from various OLTP systems and loaded v
 
 Analytics queries can be quite performance heavy due to the number of records and adhoc nature of the queries.  If these queries were executed against OLTP systems, they could potentially fail.
 
-![ETL datawarehouse](images/etl_datawarehouse.png)
+![ETL datawarehouse](images/ddia/etl_datawarehouse.png)
 
 This is even more true with distributed systems such as microservices where each service has its own database.
 
@@ -636,7 +636,7 @@ The internals of OLAP systems are optimized for analytical query patterns.  Some
 star schema
 : denormalized business data into facts and dimensions.  the fact table is at the center
 
-![star schema](images/starschema.png)
+![star schema](images/ddia/starschema.png)
 
 Facts are captured as individual events.  These allows maximum flexibility when doing analysis.
 
@@ -651,7 +651,7 @@ This can be problematic when querying data where you're only interested in parts
 
 In column-oriented storage, the data for each column is stored together.  
 
-![column vs row-oriented storage](images/columnvsrow.png)
+![column vs row-oriented storage](images/ddia/columnvsrow.png)
 
 #### Column Compression
 
@@ -659,10 +659,10 @@ Column-oriented storage lends itself very well to compression.
 [Compression Techniques for Column Oriented Databases](https://chistadata.com/compression-techniques-for-column-oriented-databases/)
 
 You can use bitmap-indexed storage or dictionary based encoding.
-![column store dictionary compression](images/dictionarycompression.png)
+![column store dictionary compression](images/ddia/dictionarycompression.png)
 
 Another alternative is run-length encoding (applicable to sorted data)
-![column store runlength compression](images/runlengthcompression.png)
+![column store runlength compression](images/ddia/runlengthcompression.png)
 
 
 Sort-order for column-oriented storage must be the same across all tables, otherwise there would be no way to correlate the data between tables.
@@ -689,7 +689,7 @@ data cube (a.k.a. OLAP cube)
 
 Data-cubes are essentially a grid of aggregates grouped by different dimensions.
 
-![Example of OLAP cube](images/olapcube.png)
+![Example of OLAP cube](images/ddia/olapcube.png)
 
 Advantages of datacubes are that they are pre-computed to make reads very quick and efficient.  
 Disadvantages is that there is no way to break the data down further than the aggregates without referring to the raw-data.
@@ -754,7 +754,7 @@ There are downsides however
 
 Binary encoding is much more compact than JSON and XML.  
 
-![Message Pack encoding](images/messagepackencoding.png)
+![Message Pack encoding](images/ddia/messagepackencoding.png)
 
 [Apache Thrift](https://thrift.apache.org/), [Protocol Buffers (protobuf)](https://protobuf.dev/), and [Apache Avro](https://avro.apache.org/) are all schema-based binary encoding libraries.  Each have their own implementation but in general solve for the same problem of encoding and decoding an evolving data contract.
 
@@ -762,7 +762,7 @@ Similarities
 - rather than having the schema field names in the message itself (like JSON), the schema is used at encoding/decoding.  This means the sender and receiver have the schema information and the document can point to references in the schema
 - the binary data sent over is comprised of lengths, types, and field tags (though Avro does not use field-tags)
 
-![Example of protobuf encoding](images/protobufencoding.png)
+![Example of protobuf encoding](images/ddia/protobufencoding.png)
 
 Differences
 - Avro has the concept of reader and writer schemas
@@ -918,7 +918,7 @@ Three popular algorithms for replicating changes between nodes
 2. multi-leader
 3. leaderless
 
-![leader-based replication](images/leader-based%20replication.png)
+![leader-based replication](images/ddia/leader-based%20replication.png)
 
 ### Leaders and followers
 
@@ -1076,7 +1076,7 @@ read-after-write consistency
 
 Many applications will let the user submit some data and view what they have submitted immediately.  With asynchronous replication, this can pose a challenge as the writes may not have yet propogated to the follower nodes.  To counteract this, we need *read-after-write consistency*.
 
-![read-after-write](images/read-after-write.png)
+![read-after-write](images/ddia/read-after-write.png)
 
 Techniques for implementing read-after-write consistency
 - Read from the leader.  For data that may have changed, read from the leader, otherwise a follower.  A simple example would be to load the user's profile from the leader, but others' profiles from followers.
@@ -1093,7 +1093,7 @@ monotonic read
 
 It's possible when making several reads from different replicas, that the results may seem as if things are moving *backward in time*.  
 
-![monotonic reads](images/monotonicreads.png)
+![monotonic reads](images/ddia/monotonicreads.png)
 
 One way of achieving this is by ensuring each user always makes their reads from the same replica.
 
@@ -1105,7 +1105,7 @@ consistent prefix reads
 
 Asynchronous replication can lead to violations of causality.  In a distributed and partitioned database, each partition operates independently and therefore there is no global ordering of writes.
 
-![consistency-prefix-reads](images/consistency-prefix-reads.png)
+![consistency-prefix-reads](images/ddia/consistency-prefix-reads.png)
 
 One solution to this is to ensure that writes that are causally related are written to the same partition.
 
@@ -1140,7 +1140,7 @@ Disadvantages
 
 It wouldn't make sense to have write-conflicts handled synchronously in a multi-leader configuration.  If synchronous write-conflict handling was required, then single-leader is the only viable option.
 
-![write conflict](images/writeconflict.png)
+![write conflict](images/ddia/writeconflict.png)
 
 Avoiding conflicts is the simplest strategy.  This is typically done by routing all user-traffic to the same datacenter.  In the case of a datacenter outage, this may break down.
 
@@ -1165,12 +1165,12 @@ Some research has been done into automatically resolving conflicts caused by con
 
 ### Multi-Leader Replication Topologies
 
-![multi-leader replication topologies](images/multileader-replication-topologies.png)
+![multi-leader replication topologies](images/ddia/multileader-replication-topologies.png)
 
 The main problem with circular and star topologies is that replicated data may have to travel through multiple nodes before reaching all destinations.  If one of the nodes is down, the replication will fail.
 
 All-to-all topologies have their own downside which is some replication messages may overtake others.  This is a problem of causality.
-![all-to-all topology](images/alltoall-topology.png)
+![all-to-all topology](images/ddia/alltoall-topology.png)
 
 ### Leaderless Replication
 
@@ -1180,7 +1180,7 @@ In leaderless replication, there is no *failover* of the leader.  Clients simult
 
 > Dynamo style databases include Dynamo, Riak, Cassandra, and Voldemort.
 
-![quorum write](images/quorum_write.png)
+![quorum write](images/ddia/quorum_write.png)
 
 On reads, the client may get different versions of data.  Version numbers are used to determine which value is newer.
 
@@ -1207,7 +1207,7 @@ When the formula is satisfied, we can expect to have received the most up-to-dat
 
 The n, w, and r values are configurable and can be tuned to specific workloads.  For high-read and low-write, a good option is to keep the w value high and the r value low.  
 
-<a name="figure5-11">![Figure 5-11 - quorum replicas](images/quorum_replicas.png)</a>
+<a name="figure5-11">![Figure 5-11 - quorum replicas](images/ddia/quorum_replicas.png)</a>
 
 There are limitations to quorum consistency
 - If using sloppy quorums, there is no guaranteed overlap between *r* nodes and the *w* nodes
@@ -1238,7 +1238,7 @@ Sloppy quorums are useful when you want to increase write availability but at th
 
 Dynamo-style databases allow several clients to write to the same key concurrently.  This means where will be conflicts, especially as there is no well-defined ordering.
 
-![Figure 5-12 - concurrent writes in dynamo](images/concurrent_writes_dynamo.png)
+![Figure 5-12 - concurrent writes in dynamo](images/ddia/concurrent_writes_dynamo.png)
 
 To become eventually consistent, the replicas need to converge to the same value however the db may not do this automatically.  There are some approaches to address this.
 
@@ -1254,7 +1254,7 @@ In Figure 5-12 however the operations are concurrent because A and B do not know
 
 > Concurrent sounds like things happening *at the same time*, but it doesn't really have to do with time.  It has more to do with if the operations are unaware of each other.  
 
-<a name="figure5-13">![Figure 5-13 - Capturing causal dependencies](images/causal_dependencies.png)</a>
+<a name="figure5-13">![Figure 5-13 - Capturing causal dependencies](images/ddia/causal_dependencies.png)</a>
 
 To capture causality, in [Figure 5-13](#figure5-13), each client is stating what it is aware of when sending a write along with version # info provided by the database.  The database also responds with the data and version it currently has.  This process creates multiple "value" entries which eventually have to be merged to get the final value.  These value entries signify concurrent write operations.  Riak calls these *siblings*.
 
@@ -1276,7 +1276,7 @@ In terms of a distributed database, partitions would be spread between nodes.
 
 Partitioning and replication are often combined for scalability and availability needs.
 
-![combining replication and partitioning](images/partition_and_replication.png)
+![combining replication and partitioning](images/ddia/partition_and_replication.png)
 
 The goal of partitioning is to spread the data and the query load evenly across the nodes.  
 - this isn't as easy as taking all data and splitting them up at random
@@ -1288,7 +1288,7 @@ The goal of partitioning is to spread the data and the query load evenly across 
 
 A real-world example of partioning by key range are encyclopedias, which are partioned alphabetically by term.
 
-![encyclopedia partition](images/encyclopedia_partition.png)
+![encyclopedia partition](images/ddia/encyclopedia_partition.png)
 
 Within each partition, we can keep the keys in sorted order which allows for fast range scans.
 
@@ -1299,7 +1299,7 @@ For example:
 - consider collecting sensor data from many sensors which are written to timestamp partitions
 - if a partition is by day, that means that all writes will go to the same partition on the same day
 - this means that the day's partition can be overloaded while the other partitions remain idle
-![partitioning sensor](images/partition_sensor.png)
+![partitioning sensor](images/ddia/partition_sensor.png)
 
 One way to address the above issue is to use a different value than the timestamp as the first element in the key.  If it's partitioned first by the sensor name and then by time, the write-load can be evenly distributed.
 
@@ -1340,7 +1340,7 @@ The main problem with secondary indexes is that they don't map neatly into parti
 
 #### Document-based secondary index
 
-![Figure 6.4 - secondary index by document](images/secondaryindex_documentpartition.png)
+![Figure 6.4 - secondary index by document](images/ddia/secondaryindex_documentpartition.png)
 
 In a document-based secondary index partition, each partition manages indexes on its own partitioned data.  This means each partition has its own *local index*.  
 
@@ -1351,7 +1351,7 @@ The scatter-gather approach can make read operations quite expensive due to [tai
 > Most database vendors recommend that you structure your partitioning scheme so that secondary index queries can be served from a single partition
 
 #### Term-based secondary index
-![Figure 6.4 - secondary index by term](images/secondaryindex_termpartition.png)
+![Figure 6.4 - secondary index by term](images/ddia/secondaryindex_termpartition.png)
 
 In a term-based secondary index partition, a *global* index is used.  The secondary indexes are partitioned differently than the primary.
 
@@ -1385,7 +1385,7 @@ Expected requirements after rebalancing
 ##### Fixed number of partitions
 At the outset, plan for a large # of partitions.  Entire partitions are moved between nodes.
 
-![Figure 6.6 - fixed number partitioning](images/fixedpartitionrebalancing.png)
+![Figure 6.6 - fixed number partitioning](images/ddia/fixedpartitionrebalancing.png)
 
 Advantage is that this is operationally simpler.
 Disadvantage is that the # of partitions is fairly static and not easy to change.
@@ -1425,7 +1425,7 @@ How does a client know which node to connect to?
 2. send requests to a routing tier
 3. require the clients to be aware of the partitioning and assignment
 
-![partition routing](images/partition_routing.png)
+![partition routing](images/ddia/partition_routing.png)
 
 Zookeeper is a common solution for a routing tier.
 
@@ -1496,7 +1496,7 @@ Isolation is about *concurrency*, and another word for this is *serializability*
 
 > ...concurrently executing transactions are isolated from each other: they cannot step on each other's toes
 
-<a name="figure7-1">![Figure 7.1 - ACID - race condition example for isolation](images/isolation_acid.png)</a>
+<a name="figure7-1">![Figure 7.1 - ACID - race condition example for isolation](images/ddia/isolation_acid.png)</a>
 
 Serializable isolation is rarely ever used however because it carries a performance penalty.
 
@@ -1517,9 +1517,9 @@ Durability is not guaranteed, no matter the marketing material
 
 ### Single and Multi-Object Operations
 
-<a name="figure7-2">![Figure 7-2 - violating isolation](images/violating_isolation.png)</a>
+<a name="figure7-2">![Figure 7-2 - violating isolation](images/ddia/violating_isolation.png)</a>
 
-<a name="figure7-3">![Figure 7-3 - atomicity](images/atomicity.png)</a>
+<a name="figure7-3">![Figure 7-3 - atomicity](images/ddia/atomicity.png)</a>
 
 Multi-object transactions require some way of determining which read and write belongs to the same transaction.  In typical RDBMS, it's usually done with the client's TCP connection to the db server.
 
@@ -1585,7 +1585,7 @@ Makes 2 guarantees
 
 ##### No dirty reads
 
-<a name="figure7-4">![Figure 7.4 - No dirty reads](images/dirty_reads.png)</a>
+<a name="figure7-4">![Figure 7.4 - No dirty reads](images/ddia/dirty_reads.png)</a>
 
 Reasons why to prevent dirty reads
 - If a transaction needs to update several objects, a dirty read means that another transaction can read some of the updates but not others.  This can be confusing to the users and may cause them to take improper action
@@ -1597,7 +1597,7 @@ When two transactions concurrently try to update the same object, we normally as
 
 However, what if the earlier write was part of a transaction that hasn't yet been committed.  This is a *dirty write*.
 
-<a name="figure7-5">![Figure 7.5 - dirty writes](images/dirty_writes.png)</a>
+<a name="figure7-5">![Figure 7.5 - dirty writes](images/ddia/dirty_writes.png)</a>
 
 In [Figure 7.5](#figure7-5), the data from two different transactions are updated to an inconsistent state with one user having purchased an item but the other getting the invoice.  Read-committed prevents such mishaps.
 
@@ -1615,7 +1615,7 @@ The process of acquiring a read-lock however has serious performance implication
 
 ### Snapshot Isolation and Repeatable Read
 
-<a name="figure7-6">![Figure 7-6 - Read skew](images/read_skew.png)</a>
+<a name="figure7-6">![Figure 7-6 - Read skew](images/ddia/read_skew.png)</a>
 
 [Figure 7.6](#figure7-6) illustrates an issue called *read skew* (a.k.a. *nonrepeatable read*).  There is a moment in time where Alice can see $900 in her balance instead of $1000.  Reading the data afterwards would show the right amount, however in some cases, such temprary inconsistency cannot be tolerated.
 
@@ -1633,7 +1633,7 @@ A key principle of snapshot isolation is *readers never block writers*, and *wri
 
 The database must potentially keep several different committed versions of an object, because various in-progress transactions may need to see the state of the database at different points in time.  This technique is known as *multi-version concurrency control* (MVCC).
 
-<a name="figure7-7">![Figure 7.7 - Snapshot Isolation](images/snapshot_isolation.png)</a>
+<a name="figure7-7">![Figure 7.7 - Snapshot Isolation](images/ddia/snapshot_isolation.png)</a>
 
 [Figure 7.7](#figure7-7) shows how snapshot isolation is implemented in PostgreSQL.  Each row has a ```created_by``` field and a ```deleted_by``` field (which is initially empty).  If a transaction deletes a row, it is marked for deletion by setting the ```deleted_by``` field to the transaction Id that requested it.  At a later time, after the transaction is completed and when it is certain that no transaction can access the deleted data, a garbage collection process removes the rows marked for deletion and frees up the space.
 
@@ -1752,7 +1752,7 @@ As discussed in [Concurrent Writes](#concurrent-writes), a common approach is to
 
 Dirty writes and lost updates are two kinds of race conditions when different transactions are concurrently writing to the same objects.  Write-skew and phantoms are other kinds of race conditions.
 
-<a name="figure7-8">![Figure 7.8 - Write Skew](images/write_skew.png)</a>
+<a name="figure7-8">![Figure 7.8 - Write Skew](images/ddia/write_skew.png)</a>
 
 In [Figure 7.8](#figure7-8), the business rule is that at least one doctor must be on-call.  The application checks for a value and then decides to make an update based on the value returned.  This is different from the *read-modify-write* cycle mentioned earlier because different records are being affected.  This anomaly is called *write skew*.
 
