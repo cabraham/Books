@@ -1669,3 +1669,81 @@ Many databases implement "repeatable read" but there are big differences between
 
 > As a result, nobody really knows what repeatable read means.
 
+### Preventing Lost Updates
+
+All discussion up until now was regarding read-only transactions.  [Figure 7.1](#figure7-1) briefly touched on concurrent writes.
+
+There are several kinds of conflicts that can occur between concurrent write transactions. The best known of these is called the *lost updated* problem.
+
+The *lost update* problem occurs when an application reads a value from the database, modifies it, and writes the modified value back to the database (*read-modify-write cycle*).  Another term for this is that the later write *clobbers* the earlier write.
+
+This pattern occurs in various scenarios: 
+- incrementing a counter or updating an account balance
+- making a local change to a complex value (e.g. adding an element to a list in a JSON document)
+- two users editing a wiki page at the same time
+
+Because this is such a common problem, a variety of solutions have been developed.
+
+#### Atomic write operations
+
+Many databases provide atomic update operations, which remove the need for read-modify-write cycles.  If you can express the operation in those terms like below, then you can avoid a lost update.
+
+``` sql
+UPDATE counters SET value = value + 1 WHERE key = 'foo'
+```
+
+Atomic operations are usually implemented by taking an exclusive lock on the object when it is read so that no other transaction can read it until the update has been completed.  This is also called *cursor stability*.
+
+Object-relational mapping frameworks make it easy to accidentally write code that performs unsafe read-modify-write cycles instead of using atomic operations provided by the database.  This is the source of some subtle bugs which would be difficult to find.
+
+
+#### Explicit locking
+
+The application can acquire an explicit lock.  In this method, a read-modify-write cycle can occur safely as it prevents other transactions from accessing the object.  
+
+``` sql
+BEGIN TRANSACTION;
+
+SELECT * FROM figures
+WHERE name = 'robot' and game_id = 222
+FOR UPDATE;
+
+-- Check whether move is valid, then update the position
+-- of the piece that was returned by the previous SELECT.
+UPDATE figures SET position = 'c4' WHERE id = 1234;
+
+COMMIT;
+```
+
+In the above code, the database prevents two users from concurrently moving the same piece.  The main problem with this approach is that you have to carefully think about your application logic.  It's easy to get wrong and introduce a race condition.  Another issue is that the application logic is now coupled to your database implementation.  
+
+#### Automatically detecting lost updates
+
+Many databases can prevent lost updates automatically.  If the transaction manager detects a lost update, it can abort the transaction and force it to retry its read-modify-write cycle.  
+
+Databases can perform this check efficiently in conjunction with snapshot isolation.  
+
+This means that the application code doesn't have to use any special database features (like explicit locking) and therefore is less error-prone.
+
+#### Compare-and-set
+
+This method only allows updates if the value has changed ```new value != old value```
+
+``` sql
+UPDATE wiki_pages SET content = 'new content'
+WHERE id = 1234 and content = 'old content'
+```
+
+This is a good method in general however is prone to a subtle bug.  If the database allows reads from an old snapshot, then the above ```WHERE``` clause will be true and therefore successfully update, which can cause a lost update.
+
+You must be aware of the database's compare-and-set operation and ensure that it is safe for use.
+
+#### Conflict resolution and replication
+
+In replicated databases, this problem is much more complex since there are multiple copies of the data on multiple nodes, and the data can potentially be modified concurrently on different nodes.
+
+> Locks and compare-and-set operations assume that there is a single up-to-date copy of the data.  However, databases with multi-leader or leaderless replication usually allow several writes to happen concurrently and replicate them asynchronously, so they cannot guarantee that there is a single up-to-date copy of the data.
+
+As discussed in [Concurrent Writes](#concurrent-writes), a common approach is to allow conflicting versions (a.k.a. *siblings*), and use application code or special data structures to resolve and merge these versions after the fact.
+
+[Commutative](https://en.wikipedia.org/wiki/Commutative_property) operations can work well in a replicated context.  In comparison, [*last write wins* (LWW)](#last-write-wins) conflict resolution is prone to lost updates.
