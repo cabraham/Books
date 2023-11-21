@@ -265,15 +265,17 @@ Driving forces for NoSQL
 - application objects and their representation do not match completely with the relational model.  
 - tools have been developed to reduce the amount of boilerplate code required to address the mismatch, but there is still an **impedance mismatch**
 
-[Impedance Mismatch](https://www.geeksforgeeks.org/impedance-mismatch-in-dbms/)
-: when two systems or components that are supposed to work together have different data models, structures, or interfaces that make communication difficult or inefficient
+<dl>
+  <dt><a href="https://www.geeksforgeeks.org/impedance-mismatch-in-dbms/">Impedance Mismatch</a></dt>
+  <dd>when two systems or components that are supposed to work together have different data models, structures, or interfaces that make communication difficult or inefficient</dd>
+  <dt>Shredding</dt>
+  <dd>the relational technique of splitting a document-like structure into multiple tables</dd>
+</dl>
 
 Storing complex object structures in relational vs document styles has pros and cons.
 - Relational style spreads the data across various tables through normalization.  Query operations become more complex
 - Document style keeps the data together in one record.  Limited query options are available here however but much simpler to retrieve and update.
 
-Shredding
-: the relational technique of splitting a document-like structure into multiple tables
 
 
 #### Access patterns in document databases
@@ -311,11 +313,12 @@ Many popular relational databases also have support for document style data stor
 
 ### Query Languages for Data
 
-[Imperative language](https://en.wikipedia.org/wiki/Imperative_programming)
-: uses statements that change a program's state
-
-[Declarative language](https://en.wikipedia.org/wiki/Declarative_programming)
-: express the logic of a computation without describing its control flow
+<dl>
+  <dt><a href="https://en.wikipedia.org/wiki/Imperative_programming">Imperative language</a></dt>
+  <dd>uses statements that change a program's state</dd>
+  <dt><a href="https://en.wikipedia.org/wiki/Declarative_programming">Declarative language</a></dt>
+  <dd>express the logic of a computation without describing its control flow</dd>
+</dl>
 
 SQL is a declarative language because we're defining patterns as opposed to specific steps.  
 
@@ -326,11 +329,12 @@ Declarative languages are typically better suited for parallel execution.  This 
 
 Used when there are many-to-many relationships are common in the system.
 
-Vertices
-: nodes or entities
-
-Edges
-: relationships or arcs
+<dl>
+  <dt>Vertices</dt>
+  <dd>nodes or entities</dd>
+  <dt>Edges</dt>
+  <dd>relationships or arcs</dd>
+</dl>
 
 There are declarative query languages for graph databases such as: 
 - [Cypher query language](https://neo4j.com/developer/cypher/)
@@ -351,20 +355,18 @@ There are other data models not covered as well.  Examples are full-text search 
 
 #### Terms
 
-log
-: an append-only data file (*not to be confused with application log, which outputs text describing what is happening*)
-
-index
-: an additional structure that is derived from the primary data.  Used for speeding up reads (efficient lookup) at the cost of additional writes
-
-compaction
-: discard duplicate keys in a log.  Often performed with merging
-
-merging
-: bringing together multiple segments.  Often performed with compaction
-
-tombstone
-: a special entry in a log that signifies deletion of data
+<dl>
+  <dt>log</dt>
+  <dd>an append-only data file (*not to be confused with application log, which outputs text describing what is happening*)</dd>
+  <dt>index</dt>
+  <dd>an additional structure that is derived from the primary data.  Used for speeding up reads (efficient lookup) at the cost of additional writes</dd>
+  <dt>compaction</dt>
+  <dd>discard duplicate keys in a log.  Often performed with merging</dd>
+  <dt>merging</dt>
+  <dd>bringing together multiple segments.  Often performed with compaction</dd>
+  <dt>tombstone</dt>
+  <dd>a special entry in a log that signifies deletion of data</dd>
+</dl>
 
 ### Hash Indexes
 
@@ -472,11 +474,12 @@ Because LSM trees are written sequentially, they support high write throughput.
 
 ### B-Trees
 
-leaf-page
-: final page where the individual keys and values (or reference to the values) are stored
-
-branching factor
-: the number of references to child pages in one page
+<dl>
+  <dt>leaf-page</dt>
+  <dd>final page where the individual keys and values (or reference to the values) are stored</dd>
+  <dt>branching factor</dt>
+  <dd>the number of references to child pages in one page</dd>
+</dl>
 
 B-trees are the most widely used indexing structure.
 
@@ -552,14 +555,15 @@ In write-heavy applications, the more writes to disk, the fewer writes per secon
 
 ### Other Indexing Structures
 
-Clustered Index
-: when an indexed row is stored directly within an index.  These are stored in a specific order
+<dl>
+  <dt>Clustered Index</dt>
+  <dd>when an indexed row is stored directly within an index.  These are stored in a specific order</dd>
+  <dt><a href="https://www.geeksforgeeks.org/secondary-indexing-in-databases/">Secondary index</a></dt>
+  <dd>Secondary indexing is a database management technique used to create additional indexes on data stored in a database. The main purpose of secondary indexing is to improve the performance of queries and to simplify the search for specific records within a database. A secondary index provides an alternate means of accessing data in a database, in addition to the primary index.</dd>
+  <dt>Heap-file</dt>
+  <dd>location where row content is stored if apart from the document or vertex.  Data is not stored in any particular order</dd>
+</dl>
 
-[Secondary index](https://www.geeksforgeeks.org/secondary-indexing-in-databases/#)
-: Secondary indexing is a database management technique used to create additional indexes on data stored in a database. The main purpose of secondary indexing is to improve the performance of queries and to simplify the search for specific records within a database. A secondary index provides an alternate means of accessing data in a database, in addition to the primary index.
-
-Heap-file
-: location where row content is stored if apart from the document or vertex.  Data is not stored in any particular order
 
 #### Storing values within the index
 
@@ -571,8 +575,10 @@ A compromise between clustered (storing all row data within the index) and non-c
 
 #### Multi-column indexes
 
-concatenated index
-: combines several fields into one key by appending one column to another (in a specific order)
+<dl>
+  <dt>concatenated index</dt>
+  <dd>combines several fields into one key by appending one column to another (in a specific order)</dd>
+</dl>
 
 > multi-dimensional indexes are a more general way of querying several columns at once
 
@@ -609,11 +615,13 @@ The performance of in-memory actually comes from not having to encode in-memory 
 
 ### Transaction Processing or Analytics
 
-OLTP (*online transaction processing*)
-: type of processing that consists of executing a number of transactions occurring concurrently.  typically small number of records per transaction and used for interactive patterns
+<dl>
+  <dt>OLTP (*online transaction processing*)</dt>
+  <dd>type of processing that consists of executing a number of transactions occurring concurrently.  typically small number of records per transaction and used for interactive patterns</dd>
+  <dt>OLAP (*online analytic processing*)</dt>
+  <dd>type of processing that is used for analytical purposes.  typically querying large amounts of data to perform analytics to inform business decisions</dd>
+</dl>
 
-OLAP (*online analytic processing*)
-: type of processing that is used for analytical purposes.  typically querying large amounts of data to perform analytics to inform business decisions
 
 *Characteristics of OLTP vs OLAP*
 |Property|OLTP|OLAP|
@@ -626,8 +634,11 @@ OLAP (*online analytic processing*)
 
 #### Data Warehousing
 
-Data-warehouse
-: a separate database that analysts can query
+<dl>
+  <dt>Data-warehouse</dt>
+  <dd>a separate database that analysts can query</dd>
+</dl>
+
 
 These databases are full of historic data from various OLTP systems and loaded via ETL (*Extract-Transform-Load*) processes.
 
