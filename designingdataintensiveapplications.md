@@ -1,6 +1,3 @@
-<style>
-  img {width: 600px;}
-</style>
 # [Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems](https://www.amazon.com/Designing-Data-Intensive-Applications-Reliable-Maintainable/dp/1449373321)
 
 
@@ -12,11 +9,12 @@
 
 #### Terms
 
-Data-Intensive 
-: deals with amount of data, complexity of data, how fast the data is changing
-
-Compute intensive
-: CPU bound
+<dl>
+  <dt>Data-Intensive</dt>
+  <dd>deals with amount of data, complexity of data, how fast the data is changing</dd>
+  <dt>Compute intensive</dt>
+  <dd>CPU bound</dd>
+</dl>
 
 
 
@@ -47,14 +45,14 @@ Three main concerns
 
 #### Terms
 
-Fault
-: things that can go wrong
-
-Fault-tolerant or resilient
-: ability to anticipate and cope with faults
-
-Failure
-: system as a whole stops providing the required service
+<dl>
+  <dt>Fault</dt>
+  <dd>things that can go wrong</dd>
+  <dt>Fault-tolerant or resilient</dt>
+  <dd>ability to anticipate and cope with faults</dd>
+  <dt>Failure</dt>
+  <dd>system as a whole stops providing the required service</dd>
+</dl>
 
 
 #### Hardware Faults
@@ -88,8 +86,11 @@ How to address this?
 ---
 
 ### Scalability
-Scalability
-: a system's ability to cope with increased load
+
+<dl>
+  <dt>Scalability</dt>
+  <dd>a system's ability to cope with increased load</dd>
+</dl>
 
 *Note*: Scalability is not a one-dimensional label.  
 
@@ -106,12 +107,19 @@ Load can be described with *load parameters*.  Examples of load parameters are:
 
 **Latency** and **response time** are NOT the same.  
 
-Response time
-: is what the client sees from end-to-end.
+<dl>
+  <dt>Response time</dt>
+  <dd>is what the client sees from end-to-end</dd>
+</dl>
 *this includes network delays, queueing delays, response processing and other factors*
 
-Latency
-: however is how long the request was *latent* (waiting to be processed).
+<dl>
+  <dt>Latency</dt>
+  <dd>however is how long the request was *latent* (waiting to be processed).</dd>
+</dl>
+
+
+
 
 ##### Measuring response times
 There is always a level of randomness and variability in each request, even if it's the same request over and over, often due to factors outside our control.  *(TCP retransmission, garbage collection, page fault, etc.)*
@@ -158,14 +166,14 @@ graph TD;
 
 #### Approaches for Coping with Load
 
-Scaling-up
-: vertical scaling, moving to a more powerful machine
-
-Scaling-out
-: horizontal scaling, distributing the load across multiple smaller machines (a.k.a. *shared-nothing* architecture)
-
-Elastic
-: systems that can automatically add computing resources when they detect a load increase (whereas other systems are scaled manually)
+<dl>
+  <dt>Scaling-up</dt>
+  <dd>vertical scaling, moving to a more powerful machine</dd>
+  <dt>Scaling-out<dt>
+  <dd>horizontal scaling, distributing the load across multiple smaller machines (a.k.a. *shared-nothing* architecture)</dd>
+  <dt>Elastic</dt>
+  <dd>systems that can automatically add computing resources when they detect a load increase (whereas other systems are scaled manually)</dd>
+</dl>
 
 
 > Horizontal scaling on a stateful system brings in lots of complexity.  This is why until recently, the common practice was to keep the state in one location and scale that up until the scalability requirements forces you to distribute.
@@ -173,15 +181,14 @@ Elastic
 *There is no magic architecture.*  The way one application scales can be vastly different from another.  
 For example: Designing a system that handles 100,000 requests per second with requests of 1kb in size is vastly different than designing a system that handles 3 requests per minute, each 2 GB in size.  It's the same data-throughput but vastly different use-cases.
 
-
-Operability
-: Make it easy for operations teams to keep the system running smoothly
-
-Simplicity
-: Make it easy for new engineers to understand the system, by removing as much complexity as possible from the system.
-
-Evolvability
-: Make it easy for engineers to make changes to the system in the future, adapting it for unanticipated use cases as requirements change.  *(a.k.a. extensibility, modifiability, or plasticity)*
+<dl>
+  <dt>Operability</dt>
+  <dd>Make it easy for operations teams to keep the system running smoothly</dd>
+  <dt>Simplicity</dt>
+  <dd>Make it easy for new engineers to understand the system, by removing as much complexity as possible from the system.</dd>
+  <dt>Evolvability</dt>
+  <dd>Make it easy for engineers to make changes to the system in the future, adapting it for unanticipated use cases as requirements change.  *(a.k.a. extensibility, modifiability, or plasticity)*</dd>
+</dl>
 
 
 #### Operability: Making Life Easy for Operations
@@ -280,11 +287,12 @@ If using a document database, you can emulate joins in the application code.  Th
 #### Schema
 Document databases do not enforce any schema on the data in the documents.  This leads people to think that they are *schemaless*, but this is misleading because the application that reads and works with the data would have a schema.  The more accurate term would be *schema-on-read*.  
 
-Schema-on-read
-: schema is implicitly enforced by the application that reads the data
-
-Schema-on-write
-: schema is explicit and enforce on write (database ensures all data written conforms to the schema).  Most commonly seen in relational style databases
+<dl>
+  <dt>Schema-on-read</dt>
+  <dd>schema is implicitly enforced by the application that reads the data</dd>
+  <dt>Schema-on-write</dt>
+  <dd>schema is explicit and enforce on write (database ensures all data written conforms to the schema).  Most commonly seen in relational style databases</dd>
+</dl>
 
 Schema-on-read approach may be advantageous if the items in the collection don't all have the same schema.
 1. if there are many different types of objects and it isn't practical to put each in their own tables
