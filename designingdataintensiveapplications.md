@@ -1925,3 +1925,120 @@ Transactions that cross multiple partitions must coordinate across all the affec
 - limited to use-cases where the entire active dataset can fit in memory
 - write throughput must be low enough to be handled by a single CPU
 - cross-partition transactions are possible but at the cost of a serious performance penalty
+
+### Two-Phase Locking (2PL)
+
+**Note**: two-phase locking (2PL) is not the same as two-phase commit (2PC)
+
+For decades 2PL was a widely used algorithm for serializability.
+
+2PL has even stronger lock requirements than locks that prevent dirty writes.  2PL allows several transactions to concurrently read the same object, but if any transaction wants to write, it has to acquire an exclusive access.
+- if transactionA has read an object and transactionB wants to write to that object, B must wait until A commits or aborts before it can continue
+- if transactionA has written an object and transactionB wants to read that object, B must wait until A commits or aborts before it can continue ([Figure 7.1](#figure7-1) can't happen)
+
+2PL blocks not only other writers but also readers, and vice-versa.  In comparison, snapshot isolation has the mantra *readers never block writers, and writers never block readers*.
+
+##### Implementation of two-phase locking
+
+> The blocking of readers and writers is implemented by having a lock on each object in the database.  The lock can be in *shared mode* or in *exclusive mode*.  The lock is used as follows: 
+- If a transaction wants to read an object, it must first acquire the lock in shared mode.  Many transactions can hold a shared lock.  If another transaction has an exclusive lock however, these transactions must  wait
+- If a transaction wants to write to an object, it must first acquire an exclusive lock.  If any other transaction holds an exclusive lock, the transaction must wait
+- If a transaction first reads and then writes an object, it may upgrade its shared lock to an exclusive lock
+- After a transaction has acquired the lock, it must continue to hold the lock until the end of the transaction.  
+
+**Note**: this is where the name 2 phase comes from.  Phase 1 is acquiring the lock, and the second phase (at the end of the transaction) is when all the locks are released
+
+A *deadlock* is when two transactions are waiting for the other to release a lock.  The database automatically detects deadlocks and will abort one of them so that the other can continue.  The aborted transaction must be retried.
+
+##### Performance of two-phase locking
+
+Two-phase locking is rarely used nowadays because of heavy performance implications.  These are primarily due to: 
+1. The overhead of acquiring and releasing the locks
+2. **More importantly**: reduced concurrency
+
+Databases running two-phase locking can have very unstable latencies, especially at [high percentiles](#tail-latencies).
+
+##### Predicate locks
+
+<dl>
+  <dt>predicate lock</dt>
+  <dd>a type of lock that locks all objects that satisfy some particular condition(s)</dd>
+</dl>
+
+Rather than locking on specific objects in the database, a [predicate lock](https://www.geeksforgeeks.org/predicate-locking/) locks against a search condition.
+
+``` sql
+SELECT * FROM bookings
+  WHERE room_id = 123 AND
+    end_time > '2018-01-01 12:00' AND
+    start_time < '2018-01-01 13:00
+```
+If transaction A (the above select statement) wants to read data matching the above condition, it must first acquire a shared-lock on the condition.
+  - If however there is an exclusive lock by another transaction (transaction B), then transaction A must wait until B releases its lock
+  - If transaction A wants to write (insert, update, or delete any object), it must first check whether the old or new value matches any existing predicate lock (in transaction B).  If so, it must wait until transaction B releases the lock.
+
+> The key idea here is that a predicate lock applies even to objects that do not yet exist in the database, but which might be added in the future (phantoms).  
+If 2PL includes predicate locks, the database will prevent all forms of write skew and other race conditions, which effectively means the isolation is serializable.
+
+##### Index-range locks
+
+Predicate locks do not perform well, especially in databases that have many active transactions.
+
+Most databases use a simplified locking strategy called *index-range locking*, which is an approximation of predicate locking.  Although not as precise as predicate locks (they may lock a bigger range of objects than is strictly necessary), the overhead of managing the lock is much lower and so is a compromise.
+
+### Serializable Snapshot Isolation (SSI)
+
+This is a fairly new algorithm that provides full serializability, but only a small performance penalty (as compared to two-phase locking and serial execution).
+
+##### Pessimistic vs optimistic concurrency control
+
+2PL is a *pessimistic* concurrency control mechanism.  It's based on the principle that if something can go wrong, it's better to wait until the situation is safe again before doing anything.  
+
+Serial execution is pessimistic to the extreme.  Generally we compensate for the pessimism by making transactions small and fast so that the locks are only held for a short time.
+
+SSI is an *optimistic* concurrency control technique.  This means that transactions are allowed to go through, and if something bad happened, then the transaction is aborted and must be retried.
+
+There are advantages and disadvantages to using optimistic concurrency and it doesn't apply to all workloads.
+- If there is high contention, it will perform badly because many transaction will need to abort and retry
+- If there is enough spare capacity however, and the contention is not high, it may be a good fit.
+- Contention can also be reduced with commutative atomic operations
+
+SSI is based on [snapshot isolation](#snapshot-isolation-and-repeatable-read).  
+
+> On top of snapshot isolation, SSI adds an algorithm for detecting serialization conflicts among writes and determining which transactions to abort.
+
+When discussing [write skew](#write-skew-and-phantoms), we found that transactions could act on stale data.  This means the *premise* of the write (from a previous query) was used to make a decision on what to write.  The database must detect when an outdated premise was used and abort the transaction.
+
+There are two ways to consider this: 
+1. Detecting reads of a stale MVCC object version (uncommitted write occurred before the read)
+2. Detecting writes that affect prior reads (the write occurs after the read)
+
+##### Detecting stale MVCC reads
+
+<a name="figure7-10">![Figure 7.10 - detecting outdated reads in MVCC](images/ddia/stale_mvcc_reads.png)</a>
+
+The decision on whether or not to abort a transaction happens on commit.  In [Figure 7-10](#figure7-10), transaction 43 is allowed to read the data, but at commit time, it is aborted because the transaction manager keeps track that the data has become stale.  
+
+In pessimistic control, transaction 43 would have been unable to even do a read.
+
+##### Detecting writes that affect prior reads
+
+<a name="figure7-11">![Figure 7.11 - Detecting when one transaction modifies another transaction's reads](images/ddia/ssi_write_affecting_reads.png)</a>
+
+In [Figure 7-11](#figure7-11), the transaction manager tracks which transactions have read the data.  When transaction 42 makes the write, transaction 43 is notified that its prior read is outdated.  Because transaction 42 commits first it is successful, but transaction 43 is aborted because the conflicting write has already been committed.
+
+##### Performance of serializable snapshot isolation
+
+One important trade-off made is the granularity at which transaction reads and writes are tracked.  
+- The greater the granularity, the greater the accuracy of which transactions need to be aborted, but at the cost of increased overhead
+- The lower the granularity, the faster the transactions, but potentially at the cost of more transactions being aborted than necessary
+
+Compared to 2PL, the big advantage is that SSI doesn't block other transactions waiting for locks.  
+
+Like [snapshot isolation](#snapshot-isolation-and-repeatable-read), writers don't block readers, and vice-versa.
+  - This means that read-only query latency is much more predictable and less variable.  
+
+Compared to serial execution, SSI is not limited to the throughput of a single CPU core.  
+
+The rate of aborts significantly affects the overall performance of SSI.  
+
