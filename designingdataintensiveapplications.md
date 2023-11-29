@@ -1636,7 +1636,7 @@ The process of acquiring a read-lock however has serious performance implication
 
 <a name="figure7-6">![Figure 7-6 - Read skew](images/ddia/read_skew.png)</a>
 
-[Figure 7.6](#figure7-6) illustrates an issue called *read skew* (a.k.a. *nonrepeatable read*).  There is a moment in time where Alice can see $900 in her balance instead of $1000.  Reading the data afterwards would show the right amount, however in some cases, such temprary inconsistency cannot be tolerated.
+[Figure 7.6](#figure7-6) illustrates an issue called *read skew* (a.k.a. *nonrepeatable read*).  There is a moment in time where Alice can see \$900 in her balance instead of \$1000.  Reading the data afterwards would show the right amount, however in some cases, such temprary inconsistency cannot be tolerated.
 
 ##### Backups
 Taking a backup of the entire database, which is a long-running operation, will likely overlap with continued writes to the database.  You could end up with some parts of the backup containing an older version of the data, and other parts containing the newer version.  
@@ -1692,7 +1692,7 @@ Many databases implement "repeatable read" but there are big differences between
 
 All discussion up until now was regarding read-only transactions.  [Figure 7.1](#figure7-1) briefly touched on concurrent writes.
 
-There are several kinds of conflicts that can occur between concurrent write transactions. The best known of these is called the *lost updated* problem.
+There are several kinds of conflicts that can occur between concurrent write transactions. The best known of these is called the *lost update* problem.
 
 The *lost update* problem occurs when an application reads a value from the database, modifies it, and writes the modified value back to the database (*read-modify-write cycle*).  Another term for this is that the later write *clobbers* the earlier write.
 
@@ -1929,6 +1929,8 @@ Transactions that cross multiple partitions must coordinate across all the affec
 ### Two-Phase Locking (2PL)
 
 **Note**: two-phase locking (2PL) is not the same as two-phase commit (2PC)
+  - 2PL - mechanism used for a single database instance to ensure serializability
+  - 2PC - used for distributed transactions across multiple database instances
 
 For decades 2PL was a widely used algorithm for serializability.
 
