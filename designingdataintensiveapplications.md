@@ -2044,3 +2044,117 @@ Compared to serial execution, SSI is not limited to the throughput of a single C
 
 The rate of aborts significantly affects the overall performance of SSI.  
 
+---
+## Chapter 8 - The Trouble with Distributed Systems
+
+> Working with distributed systems is fundamentally different from writing software on a simple computer -- and the main difference is that there are lots of new and exciting ways for things to go wrong
+
+### Faults and Partial Failures
+
+Failures on a single computer tend to be *deterministic* in that it is either fully functional or entirely broken.  
+- Software bugs are generally deterministic since the same inputs can result in the same outputs (even if incorrect)
+
+The intentional design is to have the computer crash rather than returning the wrong result.   Rebooting the computer is usually enough to deal with anomalies.
+
+Contrast this with distributed systems where multiple computers connected over a network are working together.  In a distributed system, it's reasonable to assume that some systems will run perfectly fine while other systems will fail in often unpredictable ways.  This is called a *partial failure*.
+
+Partial failures are *non-deterministic*.
+
+#### Cloud Computing and Supercomputing
+
+Large-scale systems can be scaled in two primary ways
+1. *High-performance computing* - which are super computers with thousands of CPUs for computationally intensive scientific computing tasks (e.g. weather, molecular dynamics)
+2. *Cloud computing* - typically multi-tenant datacenters using commmodity computers connected over an IP network
+
+Traditional enterprise datacenters lie somewhere between the two.
+
+Super-computing workloads are more similar to a single computer workloads because partial failures are treated as total failures.  
+  - To address some of the recoverability issues here, the workloads may take snapshots to be able to restart from a checkpoint.
+
+Super-computers are also built on more reliable and specialized hardware and network topologies.
+
+#### Building a Reliable System from Unreliable Components
+Examples of this are: 
+- [Error-Correcting Codes](https://en.wikipedia.org/wiki/Error_correction_code) - allows for accurate transmission across a communication channel that occasionally gets some data bits wrong
+- TCP/IP - ensures missing packets are retransmitted, duplicates are eliminated, and packets are reassembled into the order in which they were sent
+
+There are limits to the effectiveness however.  
+- ECC can solve for a small number of errors, but loses effectiveness with large amounts of interference.
+- TCP can hide many network issues, but it can't remove delays in the network
+
+### Unreliable Networks
+
+*Shared-nothing* systems are the predominant way of building cloud-based systems due to cost and availability of commodity hardware.
+
+Due to this, most internet and internal networks communicate via *asynchronous packet networks*.  
+
+![Figure 8.1 - failure in unreliable network](images/ddia/unreliable_network.png)
+
+In this type of network, it is impossible to why a sender never received a response.
+- Typically this is handled by a *timeout*, however even this doesn't tell us if the receiver got the request, or if it's queued on the receiving end.
+
+
+<dl>
+  <dt>network partition</dt>
+  <dd>when one part of the network is cut off from the rest due to a network fault</dd>
+</dl>
+
+
+### Detecting Faults
+
+Because of network uncertainty, it is difficult to tell whether a node is working or not.  This makes automatic fault detection challenging.  
+
+Some common scenarios are: 
+- a load balancer needs to stop sending requests to a node that is dead
+- promoting a follower to a leader when the single-leader has failed
+
+Rapid feedback about a remote node being down is very useful, but you can't count on it.
+
+The only way to be sure that a request was successful is to receive a positive response from the application.
+
+### Timeouts and Unbounded Delays
+
+> If a timeout is the only sure way of detecting a fault, then how long should the timeout be? There is unfortunately no simple answer
+
+A longer timeout means having to wait longer before a node is declared dead.  This means higher chance of users having to wait or seeing error messages.
+
+A shorter timeout detects faults faster, but increases the chance of incorrectly declaring a node dead.
+
+Asynchronous networks have *unbounded* delays.  This means there is no upper limit on the time it takes to deliver a packet.
+
+#### Network congestion and queueing
+
+Variability of packet delays on a computer network is most often due to queueing.
+- A network switch must queue up requests coming in from different nodes simultaneously 
+- If all CPU cores are busy, then the OS will queue up the request until the application is ready to handle it
+- In a virtualized environment, the virtualized instances are paused temporarily while other virtualized instances use the compute resources
+- TCP *flow control* (where a sender limits its own rate of sending in order to avoid overloading a network link).  This happens before it even hits the network.
+
+> **TCP vs UDP**
+>
+>Latency-sensitive applications such as VOIP use UDP.  This is a trade-off between reliability and variability of delays.  UDP does not provide flow control and doesn't retransmit lost packets.  UDP assumes that delayed data is worthless.
+
+
+### Synchronous Versus Asynchronous Networks
+
+Telephone networks function differently because they establish a circuit.  This is a fixed, guaranteed amount of bandwidth that is allocated for the call, along the entire route between the two callers.
+
+An ISDN network runs at a fixed rate.  When a call is established, space is allocated for the duration of the call.  Even if the data passes through several routers, there is no queueing because the space has already been allocated.  This results in a *bounded delay*.
+
+Telephone networks are very different from a TCP connection.  
+- a telephone connection reserves bandwidth and may only be used by that connection
+- a TCP connection uses whatever network bandwidth is available
+
+Ethernet and IP are *packet-switched* protocols.
+
+*Asynchronous Transfer Mode (ATM)* is a hybrid network that supports both circuit and packet switching.  It didn't gain much adoption outside of telephone network core switches.
+
+
+#### Latency and Resource Utilization
+
+- Statically resourcing is predictable however it comes at the cost of under-utilization if the other resources are not used.
+- Dynamic resources are unpredictable however maximizes resource utilization.
+
+This applies to many things (e.g. networks or CPU threads).
+
+> Variable delays in networks are not a law of nature, but simply the result of a cost/benefit trade-off.
