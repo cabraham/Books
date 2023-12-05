@@ -2158,3 +2158,114 @@ Ethernet and IP are *packet-switched* protocols.
 This applies to many things (e.g. networks or CPU threads).
 
 > Variable delays in networks are not a law of nature, but simply the result of a cost/benefit trade-off.
+
+### Unreliable Clocks
+
+Clocks and time are important in distributed systems.  Their main functions are to measure *duration* and to describe *points in time*.
+
+Because time is not instantaneous in a distributed system (it takes time for a message to travel across the network), the time when a message is received is later than the time it is sent.  Due to the variability of network traffic however, how much later is in question.  When more than 2 operations are involved, it can make determining order of operations difficult.
+
+Each machine will have its own clock but they can be imprecise, where some are slightly slower or faster than the others.  Synchronizing the clocks is possible to a degree and the Network Time Protocol (NTP) is commonly used to do so.
+
+#### Monotonic Versus Time-of-Day Clocks
+
+There are two types of clocks on modern computers.
+
+**Time-of-day clock** - returns the current date and time according to some calendar.  
+  - This is usually synchronized with NTP.  
+  - Tended to be more coarse grained, though not as much in modern systems (in ms)
+  - Can have weird bugs if too far from the NTP server.  When synching it can look as if the server went back in time
+
+**Monotonic clocks** - used to measure a duration (time interval)
+  - much more fine-grained (in the microseconds or less)
+  - NTP can influence the speed of the CPU clock by *slewing*
+    - NTP does not actually set the monotonic clock back or forward however
+  - In a distributed system, this isn't used for any sort of synchronization between nodes
+
+#### Clock Synchronization and Accuracy
+
+Time-of-day clocks need to be set according to an NTP server or other external time source for it to be useful, but these types of clocks are fickle.
+  - the quartz clock in a computer is not very accurate and so can *drift* (run faster or slower than it should)
+  - if a computer's clock differs too much from an NTP server, it may refuse to synchronize or the local clock will be forcibly reset
+  - if a node can't reach an NTP server, it may not be noticed for some time
+  - NTP synchronization is only as good as the network delay
+  - leap seconds result in a minute that is 1 second more or less than the assumed 60.  
+  - In virtual machines, the hardware clock is virtualized.  When a VM is paused to give resources to another instance, when it resumes, the clock may look like it jumped forward suddenly
+
+#### Relying on Synchronized Clocks
+
+Clocks seem simple and easy to use, however there are a number of pitfalls.
+- a day may not have exactly 86,400 seconds
+- time-of-day clocks may move backward in time
+- the time on one node may be very different from the time on another node
+
+You must assume that clocks need the same care and attention that networks do.  We can't assume that the network will always be available or reliable and must craft software to account for this... the same goes for clocks.
+
+<a name="figure8-3">![Figure 8.3 - multi-leader replication and time clocks](images/ddia/multileader_replication_timeclock.png)</a>
+
+> In [Figure 8.3](#figure8-3), node 2 receives the writes out of causal order because of network delays.  If using the timestamps for ordering, node 2 would overwrite Client B's operation with Client A's operation leaving and the resulting value would be 1.  This is the [LWW](#last-write-wins) conflict resolution strategy.
+
+Resolving by whatever the most "recent" value is oversimplifying.  We have to understand what "recent" means.  
+
+Using time-of-day clocks is problematic as network delays, delays in NTP clock sync, and local clock drift all contribute to inaccurate assessments of what is the most recent value.  
+
+*Logical-clocks* are a safer alternative [see Concurrent writes](#concurrent-writes).  
+
+#### Synchronized clocks for global snapshots
+
+In [snapshot isolation](#snapshot-isolation-and-repeatable-read), we have a method of allowing read-only transactions to see the database in a consistent state a particular point in time without interfering with write transactions.
+
+The most common implementation of SSI is by using a monotonically increasing transaction ID.  This works for a single-node database.
+
+Things get complicated for a distributed database.  There isn't a good way to have a global, monotonically increasing transaction ID.  It requires coordination.  
+
+> Google's Spanner database uses their [TrueTime API](https://cloud.google.com/spanner/docs/true-time-external-consistency) to determine causality.  The TrueTime API uses a confidence interval to determine the earliest and latest time the actual time could be.  
+
+
+### Process Pauses
+
+A process can be paused for any number of reasons in a distributed system.  
+
+Although there are a number of primitives used for multi-threaded applications such as mutexes, semaphores, blocking queues, etc... they are all used within the same process and memory space.  These do not work in a distributed application.
+
+``` csharp
+
+  while (true)
+  {
+    request = getIncomingRequest();
+
+    // ensure that the lease has at least 10 seconds remaining
+    if (lease.expiryTimeMillis - System.currentTimeMillis() < 10000) {
+      lease = lease.renew();
+    }
+
+    if (lease.isValid()) {
+      process(request);
+    }
+  }
+```
+
+Process pauses can cause problems for distributed databases.  As an example, the above code may represent what the leader for a single-leader replicated system must do before processing a request.  It acquires a lease on being the leader from the other nodes before processing a request.
+
+However, the code above can be paused after the lease is renewed but before the check for a lease is valid.  If the pause is long enough, the lease could have expired and another node could have taken over as the leader.  What is supposed to be done with this request then?
+
+Pauses can happen for many reasons
+- garbage collection in specific runtimes
+- VM resource allocation
+- OS context-switches
+- heavy disk access by a therad
+- disk paging
+
+> A node in a distributed system must assume that its execution can be paused for a significant length of time at any point, even in the middle of a function
+
+
+#### Response time guarantees
+
+There are systems that actually do employ real-time guarantees.  These are typically found in systems that MUST respond quickly and predictably above all else.  This class of systems are called *hard real-time systems*.  
+
+These are typically found in sensors, aircrafts, rockets, robots, and cars where safety is of primary concern.  
+
+##### Limiting the impact of garbage collection
+
+Some developing solutions to addressing pauses like GC is to pre-emptively address them.  One option is to redirecting traffic to another nodes before a GC cycle.  Another option is to restart processes periodically before they accumulate enough long-lived objects to require a full GC.
+
