@@ -2269,3 +2269,124 @@ These are typically found in sensors, aircrafts, rockets, robots, and cars where
 
 Some developing solutions to addressing pauses like GC is to pre-emptively address them.  One option is to redirecting traffic to another nodes before a GC cycle.  Another option is to restart processes periodically before they accumulate enough long-lived objects to require a full GC.
 
+### Knowledge, Truth, and Lies
+
+A node in the network cannot *know* anything for sure.  
+  - Am I disconnected from the network or are others disconnected from me?
+
+A node can only know the state of other systems by sending messages and (hopefully) receiving responses.  Even then, upon receipt, the response is already stale. 
+
+The only way to really address this is by having a *system model* and designing a system in such a way that meets the assumptions of the system model.  
+
+### The Truth Is Defined by the Majority
+
+Consider the following 3 scenarios
+
+1. A node is able to receive all messages sent to it, but outgoing messages are dropped or delayed.  The node is perfectly fine otherwise.  
+2. A semi-disconnected node may be able to send messages but is never getting acknowledgements
+3. A stop-the-world GC occurs and all threads are paused for one minute.  After GC collection, the thread resumes and doesn't realize that it was paused.
+
+In all of these scenarios, the other nodes may determine (perhaps incorrectly), that the node is dead.
+
+The main point here is that a node cannot trust its own judgment.  A distributed system can't rely on the judgment of a single node.  Instead, distributed systems rely on a *quorum* which are votes made by a minimum number of votes to make decisions.
+- This also includes votes about which nodes are dead.  If the node is declared dead by quorum, then it doesn't matter the state of the individual node... it will be considered dead.
+
+#### The leader and the lock
+
+Often in a system, there needs to be 1 of something:
+- only 1 node can be the leader for a database partition
+- only 1 transaction or client is allowed to hold a lock for a particular resource
+- only 1 user is allowed to register a particular username
+
+Systems must be designed carefully to address situations where a node (who thinks it owns a process, has exclusive access, or is the leader) may be self-appointed and not acknowledged by the rest of the system anymore.
+
+<a name="figure8-4">![Figure 8.4 - incorrect implementation of a distributed lock](images/ddia/distributed_lock_error.png)</a>
+
+In [Figure 8.4](#figure8-4), client 1 incorrectly assumes that it still has a lock on a resource after the GC pause.  When it continues to perform its write, bad things happen.  
+
+
+#### Fencing tokens
+
+How do you ensure that a node under the false assumption of being "the chosen one" does not disrupt the rest of the system?  One simple technique is called *fencing*.
+
+<a name="figure8-5">![Figure 8.5 - fencing tokens](images/ddia/fencing_tokens.png)</a>
+
+With *fencing tokens*, a token is returned by the lock service which is used when writing data.  The storage system ensures that it's using the largest token and rejects writes that do not have the largest token value.
+
+This means that the resource itself needs to take an active role in checking tokens by rejecting writes with an older token.  It does not simply rely on the clients themselves.
+- This can be argued as a good thing as we can't always ensure that clients are behaving properly.
+
+### Byzantine Faults
+
+Fencing tokens handle issues when nodes are inadvertently acting in error.  It does not handle deliberate errors however.
+
+A byzantine fault is when in a distributed system, a node may *lie* about its state, either through faulty messages or corrupted responses.  Reaching consensus in an untrusted environment is known as the *Byzantine Generals Problem*.
+
+A system is (Byzantine fault-tolerant) if it continues to operate correctly even if some of the nodes are malfunctioning or not obeying the protocol.  This concern is relevant to specific circumstances. 
+- In aerospace environments, data in the computer's memory may be corrupted by radiation.  A system failure could potentially mean the death of passengers.  
+- A system with multiple participating organizations, some participants may cheat.  Bitcoin is an exmaple of a solution to this where there is no central authority that determines which transactions are valid.
+
+Typical applications do not need to be concerned with Byzantine fault-tolerance.  All nodes are typically in a datacenter and are under some control (under the organization, behind a firewall, little to no radiation, etc).  Therefore we generally believe that all nodes are generally honest.
+
+We do need to be cognizant of malicious behavior of clients (e.g. XSRF, XSS, SQL Injection).  However in these scenarios, the server is responsible and the authority for deciding what client behavior is allowed and isn't allowed.  Byzantine fault-tolerance protocols don't apply here.
+
+Software bugs could be regarded as Byzantine fault, but typically the same software is deployed to all nodes.  Byzantine fault-tolerance algorithms doesn't help here.
+
+#### Weak forms of lying
+
+Although we may not need a fully byzantine fault-tolerant protocol, there are steps we can take to address weaker forms of "lying".  
+
+- Add checksums in the application-level protocol to address anything potentially missed by TCP and UDP protocols
+- Sanitize inputs from users.  Check for reasonable ranges, string lengths, etc to prevent denial-of-service attacks
+- Configure NTP clients with multiple server addresses so that when synchronizing, you can detect NTP servers that are outliers that may need to be excluded from synchronization.
+
+### System Model and Reality
+
+<dl>
+  <dt>system model</dt>
+  <dd>an abstraction that describes what an algorithm may assume</dd>
+</dl>
+
+When designing and selecting algorithms, we need a way to formalize the kind of faults that we expect to happen in a system.  We do this by using a *system model*.
+
+With regard to **timing**, three system models are used.
+
+***Synchronous model***
+- Assumes a bounded network delay, process pauses, and bounded clock errors.  This means the delays do not exceed an upper bound. This is typically not realistic as in most practical systems, unbounded delays and pauses do occur.
+
+***Partially synchronous model***
+- Assume synchronous behavior *most of the time*, but may exceed the bounds occasionally.  Most systems can be categorized in this model.
+
+***Asynchronous model***
+- An algorithm is not allowed to make any timing assumptions (so much so that it doesn't even use clocks).  This is a very restrictive model.
+
+With regard to **node failure types**, three most common models are: 
+
+***Crash-stop faults***
+- An algorithm may assume that a node can fail in only one way, which is by crashing.  In this model, the node never comes back.
+
+***Crash-recovery faults***
+- An algorithm may assume that a node can crash at any moment and start responding again after some unknown amount of time.  It's assumed there is some stable storage that preserves the state.  In-memory state is assumed to be lost.
+
+***Byzantine (arbitrary) faults***
+- Nodes may do anything, including trying to deceive other nodes.  
+
+Most systems are a combination of partially synchronous timing model with a crash-recovery fault model.
+
+
+#### Correctness of an algorithm
+
+> To define what it means for an algorithm to be *correct*, we can describe its *properties*.
+
+There are two types of properties: *safety* and *liveness*.
+
+***Safety***
+- if a safety property is violated at any point in time, the violation cannot be undone
+
+***Liveness***
+- a property may be violated at some point in time, but there is hope that it may be satisfied in the future
+
+
+System models are a simplified abstraction of reality.  It does not capture the messy facts of actual reality.
+
+Hardware failure, misconfiguration, disk corruption all contribute to the messyness of real-world scenarios.  These however are outliers and it's reasonable to have it abstracted away.  
