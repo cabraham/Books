@@ -2390,3 +2390,70 @@ There are two types of properties: *safety* and *liveness*.
 System models are a simplified abstraction of reality.  It does not capture the messy facts of actual reality.
 
 Hardware failure, misconfiguration, disk corruption all contribute to the messyness of real-world scenarios.  These however are outliers and it's reasonable to have it abstracted away.  
+
+---
+
+## Chapter 9 - Consistency and Consensus
+
+> one of the most important abstractions in distributed systems is *consensus*: that is, getting all of the nodes to agree on something
+
+### Consistency Guarantees
+
+Most replicated databases provide *eventual consistency*.  A better term may be *convergence*.  
+
+This however is a very weak guarantee as it doesn't state anything about *when* the data will converge.
+
+Dealing with eventual consistency is difficult for application developers because their mental model of getting and setting a value in a database can be very similar to that of setting a variable in memory.  Having weak guarantees in this model would definitely be problematic as it hides many edge case scenarios behind an abstraction.
+
+Having stronger consistency models makes it easier to work with distributed databases.  This may come at a cost of performance or less fault-tolerance however.
+
+### Linearizability
+
+<dl>
+  <dt>linearizability</dt>
+  <dd>a.k.a. atomic consistency, strong consistency, immediate consistency, or external consistency</dd>
+</dl>
+
+Linearizability makes it seem as if there is only one copy of the data while in reality, there is multiple replicas.  It is a *recency guarantee*.
+
+<a name="figure9-1">![Figure 9.1 - Non-linearazable system](images/ddia/non_linearizable.png)</a>
+
+In [Figure 9-1](#figure9-1), the system is non-linearizable because Bob initiated the query *after* Alice.  In other words, Bob knows that he hit the reload after Alice yet still received a stale result, which is a violation of linearizability.
+
+<table>
+  <tr><td>
+
+### Linearizability vs Serializability
+Linearizability and serializability shouldn't be confused, although they often are because they deal with "sequential order" for operations.
+
+**Serializability**
+- Is an isolation property of transactions (where read/write operations over multiple objects are grouped together as one atomic operation)
+- Guarantees that transactions behave in *some* serial order
+
+**Linearizability**
+- Is a recency guarantee on reads and writes on a register (*an individual object*)
+- Has nothing to do with grouping operations together into transactions
+
+
+Databases that provide both serializability and linearizability provide *strict serializability* or *strong one-copy serializability*.  This is implemented by either [two-phase lock](#two-phase-locking-2pl) or [actual serial execution](#actual-serial-execution).
+
+[Serializable snapshot isolation](#serializable-snapshot-isolation-ssi) is not linearizable by design.  In SSI, a reader views a consistent snapshot to avoid lock-contention between writers and readers.  It does this by not returning writes more recent than the snapshot.
+
+  </td></tr>
+</table>
+
+
+### Relying on Linearizability
+
+A single-leader replicated system has to ensure that there is only one leader.  One way of ensuring this is to use a lock.  Every node that starts up must attempt to acquire the lock.  The one that succeeds is the leader.
+
+Coordination services like Apache ZooKeeper and etcd are often used to implement distributed locks and leader election.
+
+#### Constraints
+
+Certain types of constraints require you to have linearizability.  For example: 
+- A uniqueness constraint (unique username or email)
+- Ensuring a bank account never goes negative
+- Ensuring you don't sell more items than you have in stock in the warehouse
+
+All of these require a single up-to-date value.
