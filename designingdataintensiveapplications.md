@@ -2445,6 +2445,8 @@ Databases that provide both serializability and linearizability provide *strict 
 
 ### Relying on Linearizability
 
+
+#### Locking and leader election
 A single-leader replicated system has to ensure that there is only one leader.  One way of ensuring this is to use a lock.  Every node that starts up must attempt to acquire the lock.  The one that succeeds is the leader.
 
 Coordination services like Apache ZooKeeper and etcd are often used to implement distributed locks and leader election.
@@ -2457,3 +2459,53 @@ Certain types of constraints require you to have linearizability.  For example:
 - Ensuring you don't sell more items than you have in stock in the warehouse
 
 All of these require a single up-to-date value.
+
+#### Cross-channel timing dependencies
+
+An additional communication channel in the system can cause race conditions if the system isn't linearizable.
+
+<a name="figure9-5">![Figure 9.5 - Non-linearizable race condition](images/ddia/nonlinearizable_race_condition.png)</a>
+
+In [Figure 9-5](#figure9-5), if the file storage is non-linearizable, then there is potential for a race condition at step #5.  There is potential for the image resizer to get an old version of the image, or nothing at all.  If it's an old version of the image, then there is potential that the file-storage is permanently inconsistent.
+
+
+### Implementing Linearizable systems
+
+#### Single-leader replication 
+If reads are done through the leader (or through synchronously updated followers), there is the potential for linearizability but there are caveats.
+  - The leader node may not actually be the leader (delusional leader) 
+  - The database uses snapshot isolation
+  - Other concurrency bugs
+
+#### Consensus algorithms
+Some consensus algorithms prevent split brain and stale replicas.  
+
+#### Multi-leader replication (non-linearizable)
+By design this is not linearizable because they concurrently process writes on multiple nodes.  There is no "single copy" of the data.
+
+#### Leaderless replication (probably not linearizable)
+Depending on the configuration of the quorums, this may not be linearizable.  Databases that use last-write wins conflict resolution and time-of-day clocks (e.g. Cassandra) are not linearizable because clock timestamps can't be guaranteed to be consistent with event ordering due to clock skew.
+
+#### Linearizability and quorums
+
+<a name="figure9-6">![Figure 9.6 - Non-linearizable execution despite using strict quorums](images/ddia/nonlinearizable_strictquorum.png)</a>
+
+In [Figure 9-6](#figure9-6), the quorum condition ```w + r > n``` is met however the execution is not linearizable.  Because some write operations delay behind the reads, the readers get 2 different sets of values.
+
+This can be made linearizable if: 
+- readers perform read repair synchronously
+- writers read the latest state of quorum before sending writes
+However it will be at the cost of performance.
+
+Cassandra cannot get linearizable however because of LWW conflict resolution.
+
+### The Cost of Linearizability
+
+![Figure 9.7 - network interruption in linearizability](images/ddia/linearizability_and_networkpartition.png)
+
+In a multi-datacenter configuration, if there is a network interruption, you can lose linearizability.
+
+If a multi-leader database, the system can operate as normal because the writes are asynchronously replicated to the other.  
+
+In a single-leader database, a network interruption means that clients that cannot connect to the leader will be unable to perform writes.  Read operations from the available DC can potentially be stale.
+
