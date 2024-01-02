@@ -28,7 +28,7 @@ The second factor is how much slack there is in a system.
 > When a system is tightly coupled, there is little slack or buffer among its parts
 
 ```mermaid 
-quadrantChart
+quadrantChart;
     title Complexity and Tight Coupling
     x-axis Low Complexity --> High Complexity
     y-axis Loose Coupling --> Tight Coupling
