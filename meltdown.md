@@ -30,16 +30,18 @@ The second factor is how much slack there is in a system.
 ```mermaid 
 quadrantChart
     title Reach and engagement of campaigns
-    x-axis Complexity
-    y-axis Tight Coupling
-    Dams: [0.1, 0.9]
-    Marine Transport: [0.4, 0.6]
-    Chemical Plants: [0.7, 0.7]
-    Nuclear Plants: [0.9, 0.9]
-    Assembly-line production: [0.20, 0.4]
-    Post offices: [0.25, 0.1]
-    Universities: [0.6, 0.15]
-    R&D firms: [0.9, 0.2]
+    x-axis Low Reach --> High Reach
+    y-axis Low Engagement --> High Engagement
+    quadrant-1 We should expand
+    quadrant-2 Need to promote
+    quadrant-3 Re-evaluate
+    quadrant-4 May be improved
+    Campaign A: [0.3, 0.6]
+    Campaign B: [0.45, 0.23]
+    Campaign C: [0.57, 0.69]
+    Campaign D: [0.78, 0.34]
+    Campaign E: [0.40, 0.34]
+    Campaign F: [0.35, 0.78]
 ```
 
 ### Chapter 2 - Deep Waters, New Horizons
