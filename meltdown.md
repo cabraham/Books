@@ -39,7 +39,7 @@ quadrantChart
     Assembly-line production: [0.20, 0.4]
     Post offices: [0.25, 0.1]
     Universities: [0.6, 0.15]
-    R&D firms: [0.9, 0.2]
+    R and D firms: [0.9, 0.2]
 ```
 
 ### Chapter 2 - Deep Waters, New Horizons
