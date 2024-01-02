@@ -30,8 +30,8 @@ The second factor is how much slack there is in a system.
 ```mermaid 
 quadrantChart
     title Complexity and Tight Coupling
-    x-axis Complexity
-    y-axis Tight Coupling
+    x-axis Low Complexity --> High Complexity
+    y-axis Loose Coupling --> Tight Coupling
     Dams: [0.1, 0.9]
     Marine Transport: [0.4, 0.6]
     Chemical Plants: [0.7, 0.7]
