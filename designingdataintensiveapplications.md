@@ -2253,7 +2253,7 @@ Pauses can happen for many reasons
 - garbage collection in specific runtimes
 - VM resource allocation
 - OS context-switches
-- heavy disk access by a therad
+- heavy disk access by a thread
 - disk paging
 
 > A node in a distributed system must assume that its execution can be paused for a significant length of time at any point, even in the middle of a function
@@ -2324,7 +2324,7 @@ A byzantine fault is when in a distributed system, a node may *lie* about its st
 
 A system is (Byzantine fault-tolerant) if it continues to operate correctly even if some of the nodes are malfunctioning or not obeying the protocol.  This concern is relevant to specific circumstances. 
 - In aerospace environments, data in the computer's memory may be corrupted by radiation.  A system failure could potentially mean the death of passengers.  
-- A system with multiple participating organizations, some participants may cheat.  Bitcoin is an exmaple of a solution to this where there is no central authority that determines which transactions are valid.
+- A system with multiple participating organizations, some participants may cheat.  Bitcoin is an example of a solution to this where there is no central authority that determines which transactions are valid.
 
 Typical applications do not need to be concerned with Byzantine fault-tolerance.  All nodes are typically in a datacenter and are under some control (under the organization, behind a firewall, little to no radiation, etc).  Therefore we generally believe that all nodes are generally honest.
 
