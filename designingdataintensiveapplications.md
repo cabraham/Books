@@ -2509,3 +2509,153 @@ If a multi-leader database, the system can operate as normal because the writes 
 
 In a single-leader database, a network interruption means that clients that cannot connect to the leader will be unable to perform writes.  Read operations from the available DC can potentially be stale.
 
+#### The CAP theorem
+
+Sometimes it's presented as *Consistency, Availability, Partition tolerance: pick 2 out of 3*.  This is misleading because network partitions are a kind of *fault*, so it's not something you have a choice.  
+
+It's better to assume network partitions will occur and you can pick either **consistency or availability**.
+
+The CAP theorem is very narrow in scope and only deals with one consistency model (linearizability) and one kind of fault (network partitions).
+
+#### Linearizability and network delays
+
+Even RAM on a modern multi-core CPU is not linearizable.  If a thread running on one CPU core writes to a memory address, a thread on another CPU core reading that value is not guaranteed to read the value written by the first thread.  The CPU cores have their own memory cache which are asynchronously replicated to each other.
+
+The CAP theorem isn't used to justify the multi-core memory consistency model because the assumption is that the CPU cores have reliable communication.  The reason linearizability is dropped is for *performance*.
+
+### Ordering Guarantees
+
+Causality imposes an ordering of events.  If a system obeys the ordering imposed by causality, then it is *causally consistent*.  
+- An example of this is snapshot isolation.  A read of a piece of data in the database means you see the data and anything that causally precedes it.
+
+#### Causal order != total order
+
+<dl>
+  <dt>total order</dt>
+  <dd>allows any two elements to be compared</dd>
+</dl>
+
+Natural numbers have a total order as any two numbers can be compared.
+
+Mathematical sets however are not totally ordered.  Is {a, b} greater than {b, c}?  They are *incomparable* because neither is a subset of the other.
+
+In a linearizable system, you have *total order*.
+
+In a causally consistent system, you have partial order.
+- This is because there are operations that are concurrent and do not have a [causal](#causality) relationship.
+
+#### Linearizability is stronger than causal consistency
+
+Linearizability *implies* causality.  However because of the [performance impact](#the-cost-of-linearizability), many distribute data systems have abandoned linearizability.
+
+Not all systems actually require linearizability however and only require causality.
+
+### Sequence Number Ordering
+
+Causality can be tracked by other means like *sequence numbers* or *timestamps* which are much more lightweight.
+
+You can assign every operation a unique sequence number that can be used to compare two sequence numbers.  You can create sequence numbers in a total order that is *consistent with causality*.
+
+***Single-leader***
+
+In a single-leader system, the leader can monotonically increment a counter for each operation.  If the followers apply the writes in the order they appear, the state would be causally consistent.
+
+***Multi-leader***
+
+In a multi-leader system, generating sequence numbers is a bit more complex. Each leader can
+- generate independent sequence number (odds on one and evens on another)
+- attach a timestamp to each operation
+- preallocabe blocks of sequence numbers
+
+All of these options however *do not guarantee causal consistency*.
+- each node may process a different # of operations per second resulting in one node jumping ahead in sequence #s
+- clock skew
+- a causally later operation may be given a sequence number in an earlier block
+
+#### Lamport timestamps
+
+Each node keeps a counter of the number of operations it has processed.  A [lamport timestamp](https://en.wikipedia.org/wiki/Lamport_timestamp) is simply a pair of *(counter, node ID)*.
+
+[Lamport Clock](https://www.geeksforgeeks.org/lamports-logical-clock/)
+
+<a name="figure9-8">![Figure 9-8 - lamport timestamps and total ordering](images/ddia/lamport-timestamps.png)</a>
+
+Every node and client keeps track of the maximum counter value it has seen so far.  When a node receives a request or response with a maximum counter value greater than its own, it immediately increases its own counter to that maximum.
+
+Lamport timestamps share some similarities with [version vectors](#version-vectors), but they do not serve the same purpose.
+
+Version vectors distinguish whether two operations are concurrent or whether one is causally dependent on the other.  
+
+Lamport timestamps enforce total ordering.  From this perspective, a lamport timestamp cannot tell if something is causally dependent or concurrent.
+
+#### Timestamps are not sufficient
+
+Lamport timestamp define a total order of operations that is consistent with causality.  They do not solve many common problems in distributed systems however.
+
+For example, a unique constraint requirement where two concurrent users are trying to claim the same username in registration.  Lamport timestamps help determine the operations *after the fact*, but cannot help in enforcing the uniqueness constraint (checking if the value already exists) *right now*.
+
+A node will not know if another node is concurrently in the process of creating an account.  To enforce checking this would grind the system to a crawl.
+
+
+### Total Order Broadcast
+
+Total order broadcast is a protocol for exchanging messages between nodes.  It has two safety properties that must be satisfied.
+1. *Reliable delivery* - no messages are lost
+2. *Totally ordered delivery* - messages are delivered to every node in the same order
+
+This does not mean it has to be done synchronously.  In a network partition, an algorithm must ensure that when the network is repaired, that messages are sent and delivered in the proper order.
+
+#### Using total order broadcast
+
+ZooKeeper and etcd implement total order broadcast.
+
+An important note about total order broadcast is that the order is fixed at the time of delivery.  A node cannot retroactively insert a message into an earlier position if subsequent messages have already been delivered.
+
+A good mental model of total order broadcast is it's a way of creating a *log*, similar to replication or write-ahead logs.  Delivering a message is appending to the log.
+
+Total order broadcast is useful for implementing a lock service that provides [fencing tokens](#fencing-tokens).
+- In ZooKeeper, this the monotonically increasing fencing token is called the zxid
+
+#### Total order broadcast != linearizable system
+- the main difference is that **total order broadcast is asynchronous**.
+
+You can however build a linearizable storage on top of total order broadcast and vice-versa.
+
+
+### Distributed Transactions and Consensus
+
+FLP result proves that ther is no algorithm that is always able to reach consensus if there is a risk that a node may crash.  It's a very restrictive model however and assumes a deterministic algorithm that cannot use clocks or timeouts.  Consensus becomes solvable if timeouts are allowed.
+
+#### Atomic Commit and Two-Phase Commit (2PC)
+
+Atomicity is commonly implemented by the storage engine on a single-node configuration.  In this configuration, transaction commits depends on the order in which the data is durably written to disk (first the data, then the commit record).
+
+When multiple nodes and objects are involved however, there is a chance for failure at one of the nodes.  One way to address this is by using **two-phase commit (2PC)**.
+
+<a name="figure9-9">![two-phase commit 2PC](images/ddia/two-phase%20commit.png)</a>
+
+2PC introduces a new component called a *coordinator* (a.k.a. transaction manager).  
+
+1. When starting a distributed transaction, the coordinator provides a transaction ID that is globally unique
+2. The coordinator begins a single-node transaction on each of the participants and attaches the transaction ID to each of them
+3. When the application is ready to commit, the coordinator sends a prepare request to all participants.  If any fail at this stage, the coordinator sends an abort 
+4. When a participants receives the prepare request, it makes sure that it can definitely commit the transaction, no matter what.  By promising "yes", the node promises to commit the transaction without fail.  It surrenders the right to abort.
+5. When the coordinator has received responses to all the prepare request, it ensures that all have voted "yes".  The decision to move to commit or abort is then written to its own transaction log (a.k.a. *commit point*).
+6. The commit or abort request is sent to all participants.  There is no going back and delivery will be retried forever until it succeeds.
+
+There are 2 crucial points of no return.
+1. when a participant votes "yes"
+2. when the coordinator decides
+
+If the coordinator fails, the participant can do nothing but wait.  It's given up its right to abort a transaction.
+
+![Figure 9-10 - dtc coordinator crash](images/ddia/dtc_coordinator_crash.png)
+
+### Distributed Transactions in Practice
+
+Two-types of distributed transactions are often conflated: 
+1. Database-internal distributed transactions - all participants use the same database software (same technology)
+2. Heterogeneous distributed transactions - two or more different technologies 
+
+Database-internal distributed transactions work fairly well.  Heterogeneous on the other hand are more challenging.
+
