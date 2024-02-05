@@ -274,3 +274,39 @@ Steps
 4. Share the information
 5. Audit
     
+### Chapter 7 - The Anatomy of Dissent
+
+#### Semmelweiss 
+- Before microbiology was understood, Ignac Semmelweis (a recent medical school graduate) noticed that many more women died after soon after giving birth at the First Clinic (where the doctor's were delivering babies) as compared to the Second Clinic (where midwives delivered babies).
+- Despite many attempts to understand why, he hit roadblocks.  He got a clue when one of his colleagues had died when one of the students accidentally pricked his colleague's finger.  This gave a clue to small infectious particles.  
+- This led him to understand that the major difference between the First and Second clinics was the autopsies being performed at the First Clinic.  He thought about the "cadaverous smell" given off by his hands and eventually implemented a hand washing routine.  
+- The results of implementing this routine were drastic as the death rate went way down.
+- When Semmelweis reported his findings to the institutions however, the old guard would not accept it.
+
+Dissent is psychologically difficult for humans.  When the group sees things a certain way, our psychology actually changes the way we perceive things.  Our brains aren't wired for dissent.
+
+Power is also corrupting.  Psychological experiments show that even at the slightest hint of power, they are more likely to misunderstand, dismiss, or interrupt others.
+
+Lesson 1 : Charm School
+It's important to encourage dissenting opinions.  This means that all participants at all levels should be empowered to voice their concerns.  
+
+> Passengers were safer when the less experienced pilot was flying the plane
+
+> Learning to embrace dissent is hard
+
+Lesson 2 : Soften Power Cues
+    - sit eye to eye (ER doctor improving bedside manner)
+    - admit failures (pilots admitting to never having a perfect flight)
+    - don't separate yourself into and add layers between you and your team (Lehman Bros)
+
+Lesson 3 : Leaders Speak Last
+    - empower the team to come up with their ideas first
+    - put the problem on the agenda and ask for solutions
+
+
+### Chapter 8
+
+### Chapter 9
+
+### Chapter 10
+
