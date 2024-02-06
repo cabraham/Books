@@ -294,6 +294,18 @@ It's important to encourage dissenting opinions.  This means that all participan
 
 > Learning to embrace dissent is hard
 
+Lesson 1 : Charm School
+    - frame the primary concerns as a team issue where all participants are equal
+    - embrace questioning of leadership and don't take it as a sign of disrespect
+
+Crew Resource Management - a training program used in the airline industry
+- outlines a 5 step process to raise a concern
+1. Start by getting the captain's attention ("Hey, Mike")
+2. Express your concern ("I'm worried that the thunderstorm has moved over the airport")
+3. State the problem as you see it ("We might get some dangerous wind shear")
+4. Propose a solution ("Let's hold until the storm is clear of the airport")
+5. Get an explicit agreement ("Does that sound good to you, Mike?")
+
 Lesson 2 : Soften Power Cues
     - sit eye to eye (ER doctor improving bedside manner)
     - admit failures (pilots admitting to never having a perfect flight)
@@ -302,11 +314,36 @@ Lesson 2 : Soften Power Cues
 Lesson 3 : Leaders Speak Last
     - empower the team to come up with their ideas first
     - put the problem on the agenda and ask for solutions
+    - it isn't enough to simply say you have an open door policy, you have to actively seek for feedback
 
 
-### Chapter 8
+### Chapter 8 - The Speed Bump Effect
 
-### Chapter 9
+Experiments have shown that even racial diversity has a positive effect because of the inherent distrust of the out group.  
+In diverse markets, everyone is more skeptical.
+
+Homogeneity leads us to conformity and not enough skepticism, therefore it makes it easier to fall for bad ideas.
+
+Diversity programs however tend to fail because they focus on policing manager's actions.  Forcing action often leads to resistence and rebellion.
+
+Voluntary programs however do much better.  Rather than *imposing* rules about diversity, seek to include and invite participants.  
+
+Formal mentoring programs also do very well.
+
+Diversity in expertise is another important dimension.  Decision makers with the same background tend to bring "baggage" that is just assumed and never questioned.
+
+> "Amateurs have the naivete to ask questions about things the experts take for granted"
+
+Diversity is like a speed bump.  It's a nuisance, but it snaps us out of our comfort zone.
+
+
+### Chapter 9 - Strangers in a Strange Land
+
+The power of strangers lay in their objectivity.  They are *in* a group, but not *of* the group.
+
+Formalizing a process to have a *stranger* in the decision making process can prevent disaster.  Examples of this are: 
+- JPL's Engineering Technical Authority (ETA) - a cadre of outsiders within JPL assigned to make sure the PM doesn't make risky decisions
+- The "Promoter of the Faith" (a.k.a. Devil's Advocate)
 
 ### Chapter 10
 
