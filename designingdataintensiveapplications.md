@@ -2659,3 +2659,98 @@ Two-types of distributed transactions are often conflated:
 
 Database-internal distributed transactions work fairly well.  Heterogeneous on the other hand are more challenging.
 
+> Distributed Transactions thus have a tendency of *amplifying failures*
+
+In 2PC, an outage in a node during a transaction can take down the whole system.  This is because of locks that the 2PC system uses to guarantee consistency.  Locks are held indefinetely until an commit or abort is received.  If a node never comes back online, that means the locks can't be undone without manual intervention.  This makes 2PC operationally challenging because in order to abort properly, you have to identify all participating nodes and abort there as well.
+
+### Fault-Tolerant Consensus
+
+In a consensus problem, one or nodes *propose* values, and the consensus algorithm *decides* on one of those values.
+
+Consensus algorithms must satisfy the following properties: 
+
+<dl>
+  <dt>Uniform agreement</dt>
+  <dd>No two nodes decide differently</dd>
+  <dt>Integrity</dt>
+  <dd>No node decides twice</dd>
+  <dt>Validity</dt>
+  <dd>If a node decides value *v*, then *v* was proposed by some node</dd>
+  <dt>Termination</dt>
+  <dd>Every node that does not crash eventually decides on some value</dd>
+</dl>
+
+The termination property formalizes the idea of fault tolerance.  It is a liveness property, whereas the other properties are safety properties.  The termination property makes it so that an algorithm does not have to wait indefinetely for a node to recover.
+
+The termination property assumes that fewer than half of the nodes are crashed or unreachable.  
+
+Consensus algorithms assume that there are no Byzantine faults.
+
+
+#### Consensus algorithms
+
+The best-known fault-tolerant consensus algorithms are Viewstamped Replication (VSR), Paxos, Raft, and Zab.
+
+Most of these algorithms are not deciding on a single value at a time, but rather a sequence of values, which makes them *total order broadcast* algorithms.
+
+Total order broadcast is equivalent to repeated rounds of consensus.  
+
+Single-leader replication requires the selection of a leader.  This can be done manually or automatically.  If manual, it doesn't meet the termination property of consensus because it requires human intervention.
+
+With automatic leader election, there is an interesting problem.  To select a leader, you need consensus, and if the algorithm is total order broadcast (which is like single-leader replication), you need a leader.  To select a leader, you need a leader.
+
+To address this issue, there is a concept of an epoch number (a.k.a. ballot number, view number, term number).  The guarantee here is that within each epoch, the leader is unique.
+
+When a leader is determined to be dead, an election takes place.  Only candidates with the highest epoch numbers are considered for vote.  In some algorithms, the longest log count is also considered.
+
+### Membership and Coordination Services
+
+Zookeeper and etcd are popular solutions for distributed systems.
+
+#### Zookeeper
+Implements total order broadcast (and hence consensus), but also some other properties
+- Linearizable atomic operations - whicn can be used to implement a lock
+- Total ordering of operations - used to implement fencing tokens to prevent clients from conflicting with each other
+- Failure detection - long-lived connections with heartbeats are used to determine if nodes are alive.  If the session times out, ZK can release locks held by the node
+- Change notifications - allows a client to read locks and values that were created by another client but also watches for changes.  Can be used to find out when a client joins the cluster or fails due to session timeout
+
+#### Service discovery
+
+<dl>
+  <dt>service discovery</dt>
+  <dd>find out which IP address to connect to to reach a particular service</dd>
+</dl>
+
+DNS is the traditional way of looking up IPs for a service.  Reads from DNS however are not linearizable and can be problematic if the query results are stale.
+
+#### Membership services
+
+<dl>
+  <dt>membership service</dt>
+  <dd>finds out which nodes are currently active and live in a cluster</dd>
+</dl>
+
+> Due to unbounded network delays, it's not possible to reliably detect whether another node has failed.
+
+Using failure detection and consensus together however helps you come to an agreement about which nodes should be considered alive or not.
+
+### Summary
+
+Linearizability - a consistency model that tries make replicated data appear as if there is only a single copy.  It's appealing because it's easy to understand however it is slow
+
+Causality - imposes an ordering of events in a system based on cause and effect.  Weaker consistency model than linearizability because operations can be concurrent.  Does not have the coordination overhead of linearizability.
+- It cannot solve for uniqueness guarantee however.  
+
+Consensus - where all nodes agree on what was decided and the decision is irrevocable
+
+When you have consensus, you can solve for the following: 
+- Linearizable compare-and-set registers - atomically decide whether to set a value based on whether the current value equals the parameter given in the operation
+- Atomic transaction commit - a db must decide whether to commit or abort
+- Locks and leases - several clients are racing to grab a lock or lease, the lock decides which one gets it
+- Membership/coordination - given a failure detector, the system must decide which nodes are alive
+- Uniqueness constraint - when several transactions try to create conflicting values on a key, the constraint decides which one to allow
+
+In single-leader replication, the power to make decisions is in the leader.  When the leader fails or there is a network interruption, the system is unable to make any progress.  Three options to address this are: 
+1. Wait for leader to recover - like DTC/XA/JTA - leader HAS to recover, there is no other option.
+2. Manual failover - humans choose a new leader.  This is slow.
+3. Automatic leader election - requires consensus algorithms
