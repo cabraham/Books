@@ -345,5 +345,25 @@ Formalizing a process to have a *stranger* in the decision making process can pr
 - JPL's Engineering Technical Authority (ETA) - a cadre of outsiders within JPL assigned to make sure the PM doesn't make risky decisions
 - The "Promoter of the Faith" (a.k.a. Devil's Advocate)
 
-### Chapter 10
+### Chapter 10 - Surprise!
 
+[Plan continuation bias](https://www.faa.gov/sites/faa.gov/files/SE_Topic_22-11_CFIT%20Plan%20Continuation%20Bias_0.pdf) - the continuation of an original plan even when information suggests the plan should be abandoned
+
+Encourage symbolic gestures (like a formal ceremony and praise) for those who see a problem and raise the alarm, pushing against the tide.
+
+In high pressure scenarios where there is lots of complexity and tight coupling (no slack), you have to *do* something.  However after doing something, it's important to monitor if you got the desired effect, and suggest a diagnosis if it didn't work.
+
+Step #1 - DO something
+Step #2 - Monitor and evaluate - did it work?
+Step #3 - If no, then come up with a new diagnosis
+
+Conversations are broken into three types
+1. Task
+2. Monitoring
+3. Diagnosis
+
+Too often teams spend too much time in task conversations, or they go from task to monitoring and back to task again.  This means teams never *figure it out*.
+
+When unexpected issues come up that were not according to plan, it's important for teams to be able to cover each other.  The ability to shift roles makes it to a team can change plans quickly.
+
+Knowing each other's roles also helps to give additional perspectives which makes collaboration much easier.  Having teams with distinct roles make collaboration much more difficult as everyone is speaking from their myopic point of view.
