@@ -5,7 +5,7 @@ Code is a liability
 The 4 phases of the Value Flywheel
 1. Clarity of Purpose
 2. Challenge & Landscape
-3. Next Best Action]
+3. Next Best Action
 4. Long-term value
 
 ## Wardley Mapping
