@@ -2754,3 +2754,95 @@ In single-leader replication, the power to make decisions is in the leader.  Whe
 1. Wait for leader to recover - like DTC/XA/JTA - leader HAS to recover, there is no other option.
 2. Manual failover - humans choose a new leader.  This is slow.
 3. Automatic leader election - requires consensus algorithms
+
+
+# Part III - Derived Data
+
+At a high-level, there are two broad categories of data
+
+1. Systems of record
+- system of record (a.k.a. source of truth), holds the authoritative version of the data
+- typically the data is normalized
+- by definition, if there is a discrepancy between the system of record and another system, the system of record is the correct one
+
+2. Derived data systems
+- takes existing data from another system and transforms or processes it in some way
+- derived data can typically be rebuilt from the original source
+- an example of this is cache
+
+## Chapter 10 - Batch Processing
+
+There are 3 types of systems: 
+
+Services (online systems) - a service waits for a request from a client and tries to handle the request as quickly as possible, then responds back
+- this type is usually measured by performance and availability
+
+Batch processing systems (offline systems) - takes a large amount of input data, runs a job to process it, and produces some output.  
+- often scheduled 
+- primarily measured by throughput
+
+Stream processing systems (near-real-time systems) - somewhere between online and offline
+- like to batch as it consumes inputs and produces output (not simply a request)
+- unlike batch as the stream processing systems are responding to a stream of events shortly after they happen
+
+### Batch Processing with Unix Tools
+
+The Unix design philosophy is: 
+1. Make each program do one thing well
+2. Expect the output of every program to become the input of another
+3. Design and build software to be tried early.  Don't hesitate to throw away clumsy parts and rebuild them.
+4. Use tools in preference to unskilled help.  Build tools to lighten a programming task, even if it has to be thrown away
+
+There's alot of overlap with Agile and DevOps mentality.
+
+Point #2 requires that everything will require some sort of uniform interface.  In Unix, that is a file descriptor.
+
+Separation of logic and wiring is also an important characteristic of Unix (stdin, stdout).  The programs should not have to worry about a particular file path.  The user can then simply wire up the input and outputs in whichever way they want.
+- Sounds like *inversion of control* and *loose coupling*
+
+The limitation of Unix tools it that they run on a single machine.  This is where tools like Hadoop and MapReduce come in.
+
+### MapReduce and Distributed Filesystems
+
+Unix uses stdin and stdout as input and output.  MapReduce jobs read and write files on a distributed filesystem.  In Hadoop, it uses HDFS.
+
+HDFS is based on the shared-nothing principle where conventional data-center networks with commodity hardware can process lots of data.  To tolerate disk machine and disk failure, file blocks are replicated on multiple machines.
+
+Mapper - called once for every record and its job is to extract the key and value from the input record
+Reducer - takes the key-value pairs produced by mappers, collects all values belonging to the same key, then calls the reducer function that iterates over that collection of values
+
+Because the input file is typically very large, rather than pulling the data to the program, the program is pushed close to the data (*putting the computation near the data*). Doing this gives the following benefits: 
+1. Reduces network load
+2. Increases locality
+
+The # of map tasks is determined by the number of input file blocks.  
+The # of reducer tasks however is configured by the job author.  
+
+To ensure all key-value pairs with the same key end up at the same reducer, the framework uses a hash of the key to determine which reduce task gets a particular key-value pair [Partition by hash of key](#partition-by-hash-of-key)
+
+Each partition stores the value in a sorted order in a similar manner of [SSTables and LSM-Trees](#sstables-and-lsm-trees)
+
+MapReduce jobs are typically chained together into *workflows*.  These are not like Unix commands however and operate more as a sequence of commands that write to and read from files. 
+
+A job in a workflow can only start when the prior job is completed successfully.  There are tools available ot handle the dependencies between jobs.  
+
+#### Reduce-Side Joins and Grouping
+
+Data-locality is critical when having to pull in data from external sources.  When your data refers to external sources, it's much better to pull the external data (perhaps through an ETL process) together and then perform the join operations to reduce network roundtrips.
+Moreover, querying a remote database would mean that the batch job is nondeterministic (the data in the database may change).
+
+<a name="figure10-3">![Figure 10.3 - reduce-side sort-merge join](images/ddia/mapreduce_sortmergejoin.png)</a>
+
+In [Figure 10.3](#figure10-3), two different mappers are used to load different data.   This data is then pulled to the appropriate reducer partition and stored adjacent to each other in the reducer input.  
+
+> Since the reduces processes all of the records for a particular user ID in one go, it only needs to keep one user record in memory at any one time, and it never needs to make any requests over the network.  This algorithm is known as a *sort-merge join*.
+
+Besides joins, GROUP BY operations follow a similar pattern.  The key that is being grouped on is used to partition the work across the reducers.
+
+**Handling skew**
+Write-skew can happen when simply partitioning by key because some keys may have much more activity than others.  The example in the book is a celebrity user as compared to a normal user.  
+- Consider that any subsequent jobs must wait for previous jobs to complete (the slowest reducer)
+
+This means that additional partitioning for those hot keys may need to happen to distribute the load.  
+
+There are a choice of tools available that handle these scenarios, each approaching the problem slightly differently.
