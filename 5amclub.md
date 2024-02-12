@@ -30,3 +30,6 @@ Assume you have to 66 days of repetition to anchor the habit.
 It will require force in the beginning and resolve in the middle.  Nearing the end, it will reach the *automaticity point*.
 
 
+## Attention
+
+Attention is like a currency.  You only have so much a day.  Distraction, especially trivial ones like social media, deplete the amount of attention you have.  
