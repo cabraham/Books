@@ -2826,6 +2826,8 @@ MapReduce jobs are typically chained together into *workflows*.  These are not l
 
 A job in a workflow can only start when the prior job is completed successfully.  There are tools available ot handle the dependencies between jobs.  
 
+> There are other products out there like Gigaspaces that delivers the application to close proximity to where the data is.
+
 #### Reduce-Side Joins and Grouping
 
 Data-locality is critical when having to pull in data from external sources.  When your data refers to external sources, it's much better to pull the external data (perhaps through an ETL process) together and then perform the join operations to reduce network roundtrips.
