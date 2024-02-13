@@ -2848,3 +2848,26 @@ Write-skew can happen when simply partitioning by key because some keys may have
 This means that additional partitioning for those hot keys may need to happen to distribute the load.  
 
 There are a choice of tools available that handle these scenarios, each approaching the problem slightly differently.
+
+#### Map-Side Joins
+
+Reduce-side joins perform the actual join logic in the reducers.  The advantage here is that the reducer does not have to worry about the input data because the mappers take care of it.  
+
+If however you *can* make assumptions about the input data, then it's possible to do a map-side join.  With a map-side join, there are no reducers and no sorting (because it's assumed to be implicit in the input).
+
+##### Broadcast hash joins
+
+This type of map-side join can be used when the dataset is small enough to be fit into the memory of each of the mappers.  
+
+It's called *broadcast* because all partitions have the same small dataset in its entirety in memory.
+
+##### Partitioned hash joins
+
+This type of map-side join requires that the joining data is partitioned in the same way as the mappers.  This is also known as *bucketed map joins*.
+
+This is often used when the input is coming from previous MapReduce steps that already performed the grouping.
+
+##### Map-side merge joins
+
+Another variant of map-side joins where the input dataset is not only partitioned in the same way, but also sorted based on the same key.
+
