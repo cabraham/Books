@@ -2871,3 +2871,115 @@ This is often used when the input is coming from previous MapReduce steps that a
 
 Another variant of map-side joins where the input dataset is not only partitioned in the same way, but also sorted based on the same key.
 
+### Output of Batch Workflows
+
+Batch workflows are closer to OLAP workloads than OLTP because of the sheer data, however the output of a batch workflow is not a report but a different type of data structure.
+
+Common data-structures created are search indexes and key-value stores.
+- Google used to use MapReduce to build their search indexes.  
+- Can be used to perform full-text searches over a fixed set of documents.
+- Heavily used for machine learning systems such as classifiers (spam filters, image recognition, etc) and recommendation systems (related products, people you may know, etc.)
+
+The output of these batch workflows are immutable and so lend themselves very well for read-only operations.
+
+Getting the output of a batch workflow into a database needs to be done in en masse as opposed to one record at a time.  For OLTP databases, because of the possibility of a very large number of records, it can overwhelm the database.
+- A solution to this is to build the database within the batch job itself.  That database can be used directly or even as an input into a database that supports bulk-loading.
+- Databases like Voldemort, Terrapin, ElephantDB, and HBase support bulk loading
+
+#### Philosophy of batch process outputs
+- The inputs should be unchanged
+- Any previous outputs should completely replaced by new outputs
+- There should be no side-effects (don't write to external systems)
+
+By following the above points, batch processes can be maintainable and testable.  It is easy to rollback if a bug is introduced, and it is easy to rerun jobs.  We want to* minimize irreversibility* and build in *human fault tolerance*.
+
+<dl>
+  <dt>human fault tolerance</dt>
+  <dd>the ability to recover from buggy code</dd>
+</dl>
+
+### MapReduce vs Distributed databases (MPP)
+
+<dl>
+  <dt>sushi principle</dt>
+  <dd>raw data is better</dd>
+</dl>
+
+#### MapReduce 
+- Does not require up-front planning of a schema.  It rather defers the design of the schema until the data is ready to be consumed and so speeds up centralization of data
+- Aims to be a more general purpose operating system that can run arbitrary programs
+  - this opens up the possibility for more types of workloads, especially where custom code must be written 
+- Often used for ETL processes
+
+#### Massively Parallel Processing (MPP)
+- Focuses on parallel execution of analytic SQL queries on a cluster of machines
+- Requires careful modeling of the data up-front and so slows down centralization of data
+- Monolithic and tightly integrated software that concerns itself with storage layout on disk, query planning, scheduling, and etc
+  - because these things can be tuned, some workloads can achieve very good performance
+
+
+#### Designing for faults
+
+Two main characteristics that are different between MPPs and MapReduce are the way they handle faults, and the use of memory and disk.
+
+If a node crashes while a query is executing, MPPs will abort the entire query, which will then have to be retried again.  
+- MPPs will try to keep as much information as it can in memory
+
+MapReduce can tolerate the failure of a task without affecting the job as a whole.  This is by design because each task is performed in full and in sequence before the next kicks off.
+- MapReduce is write-heavy and eagerly tries to write to disk on each task
+- MapReduce can start from a failed task and continue the job
+
+Google used this failure-tolerant approach in their mixed-use datacenters.  
+- MapReduce jobs were considered low-priority and they had a system in place to put production (live) workloads as higher priority.  
+- This meant that tasks would be interrupted forcefully by an automated system to give room to production workloads.
+
+
+### Beyond MapReduce
+
+MapReduce is a great solution for a large variety of workloads however: 
+- the programming model has a steep learning curve and is laborious to work w/ MapReduce raw APIs
+- the execution model is slow as compared to other processing for some workloads
+  - MapReduce creates alot of *intermediate state* where data is materialized
+  - A MapReduce job can only begin when all preceding jobs have completed
+  - Skew and varying load on different machines often means that jobs have to wait for some stragglers
+  - Intermediate state in a distributed filesystem means the data is replicated across several nodes, which is often overkill for temp data
+
+#### Dataflow engines
+
+Tools like Spark, Tez, and Flink are dataflow engines that are an alternative execution engine for distributed batch computations.  
+- Similar to Unix pipes, the data flows from one step to the other without having to wait for previous steps, almost in a stream like fashion
+- this means there is no *intermediate state* written to the file system
+
+Unlike MapReduce, the data is not presorted at every Map step, rather it is sorted when it needs to be sorted.
+- When data has to be sorted however, this sorting step must wait for all the data before it can continue
+- There are no unnecessary map tasks
+- Joins and data dependencies are explicitly declared, which means the scheduler can pass data through a shared memory buffer on the same machine rather than copying it over the network
+
+### Graphs and Iterative Processing
+
+Workloads that require the offline traversal of a graph (such as machine learning, recommendation engines, or ranking systems) are not well suited for MapReduce.
+- the idea of "repeating until done" can't be expressed in MapReduce, since it only performs a single pass over the data
+- this means the process is run iteratively
+- although this can work, it's very inefficient because MapReduce always reads the entire dataset and produces a completely new output dataset
+
+#### The Pregel processing model
+
+The Pregel model is an optimization for batch processing graphs.  It is a *bulk synchronous parallel* (BSP) model of computation.
+- MapReduce conceptually sends a message to a particular call of the reducer because the framework collects together all the mapper outputs with the same key
+- In a similar vein, a vertex sends a message to another vertex, and typically those are sent along the edges in a graph
+- The main difference here is that each vertex keeps its own state in memory from one iteration to the next.  
+  - Each vertex keeps track of all messages received
+  - This way the function only needs to process new incoming messages
+  - this idea is similar to [distributed actor frameworks](#actor-frameworks)
+
+Parallel execution
+- vertexes do not need to know which physical machine they're running on
+- the framework sends messages to a vertex ID and it is the framework's responsibility to partition the graph
+- it would be ideal to keep vertexes that need to communicate alot on the same machine to reduce network load, but finding optimized partitioning is hard
+- as a result, graph algorithms tend to have lots of cross-machine communication overhead
+
+### Higher programming models
+
+Hive, Pig, Cascading, and Crunch are higher-level languages that abstract away the laborious programming required by MapReduce jobs.
+- having higher-level languages means that the framework figures out the best way to optimize the jobs
+- if joins and filters are expressed in a declarative way, the framework can then figure out optimal query execution
