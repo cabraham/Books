@@ -2983,3 +2983,135 @@ Parallel execution
 Hive, Pig, Cascading, and Crunch are higher-level languages that abstract away the laborious programming required by MapReduce jobs.
 - having higher-level languages means that the framework figures out the best way to optimize the jobs
 - if joins and filters are expressed in a declarative way, the framework can then figure out optimal query execution
+
+
+## Chapter 11 - Stream Processing
+
+The main difference between batch processing and stream processing is that in stream processing, we are dealing with unbounded data.
+
+In stream processing, you are mainly dealing with events, which are small, self-contained immutable objects containing details of something that happened.  
+
+An *event* usually carries with it a time-of-day clock indicating when it happened.
+
+The sender of an event is also called a producer.
+The receiver is also known as subscriber or recipient.
+
+In a streaming system, related events are usually grouped together into a *topic* or *stream*.
+
+In a continually processing system like stream processing, it's usually better to notify downstream systems that an event occurred as opposed to polling for new data.
+
+### Messaging Systems
+
+TCP is a direct communication channel where there is 1 producer and 1 receiver.  This is good for simple use-cases but doesn't allow for multiple consumer nodes to receive messages.
+
+Messaging systems that support publish/subscribe are optimized to allow for distribution of data.
+
+Messaging systems approach the publish/subcribe model in various ways.  To differentiate them, consider 2 questions: 
+
+1. What happens if producers send messages faster than the consumers can process them?  There are 3 options: 
+- drop messages
+- buffer messages in a queue
+- apply *backpressure*  (a.k.a. flow control) - prevents the producer from sending more messages
+
+2. What happens if nodes crash or temporarily go offline? 
+- are messages lost?
+- if we can afford to lose messages, perhaps we can opt for higher throughput
+
+#### Direct messaging from producers to consumers
+
+- UDP multicast - like Tibco Rendezvous
+- Brokerless messaging libraries such as ZeroMQ and nanomsg use TCP or IP multicast
+- If the consumer exposes a service on the network, producers can make direct HTTP or RPC requests 
+  - this is the idea behind webhooks
+
+The downside to this type of messaging is that messages may be missed if a consuming node is offline.
+- Although there are application-level protocols like [Tibco Rendezvous](https://en.wikipedia.org/wiki/TIBCO_Rendezvous), there is an assumption that producers and consumers are constantly online
+- If a producer crashes, it's possible that the buffer of messages stored on the producer side may be lost
+
+#### Message brokers
+- also known as a *message queue*
+- a server application that producers and consumers connect to as clients to write and receive messages
+- the question of durability is moved to the broker
+
+Some brokers only keep messages in memory while others write them to disk in case of a broker crash
+
+> A consequence of queueing is also that consumers are generally *asynchronous*
+
+Differences between databases and message brokers
+- databases keep their data until the data is explicitly deleted.  Message brokers automatically delete a message when it's been successfully delivered to its consumers
+- because message brokers quickly delete messages, it's assumed that the working set is fairly small (*queues are short*)
+- databases support secondary indexes and other ways of searching for data.  Message brokers support topics to subscribe to a subset of data
+- a database support querying, which is a snapshot of the data.  Clients are unaware if the data has changed since reading from a database.  In contrast, message brokers do not support arbitrary queries but notify clients when data changes
+
+##### Multiple consumers
+
+There are 2 main patterns when having multiple consumers: 
+- *Load balancing* - each message is delivered to *one* of the consumers so that consumers can share the processing load
+- *Fan-out* - each message is delivered to *all* of the consumers
+
+##### Acknowledgements and redelivery
+
+In order to ensure that a message is not lost, message brokers use *acknowledgements*. An acknowledgement is when a client explicitly tells the broker that it has finished processing a message
+
+If a node crashes while processing a message, the message broker will redeliver the message to other consumers until it is acknowledged.  This can affect message ordering as described below.
+
+![Figure 11-2 - Messaging Redelivery](images/ddia/messaging_redelivery.png)
+
+If messages are completely independent of each other, then ordering is not a problem.  However if there are causal dependencies, then ordering is a concern.  To deal with this, you can use a separate queue per consumer.
+
+### Partitioned logs
+
+In batch processing, the input is treated as unchanged and immutable so you can run tests and experiment with the processing steps without risk of damaging the input.  This is not the case with messaging systems.
+
+> Receiving messages is a destructive operation!
+
+This is the reason for *log-based message brokers*.
+
+A log is an append-only sequence of records on disk.  When a producer sends a message, the message is appended to the log.  Consumers receive messages by reading the log sequentially.
+
+Logs can be partitioned to increase higher throughput than what a single disk can offer.  Each partition would then be a separate log that is read and written to independently from other partitions.
+
+![Figure 11-3 - partitioned log messaging](images/ddia/log-based_messagebrokers.png)
+
+Kafka, Amazon Kinesis, and Twitter's DistributedLog are all log-based message brokers.
+
+In a log-based message broker, reading messages does not delete the message from the log.  
+
+Each client consumes *all* the messsages in the partition it has been assigned.
+
+The downsides to this form of load-balancing is: 
+1. the number of nodes sharing the work of consuming a topic can be at most the number of log partitions in that topic
+2. if a single message is slow to process, it holds up the processing of subsequent messages in that partition
+
+Consumers use offsets to keep track of where they are in the queue.  This means the message broker doesn't need to keep track of acknowledgements for every single message.  This means reduced overhead for the broker and so throughtput can be higher.
+
+#### Disk-space usage 
+Append-only logs get larger over time and eventually the disk will run out of space.  To avoid failure, the log is divided into segments where older segments are deleted or moved to archived storage.  
+
+The log implements a bounded-size buffer like a circular buffer or ring buffer.  Because the disk typically has alot of storage, the buffer can be quite large.  
+
+##### Operational concerns
+
+- Because the buffer is so large, a human operator often has enough time to fix the slow consumer before it starts to miss messages.  
+- It is easy to monitor how far a consumer is behind the head of the log by keeping track of the offset
+- You can experiment for development, testing, and debugging purposes workloads against the production log without having to worry much about disrupting production services.  
+  - In contrast, you'd have to be very careful about deleting any queues for consumers that have been shut down as they consume memory resources (since they continue to accumulate messages) and take resources away from consumers that are still active
+
+
+### Databases and Streams
+
+Similar to how message brokers have taken principles from databases (like log-based message brokers), databases also have taken principles from messaging and improved database technology.
+
+Non-trivial systems often require several different technologies to satisfy their requirements.  It may be a combination of OLTP, caches, full-text indexes, and data warehouses.  Each of these has its own copy of the data stored in its own representation that is optimized for its own purposes.
+
+Keeping this data in sync is the challenge.  If data is updated in the database, that change needs to be propogated to the other components.  Sometimes this was done via ETL processes (typically in data warehouse scenarios) or dual writes.  
+
+<dl>
+  <dt>dual write</dt>
+  <dd>where application code explicitly writes to each of the systems when data changes</dd>
+</dl>
+
+There are problems with these approaches however.  
+- ETL can be slow and heavy and often resemble full database dumps.  This may not meet the needs of the system.
+- Dual writes have all the problems of detecting concurrent writes (keeping order) and fault-tolerance
+
