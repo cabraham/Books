@@ -2945,7 +2945,6 @@ MapReduce is a great solution for a large variety of workloads however:
   - Intermediate state in a distributed filesystem means the data is replicated across several nodes, which is often overkill for temp data
 
 #### Dataflow engines
-
 Tools like Spark, Tez, and Flink are dataflow engines that are an alternative execution engine for distributed batch computations.  
 - Similar to Unix pipes, the data flows from one step to the other without having to wait for previous steps, almost in a stream like fashion
 - this means there is no *intermediate state* written to the file system
@@ -2987,14 +2986,13 @@ Hive, Pig, Cascading, and Crunch are higher-level languages that abstract away t
 
 ## Chapter 11 - Stream Processing
 
-The main difference between batch processing and stream processing is that in stream processing, we are dealing with unbounded data.
+The main difference between batch processing and stream processing is that in stream processing, we are dealing with **unbounded data**.
 
 In stream processing, you are mainly dealing with events, which are small, self-contained immutable objects containing details of something that happened.  
 
-An *event* usually carries with it a time-of-day clock indicating when it happened.
-
-The sender of an event is also called a producer.
-The receiver is also known as subscriber or recipient.
+- An *event* usually carries with it a time-of-day clock indicating when it happened.
+- The sender of an event is also called a producer.
+- The receiver is also known as subscriber or recipient.
 
 In a streaming system, related events are usually grouped together into a *topic* or *stream*.
 
@@ -3009,13 +3007,13 @@ Messaging systems that support publish/subscribe are optimized to allow for dist
 Messaging systems approach the publish/subcribe model in various ways.  To differentiate them, consider 2 questions: 
 
 1. What happens if producers send messages faster than the consumers can process them?  There are 3 options: 
-- drop messages
-- buffer messages in a queue
-- apply *backpressure*  (a.k.a. flow control) - prevents the producer from sending more messages
+    - drop messages
+    - buffer messages in a queue
+    - apply *backpressure*  (a.k.a. flow control) - prevents the producer from sending more messages
 
 2. What happens if nodes crash or temporarily go offline? 
-- are messages lost?
-- if we can afford to lose messages, perhaps we can opt for higher throughput
+    - are messages lost?
+    - if we can afford to lose messages, perhaps we can opt for higher throughput
 
 #### Direct messaging from producers to consumers
 
@@ -3077,7 +3075,7 @@ Kafka, Amazon Kinesis, and Twitter's DistributedLog are all log-based message br
 
 In a log-based message broker, reading messages does not delete the message from the log.  
 
-Each client consumes *all* the messsages in the partition it has been assigned.
+Each client consumes *all* the messages in the partition it has been assigned.
 
 The downsides to this form of load-balancing is: 
 1. the number of nodes sharing the work of consuming a topic can be at most the number of log partitions in that topic
@@ -3097,7 +3095,6 @@ The log implements a bounded-size buffer like a circular buffer or ring buffer. 
 - You can experiment for development, testing, and debugging purposes workloads against the production log without having to worry much about disrupting production services.  
   - In contrast, you'd have to be very careful about deleting any queues for consumers that have been shut down as they consume memory resources (since they continue to accumulate messages) and take resources away from consumers that are still active
 
-
 ### Databases and Streams
 
 Similar to how message brokers have taken principles from databases (like log-based message brokers), databases also have taken principles from messaging and improved database technology.
@@ -3112,6 +3109,164 @@ Keeping this data in sync is the challenge.  If data is updated in the database,
 </dl>
 
 There are problems with these approaches however.  
-- ETL can be slow and heavy and often resemble full database dumps.  This may not meet the needs of the system.
+- ETL can be slow and heavy and often resemble full database dumps.  This may not meet the needs of the system.  By nature, ETL is a batch process and will likely have a signifcant delay behind the master database.
 - Dual writes have all the problems of detecting concurrent writes (keeping order) and fault-tolerance
+
+#### Change Data Capture
+
+Databases already have a high performing way to write out data changes to disk, which is their log.  Originally, the details on how to work with the change data capture (CDC) was not well documented.  CDC is now a first-class feature of many database systems.  The CDC can be made available as a stream as they are written.
+
+![Figure 11-5 - CDC stream keeping order](images/ddia/cdc_stream_order.png)
+
+One great benefit here is that the rest of the system does not have to worry about order as the database CDC has already done that.
+
+A log-based message broker (like Kafka), is well suited for transporting the change events from the source database since it also preserves the ordering of messages.
+
+##### Initial snapshot
+
+Having a log of all the changes ever made to a database would require alot of storage.  If you were to add a new follower, the follower would have an immense amount of messages to go through. To counteract this, you can setup a **consistent snapshot** which points to an offset in the changelog.  
+
+##### Log compaction
+
+Log compaction is a native feature of many log-based storage systems.  Running compaction would clear up space.  A new follower can seed its data with the compacted log and then point to the offset it was compacted from.
+
+### Event Sourcing
+
+<dl>
+  <dt>event sourcing</dt>
+  <dd>a pattern that captures all changes to an application state as a sequence of events</dd>
+</dl>
+
+Event sourcing is a not the same as CDC although there are many similarities.  The fundamental differences are: 
+1. CDC is a low-level record of writes extracted from the database log.  In this model, the application is doesn't have to be aware that CDC exists
+2. In event-sourcing, the application logic is aware and designed around concepts of immutable events.  The changes are application level and not low-level state changes
+
+#### Deriving current state from the event log
+
+Users typically want to work with the current-state of the system.  To determine current-state, you have to build the state from the event-log (by playing through the events).
+
+Log compaction would be very different in an event sourcing system.  
+- In CDC, an update of a record typically contains an entire new version of the record.  The current-value for a key is simply the latest value for the key.  This makes reasoning about compaction straight forward.
+- In event sourcing, events are modeled at a higher-level.  An event expresses the intent of a user-interaction and so state is not assumed to be the latest event.  Log-compaction isn't possible in this way.
+
+To prevent the need to reprocess the full event log, snapshots of the current state can be taken.  
+
+##### Commands and events
+
+Similar to NSB speak, a command is a request and may fail.  An event on the other-hand is past-tense and is a fact.
+
+
+### State, Streams, and Immutability
+
+We normally think of databases as storing the current state of the application.  State however is something that changes over time, and the changes are caused by events.
+
+In this view, state is the result of a sequence of immutable events.  
+![Figure 11-6 - current state and event-stream](images/ddia/currentstate_eventstream.png)
+
+This means that a mutable state and an append-only log of immutable events do not contradict each other.  The log of all changes, the *changelog*, represents the evolution of state over time.
+
+#### Advantage of immutability
+
+With an append-only log of immutable events, it's much easier to diagnose a bug and easier to recover from the problem.
+
+Immutable events also capture information than just the current state.  If for example you were only capturing current state and customer adds an item to their cart and then removes it before checking out, we would not have stored the fact that the customer was considering the product.
+
+#### Deriving views from the same event log
+
+Separating the mutable state from the immutable event log also opens up possibility to have different read-oriented representations from the same log of events.
+
+Having a translation step from an event log to a database makes it easier to evolve the application over time.  
+
+The idea behind command query responsibility segregation (CQRS) stems from this idea.  
+
+#### Concurrency control
+
+The biggest downside of a event sourcing and CDC is that the consumers of the event log usually asynchronous.  This means that subsequent read operations after a write may not show the new value right away.  
+
+One potential solution was previously discussed in [Reading Your Own Writes](#reading-your-own-writes).  Another approach would be [Implementing linearizable storage](#implementing-linearizable-systems).
+
+However, an event log simplifies some aspects of concurrency control.  
+> Much of the need for multi-object transactions stems from a single user action requiring data to be changed in several places.  With event sourcing, you can design an event such that it is a self-contained description of a user action.  The user action then requires only a single write in one place - namely appending the events to the log - which is easy to make atomic.
+
+#### Limitations of immutability
+
+It may not be feasible to keep an immutable history of all changes forever.  This depends on the churn in the data.
+
+For workloads were data is mostly added and rarely updated and deleted, it's easy to make to make the system immutable.
+
+For workloads that have lots of updates and deletes may cause fragmentation, lots of compaction, and garbage collection which would cause operational issues.
+
+Immutability doesn't work when data HAS to be deleted.  If there was a regulatory need to delete information, an immutable data store serves the exact opposite purpose.  
+
+
+### Stream Processing
+
+Complex event processing (CEP) - a method of tracking and analyzing streams of events in real-time
+
+#### Reasoning about time
+
+Stream processors often need to deal with time as it is a first-class concept.  There are different times to consider.
+
+Consider the following: 
+1. The time at which the event occurred, according to the device clock
+2. The time at which the event was sent to the server, according to the device clock
+3. the time at which the event was received by the server, according to the server clock
+
+#### Types of windows
+
+Time windows are a defined time block for which you are considering events.  
+
+*Tumbling window* - is a fixed length and every event belongs to exactly 1 window
+
+*Hopping window* - has a fixed length but allows windows to overlap in order to provide smoothing
+
+Sliding window - contains all the events that occur within some interval of each other
+
+*Session window* - has no fixed duration and is defined by grouping together all events for the same user that occur closely together in time
+
+![Tumbling, Hopping, and Session windows](images/ddia/stream_processing_windows.png)
+
+![Sliding Window](images/ddia/stream_processing_slidingwindow.png)
+
+
+#### Stream Joins
+
+##### Stream-stream join (window join)
+
+In this type of join, the stream processing needs to maintain state.  The input streams are activity events.
+
+##### Stream-table join (stream enrichment)
+
+This type of join is used to enrich the stream data.  Similar to map-side joins where a local copy of a database may be used.  If the database-data needs to change during the processing, then it can be kept in sync with CDC.
+
+In this type of join, one input is a stream of activity events, and the other is a database change log.
+
+
+##### Table-table join (materialized view maintenance)
+Here both input streams are database change logs.  Every change on one side is joined to the latest state of the other side.
+
+
+#### Time-dependencies of joins
+
+If state changes over time, and you join with some state, what point in time do you use for the join?  What about event ordering?
+
+
+### Fault Tolerance
+
+Waiting until a task is finished before making its output visible is not an option because the stream is infinite.  
+
+A solution to this is to break up the stream into small blocks as if they are miniature batch processes (a.k.a. *microbatching*).
+
+A problem here is in the confines of a stream processing framework can provide exactly-once semantics.  However if there are external side effects (e.g. writing to a database or sending a message to an external broker), the stream processer cannot guarantee exactly-once semantics.
+
+To address this, some frameworks have started implementing the idea of transactions, similar to distributed transactions and two-phase commit.  Rather than providing transactions across heterogeneous technologies however, they will keep the transactional internal by managing both state changes and messaging within the stream processing framework.
+
+Distributed transactions are one way to achieve exactly-once processing.  Another way is to rely on *idempotence*.
+- By adding a bit of metadata, like a message id or a Kafka offset, the downstream system can tell if it's already processed the message.
+
+#### Rebuilding state after a failure
+
+Windowed aggregations and tables and indexes used for joins must be able to recover state.
+
+One way to address this is to replicate the state periodically to durable storage.  Samza and Kafka Streams replicate state by sending them to a dedicated Kafka topic with log compaction.  VoltDB replicates state by redundantly processing each input message on several nodes.
 
