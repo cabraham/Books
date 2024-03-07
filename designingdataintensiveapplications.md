@@ -3270,3 +3270,9 @@ Windowed aggregations and tables and indexes used for joins must be able to reco
 
 One way to address this is to replicate the state periodically to durable storage.  Samza and Kafka Streams replicate state by sending them to a dedicated Kafka topic with log compaction.  VoltDB replicates state by redundantly processing each input message on several nodes.
 
+
+
+### Additional Notes
+
+[Consistency Models](https://jepsen.io/consistency)
+[![Jepsen - consistency](images/ddia/jepsen_consistencymap.png)](https://jepsen.io/consistency)
