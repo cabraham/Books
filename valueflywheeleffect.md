@@ -43,3 +43,18 @@ Mapping the stack
 Mapping the organization
 Mapping the market
 
+
+## Clarity of Purpose
+
+[North Star Framework](https://amplitude.com/books/north-star/about-the-north-star-framework)
+- helps clarify what the North Star metric is
+- the North Star metric should be a leading indicator of long-term (sustainable) business value
+
+![North Star Framework](images/vfe/northstar_framework.png)
+
+Innovation
+- Amazon isn't an "innovative" company, but one that keeps finding innovative value
+- rate of turn
+
+JTBD - jobs to be done
+    - what is the customer need?
