@@ -3272,6 +3272,135 @@ One way to address this is to replicate the state periodically to durable storag
 
 
 
+## Chapter 12 - The Future of Data Systems
+
+### Data Integration
+
+All data systems have specific usages patterns.  Even a "general-purpose" database is designed for a particular usage pattern.  Therefore one of the main jobs is to get the right fit.
+
+### Combining specialized tools by deriving data
+
+For simple applications, a single general purpose database may be enough.  For larger and non-trivial applications however, the primary system of record isn't enough.  
+
+It's common to combine multiple stores of data for different purposes.  
+- A simple example is an OLTP database as the system of record, but a full-text search optimized database for keyword lookup, which is derived.
+
+#### Reasoning about data flows
+
+One type of dataflow can be to write data out to the system of record and then use CDC to update the search index.  Because the search index is derived from the CDC, you can be sure that the order of operations are the same, therefore maintaining consistency.
+
+Allowing an application to write to two data stores may cause conflicting order as the storage systems may process the writes in a different order.  This is because neither the database nor the search index is in charge of determining the order.
+
+#### Derived data vs distributed transactions
+
+The classic method of keeping different data systems consistent with each other is distributed transactions.  
+
+Distributed transactions use locks to ensure mutual exclusion while CDC and event sourcing use a log for ordering.
+
+The biggest difference is that transaction systems provide [linearizability](https://jepsen.io/consistency/models/linearizable) which provide guarantees of [reading your own writes](#reading-your-own-writes).  In contrast, derived data systems are updated asynchronously and so do not offer the same timing guarantees.
+
+> Kleppman believes that log-based derived data is the most promising approach for integration different data systems.
+
+#### Limits of total ordering
+
+Constructing a totally ordered event log is feasible for small systems.  However as things scale, things become more complex.
+
+Once the throughput of events goes beyond what a single machine can handle, it must be partitioned.  This brings the order of events between the two different partitions ambiguous.
+
+#### Ordering events to capture causality
+
+When there are multiple updates to the same object, it can be totally ordered by routing the updates for a particular object to the same log.  
+
+Subtle issues with causal dependencies can arise when making updates to multiple objects.
+
+> For example, in a social networking service, if two users who were in a relationship have broken up and one of the users removes the other user as a friend, and then sends a message to the remaining friends complaining about their ex, the user's intention is that the ex should not see the rude message, since the friend was removed before the posting.  There is causal dependency here that if not captured, the rude message may be seen by the ex.
+
+Logical timestamps can help provide ordering without coordination (like DTC).
+
+### Batch and Stream Processing
+
+The outputs of batch and stream processes are derived datasets such as search indexes, materialized views, etc.
+
+#### Maintaining derived state
+
+Batch and stream processes have a functional flavor.  These are deterministic functions where the input is not changed and the output only depends on the input.
+
+Strengths of derived data systems 
+- they can be kept up to date asynchronously
+- they allow for gradual evolution 
+  - restructing a dataset can evolve over time by having multiple independent derived views and shifting users or applications gradually to the newer view
+
+#### The lambda architecture
+
+Batch processing is used to reprocess historical data and stream processing is used to process recent updates.  Combining the two is called the *lambda architecture*.
+
+The main idea is
+- incoming data should be recorded by appending immutable events to an always-growing dataset
+- from these events, read-optimized views are derived
+
+This means that the stream processor consumes the events as they arrive and creates an approximate view while the batch processor later consumes the *same* set of events and produces a corrected version of the derived view.
+
+Implementing lambda architecture however is alot of work.  There are 2 different data systems and duplicate code in stream and batch processing.
+
+### Unbundling Databases
+
+Kleppman's main idea here is similar to Unix pipes, where there is a standard pipe in and pipe out, data storage technologies can and should implement these piping capabilities.
+
+#### Creating an Index
+
+When you run CREATE INDEX to create a new index in a relational database, the database has to do the following: 
+1. Scan over a consistent snapshot of a table
+2. Pick out all the field values being indexed, sort them, and write out the index
+3. Process the backlog of writes that have been made since the consistent snapshot was taken
+
+At an abstract level, this describes almost exactly what setting up a new follower replica does and also similar to bootstrapping CDC in a streaming system.
+
+*Federated databases: unifying reads*
+- Kleppman proposes a unified query interface to a wide variety of underlying storage engines.  
+- PostgreSQL has the concept of a *foreign data wrapper* which fits this pattern
+
+*Unbundled databases: unifying writes*
+- writing data is more complex than reads as the data must be synchronized and ordered properly
+- the idea of unbundling is to make it easy to plug together storage systems (through CDC and event logs)
+
+#### Making unbundling work
+
+Log-based integration allows loose coupling between various components
+
+At a system level, asynchronous event streams make the system more robust.  Slow or faulty consumers can buffer or retry messages
+
+At a human level, unbundling the systems allows different software components and services to be developed, improved, and maintained independently.
+
+
+### Designing Applications Around Dataflow
+
+> The database inside-out approach.  
+
+In a spreadsheet, you can put a formula in one cell, and whenever an input to the formula changes, the result of the formula is automatically recalculated.  In a similar vein you can update derived systems automatically. 
+
+Examples include:
+- full-text search indexes
+- machine learning systems
+- caches
+- materialized views
+- analytics
+
+#### Dataflow: Interplay between state changes and application code
+
+Maintaining derived data is not the same as asynchronous job execution
+- When maintaining derived data, order of state changes matters
+- Many message brokers do not have this property when redelivering unacknowledged messages
+- Losing just a single message causes the derived dataset to go permanently out of sync with its data source
+  - This means message delivery and derived state updates must be reliable.
+  - Actor systems would not be a good fit here because by default, they maintain state and messages in memory
+
+
+
+
+
+
+
+
 ### Additional Notes
 
 [Consistency Models](https://jepsen.io/consistency)
