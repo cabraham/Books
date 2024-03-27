@@ -409,7 +409,7 @@ There are other data models not covered as well.  Examples are full-text search 
 
 ## Chapter 3 - Storage and Retrieval
 
-#### Terms
+### Terms
 
 <dl>
   <dt>log</dt>
@@ -441,6 +441,9 @@ When performing a merge and compaction, the newly merged segment is written as a
 
 When merging, the a *tombstone* record signifies that all previous values for the deleted key can be discared.
 
+#### File format
+> It is faster and simpler to use a binary format the first encodes the length of a string in bytes
+
 ##### Crash recovery
 > when a database is restarted, all in-memory hash maps are lost (volatile memory).  You can restore the hashmap by reading all of the segments and keeping track of the most recent value.  This can be sped up however by maintaining *snapshots*.
 
@@ -453,8 +456,7 @@ When merging, the a *tombstone* record signifies that all previous values for th
 #### Append-only design
 Pros
 - generally much faster than random writes, especially on magnetic disks
-- concurrency and crash recovery are much simpler
-- segments are immutable
+- concurrency and crash recovery are much simpler when segments are append-only or immutable
 - merging old segments avoids the problem of data files getting fragmented over time
 
 Cons
@@ -477,6 +479,10 @@ Merging segments is simple and efficient and uses an approach similar to the [*m
 ![SSTable compaction](images/ddia/sstable_compaction.png)
 
 With an SSTable, we don't have to store the whole hashmap in-memory.  Because the keys are sorted, we can lookup values *between* other values.  This means the in-memory index can be sparse.  Simply lookup the closest values and scan from there.
+
+<a name="figure3-5"><img src="images/ddia/sstable_index.png" width="600" alt="Figure 3-5. An SSTable with an in-memory index" /></a>
+
+In Figure 3-5, if searching for the word *handiwork*, the system would look at the sparse index and because it's ordered, know that the value is between *handbag* and *handsome*.  Therefore it can start at handbag and seek on disk from there.
 
 ##### Constructing and maintaining SSTables
 
@@ -523,10 +529,69 @@ Read requests in an LSM can be slow if the key does not exist in the database, e
 
 One solution to this is to use [bloom filters](https://en.wikipedia.org/wiki/Bloom_filter) which excel at telling you if the key exists in the db.  
 
-Another solution is to tune how the SSTables are compacted and merged.  
-
 Because LSM trees are written sequentially, they support high write throughput.
 
+Two common strategies for determining how and when the SSTables are compacted and merged are *size-tiered* and *leveled* compaction
+<dl>
+  <dt>size-tiered compaction</dt>
+  <dd>newer and smaller SSTables are successively merged into older and larger SSTables</dd>
+  <dt>leveled compaction</dt>
+  <dd>key range is split into smaller SSTables and older data is moved into separate "levels".  </dd>
+</dl>
+
+
+[Compaction](https://www.scylladb.com/2018/01/17/compaction-series-space-amplification/)
+  - Updates are first written to a memtable
+  - when the table is too big, it is flushed to disk (sorted as sstable to make it easy to search and merge)
+  - as more updates come in, the # of separate sstables continues to grow and 2 problems appear
+    - 1. data in one sstable which is later modified or deleted in another sstable wastes space
+    - 2. when data is split across many sstables, read requests may need to read from more sstables, slowing reads down
+  - to mitigate some of problem #2, it uses bloom filters to avoid reading from sstables where it knows the data does not exist, however as the number of sstables continues to grow, so do the # of disk files from which we need to read 
+  - as soon as enoush sstables have accumulated, some are compacted together
+  - compaction brings together only the live data from the input sstables merging the several already sorted files
+
+<dl>
+  <dt>read amplication</dt>
+  <dd>requests needing many sstables</dd>
+  <dt>write amplication</dt>
+  <dd>having to write (compact) the same data again and again</dd>
+  <dt>space amplification</dt>
+  <dd>requiring excessive temporary disk space</dd>
+</dl>
+
+[RUM conjecture](http://daslab.seas.harvard.edu/rum-conjecture/) - you can't design an access method for a storage system that is optimal in all the following aspects - reads, updates, and memory
+- Compaction strategies have to make a similar tradeoff choice like CAP.  There are tradeoffs.
+
+[LSM-tree compaction in ScyllaDB](https://www.youtube.com/watch?v=Xzcj663i9DM)
+
+[Size-tiered Compaction](https://www.youtube.com/watch?v=TyTXOjFMi7k)
+- compact N similar-sized files together with result being put into the next tier
+- procrastinates compaction
+- results in a low number of SSTables where the same data is copied during compaction a fairly low number of times
+- reads can be slow if there are many modifications to the same key - O(logN)
+  - this is because multiple sstables will have values for the same key
+- obsolete data remains for a long time until merged
+- compaction requires lots of space to be available
+- best for insert-heavy workloads
+- weak against space amplification
+  - occurs because during compaction, the input sstables cannot be deleted until the output sstable is finished writing
+    - in insert scenarios, it can require up 2x the space
+    - in update scenarios, the same value can exist multiple times until things are compacted
+
+[Leveled Compaction](https://www.youtube.com/watch?v=6yJEwqseMY4)
+- a tiered (leveled) compaction strategy that at each level, specifies a maximum size  
+- as the levels go up, the number of SS tables goes up, typically an order of magnitude 
+  - in the real world, the multiplier is usually 10x
+- the goal is to promote to levels as little as possible.  high-write keys wouldn't have to be moved around often.
+- best for read-heavy workloads with occasional writes
+- regarding space-amplication
+  - most of the data is in the deepest level
+  - sstables do not overlap, so it can't have duplicate data
+- regarding read-amplication
+  - most of the reads only have to read from 1 sstable
+- regarding write-amplication
+  - very bad
+  - data at each level is written to multiple sstables in the next level during compaction
 
 ### B-Trees
 
@@ -585,17 +650,22 @@ LSM-trees are typically faster for writes whereas B-trees are typically faster f
 
 #### Advantages of LSM trees
 
-Write-amplication
-: the effect of one write to the database resulting in multiple writes tot he disk over the course of the database's lifetime
+<dl>
+  <dt>write-amplication</dt>
+  <dd>the effect of one write to the database resulting in multiple writes to the disk over the course of the database's lifetime</dd>
+</dl>
 
 In write-heavy applications, the more writes to disk, the fewer writes per second it can handle within the available disk bandwidth
 
 - LSM generally have fewer write operations overall compared to B-tree.  
   - This is because B-tree has to write to the WAL first, then update the page, and maybe even create new pages
 
-- LSM writes out data sequentially and compactly whereas B-tree can get fragmented on disk over time.
+- LSM writes out data sequentially and compactly whereas B-tree can get fragmented on disk over time
+  - this means workloads requiring order by key can be negatively impacted over time
 
 - LSM has lower write amplication, especially on SSDs because the SSD firmware uses a log-structured algorithm to turn random writes into sequential writes.
+
+- LSM trees can be compressed better and thus often produce smaller files on disk than B-trees.  B-tree storage engines leave some disk space unused due to fragmentation.  This is needed in the case you need a  page splits when a row cannot fit into an existing page
 
 #### Downsides of LSM trees
 - The compaction process can sometimes interfere with ongoing reads and writes
@@ -612,11 +682,11 @@ In write-heavy applications, the more writes to disk, the fewer writes per secon
 ### Other Indexing Structures
 
 <dl>
-  <dt>Clustered Index</dt>
+  <dt>clustered index</dt>
   <dd>when an indexed row is stored directly within an index.  These are stored in a specific order</dd>
-  <dt><a href="https://www.geeksforgeeks.org/secondary-indexing-in-databases/">Secondary index</a></dt>
+  <dt><a href="https://www.geeksforgeeks.org/secondary-indexing-in-databases/">secondary index</a></dt>
   <dd>Secondary indexing is a database management technique used to create additional indexes on data stored in a database. The main purpose of secondary indexing is to improve the performance of queries and to simplify the search for specific records within a database. A secondary index provides an alternate means of accessing data in a database, in addition to the primary index.</dd>
-  <dt>Heap-file</dt>
+  <dt>heap-file</dt>
   <dd>location where row content is stored if apart from the document or vertex.  Data is not stored in any particular order</dd>
 </dl>
 
@@ -661,7 +731,7 @@ Indexes of this sort have to consider *similar* keys.  Some examples would be:
 
 As RAM has become cheaper over time and many datasets are not that big, some solutions have been to put all the data in memory.
 
-There are products that are simply key-value (Memcachedd) and others that implement a relational model (VoltDB and MemSQL).
+There are products that are simply key-value (Memcached) and others that implement a relational model (VoltDB and MemSQL).
 
 In-memory is volatile but there are solutions for this as well such as battery-powered RAM.
 
@@ -691,7 +761,7 @@ The performance of in-memory actually comes from not having to encode in-memory 
 #### Data Warehousing
 
 <dl>
-  <dt>Data-warehouse</dt>
+  <dt>data-warehouse</dt>
   <dd>a separate database that analysts can query</dd>
 </dl>
 
@@ -700,7 +770,7 @@ These databases are full of historic data from various OLTP systems and loaded v
 
 Analytics queries can be quite performance heavy due to the number of records and adhoc nature of the queries.  If these queries were executed against OLTP systems, they could potentially fail.
 
-![ETL datawarehouse](images/ddia/etl_datawarehouse.png)
+<img src="images/ddia/etl_datawarehouse.png" width="600" />
 
 This is even more true with distributed systems such as microservices where each service has its own database.
 
@@ -708,8 +778,10 @@ The internals of OLAP systems are optimized for analytical query patterns.  Some
 
 ### Stars and Snowflakes: Schemas for Analytics
 
-star schema
-: denormalized business data into facts and dimensions.  the fact table is at the center
+<dl>
+  <dt>star schema</dt>
+  <dd>denormalized business data into facts and dimensions.  the fact table is at the center</dd>
+</dl>
 
 ![star schema](images/ddia/starschema.png)
 
@@ -3461,3 +3533,84 @@ Maintaining derived data is not the same as asynchronous job execution
 
 [Consistency Models](https://jepsen.io/consistency)
 [![Jepsen - consistency](images/ddia/jepsen_consistencymap.png)](https://jepsen.io/consistency)
+
+
+### Database technology notes
+
+Bitcask - Riak's default storage engine
+  - requires all keys to be able to fit into RAM
+  - well suited for when the value for each key is updated frequently but there aren't that many keys
+  - Bitcask speeds up crash recovery by storing snapshots of each segment's hashmap on disk.  This way you don't have to read all the segments from beginning to end to restore the hashmap
+
+LevelDB
+  - uses LSM trees
+  - a key-value storage engine 
+  - can be used in Riak as an alternative to Bitcask
+  - uses leveled compaction
+
+RocksDB
+  - uses LSM trees
+  - a key-value storage engine 
+  - uses leveled compaction
+
+Lucene
+  - an indexing engine for full-text search used by Elasticsearch and Solr
+  - uses an LSM-tree for storing its term dictionary
+
+HBase
+  - uses size-tiered compaction
+
+Cassandra
+  - supports both leveled and size-tiered compaction
+
+LMDB
+  - uses a copy-on-write scheme instead of overwriting pages and maintaining a WAL
+
+VoltDB
+  - in-memory database with a relational model
+
+MemSQL
+  - in-memory database with a relational model
+
+Oracle TimesTen
+  - in-memory database with a relational model
+
+RAMCloud
+  - open-source in-memory key-value store with durability
+
+Microsoft SQL Server
+  - relational OLTP database
+  - also supports OLAP
+
+SAP HANA
+  - supports both OLTP and OLAP workloads
+
+Teradata
+  - data warehouse vendor
+
+Vertica
+  - data warehouse vendor
+
+ParAccel
+  - data warehouse vendor
+
+Amazon Redshift
+  - a hosted version of ParAccel
+
+Apache Hive
+  - open source SQL-on-Hadoop
+
+Spark SQL
+  - open source SQL-on-Hadoop
+
+Cloudera Impala
+  - open source SQL-on-Hadoop
+
+Facebook Presto
+  - open source SQL-on-Hadoop
+
+Apache Tajo
+  - open source SQL-on-Hadoop
+
+Apache Drill
+  - open source SQL-on-Hadoop
