@@ -7,30 +7,30 @@
 
 ## Chapter 1 - Reliable, Scalable, and Maintainable Systems
 
-#### Terms
+### Terms
 
 <dl>
-  <dt>Data-Intensive</dt>
+  <dt>data-intensive</dt>
   <dd>deals with amount of data, complexity of data, how fast the data is changing</dd>
-  <dt>Compute intensive</dt>
+  <dt>compute intensive</dt>
   <dd>CPU bound</dd>
 </dl>
 
-
-
 ### Applications of Data-intensive applications
-- store data so that it can be found and used later (*databases*)
-- remember the result of an expensive operation to speed up reads (*caches*)
-- allow users to search data by keywords or filter it in various ways (*search indexes*)
-- send a message to another process to be handled asynchronously (*stream processing*)
-- periodically crunch a large amount of accumulated data (*batch processing*)
+
+Data-intensive applications are typically built from standard building blocks:
+- store data so that it can be found and used later (**databases**)
+- remember the result of an expensive operation to speed up reads (**caches**)
+- allow users to search data by keywords or filter it in various ways (**search indexes**)
+- send a message to another process to be handled asynchronously (**stream processing**)
+- periodically crunch a large amount of accumulated data (**batch processing**)
 
 Prior abstractions had neat categories for different types of data-systems.  The lines are however being blurred.
 
 Modern systems may take different data solutions and combine them to make a composite system.  Consumers of the data shouldn't have to worry about the implementation details so abstractions are built that hide the complexity behind a simpler facade.  This requires application level code which provides the linkage between the different types to provide the necessary guarantees (e.g. cache-update or invalidation so that consumers see correct results)
 
 
-Three main concerns
+Three main concerns when designing a data-intensive application (DIA)
 #### *Reliability*
 > The system should continue to work *correctly* even in the face of *adversity*
 
@@ -46,23 +46,24 @@ Three main concerns
 #### Terms
 
 <dl>
-  <dt>Fault</dt>
+  <dt>fault</dt>
   <dd>things that can go wrong</dd>
-  <dt>Fault-tolerant or resilient</dt>
+  <dt>fault-tolerant or resilient</dt>
   <dd>ability to anticipate and cope with faults</dd>
-  <dt>Failure</dt>
+  <dt>failure</dt>
   <dd>system as a whole stops providing the required service</dd>
 </dl>
 
 
 #### Hardware Faults
-Failure of hardware components due to wear over time.
-
-These are typically addressed through redundant hardware (e.g. RAID, dual power supplies, etc)
-
-With the advent of the cloud, using software fault-tolerance techniques, losing a VM or a container should be expected and anticipated.  The impact of such failures is much lower.
+- Failure of hardware components due to wear over time.
+- These are typically addressed through redundant hardware (e.g. RAID, dual power supplies, etc)
+- With the advent of the cloud, using software fault-tolerance techniques, losing a VM or a container should be expected and anticipated.  
+  - The impact of such failures is much lower.
 
 #### Software Errors
+Hardware faults are almost random and independent from each other.  Software on the other hand is harder to anticipate and can be correlated across nodes.  Because of this, the number of system failures are usually higher.
+
 Examples: 
 - Software bugs that cause every instance of an application to crash
 - A runaway processes that takes away from shared resources
@@ -74,7 +75,7 @@ Examples:
 Humans are inherently unreliable.  Most errors are caused by configuration errors made by operators.
 
 How to address this? 
-- Design systems in a way that minimizes opportunity for errors (simplified APIs and interfaces).  **Path of success**
+- Design systems in a way that minimizes opportunity for errors (simplified APIs and interfaces).  (**Path of success**)
 - Decouple (*separate*) the places where people make the most mistakes from the places where they can cause failure.   Also provide sandbox environments.
 - Test thoroughly at all levels (unit-tests, integration tests, manual tests)
 - Allow for quick rollback from user-errors
@@ -92,14 +93,18 @@ How to address this?
   <dd>a system's ability to cope with increased load</dd>
 </dl>
 
-*Note*: Scalability is not a one-dimensional label.  
 
-##### Questions we can ask are 
--  If the system grows in a particular way, what are our options for coping with the growth?
+*Note: Scalability is NOT a one-dimensional label.*
+- In other words, simply saying "X is scalable" doesn't give any real meaning.
+
+Questions we can ask are:
+- If the system grows in a particular way, what are our options for coping with the growth?
 - How can we add computing resources to handle the additional load?
 
-##### Describing Load
-Load can be described with *load parameters*.  Examples of load parameters are: 
+#### Describing Load
+
+Load can be described with *load parameters*.  
+Examples of load parameters are: 
 1. request per second to a web server
 2. ratio of reads to writes in a database
 3. the number of simultaneously active users in a chat room
@@ -108,18 +113,13 @@ Load can be described with *load parameters*.  Examples of load parameters are:
 **Latency** and **response time** are NOT the same.  
 
 <dl>
-  <dt>Response time</dt>
-  <dd>is what the client sees from end-to-end</dd>
-</dl>
-*this includes network delays, queueing delays, response processing and other factors*
-
-<dl>
-  <dt>Latency</dt>
+  <dt>response time</dt>
+  <dd>is what the client sees from end-to-end </dd>
+  <dt>latency</dt>
   <dd>however is how long the request was *latent* (waiting to be processed).</dd>
 </dl>
 
-
-
+*Note: **response time** includes network delays, queueing delays, response processing and other factors*
 
 ##### Measuring response times
 There is always a level of randomness and variability in each request, even if it's the same request over and over, often due to factors outside our control.  *(TCP retransmission, garbage collection, page fault, etc.)*
@@ -132,14 +132,21 @@ It's usually better to use percentiles.
 - This means half of the requests are faster than the median, and half are slowest.
 - You can take this further by taking higher percentiles (95%, 99%, 99.99%).
 
-##### Tail latencies
-: high percentiles of response times (e.g. 99th percentile)
+<dl>
+  <dt>tail latencies</dt>
+  <dd>high percentiles of response times (e.g. 99th percentile)</dd>
+</dl>
 
-Sometimes you have to pay attention to the tail latencies because they can be driven by your most valued consumers (highest paying consumer may have the most data or requests).
+*Note: tail latencies are often referred to as [**p95, p99, and p999**](https://www.baeldung.com/cs/whats-the-p99-latency)*
+
+Pay attention to tail latencies because they can be driven by your most valued consumers (highest paying consumer may have the most data or requests)
 
 Service level objectives (SLOs) and service level agreements (SLAs) are contracts that define the expected performance and availability of a service.
 
-An end-user request that requires multiple back-end calls, even if run in parallel, will be bottlenecked by the slowest request.  
+#### Percentiles in Practice
+> High percentiles are especially important in backend services that are called multiple times as part of serving a single end-user request.  
+
+Even parallel requests may end up being slow.  An end-user request that requires multiple back-end calls, even if run in parallel, will be bottlenecked by the slowest request.  This is illustrated below.
 
 ```mermaid
 graph TD;
@@ -167,26 +174,29 @@ graph TD;
 #### Approaches for Coping with Load
 
 <dl>
-  <dt>Scaling-up</dt>
+  <dt>scaling-up</dt>
   <dd>vertical scaling, moving to a more powerful machine</dd>
-  <dt>Scaling-out<dt>
+  <dt>scaling-out<dt>
   <dd>horizontal scaling, distributing the load across multiple smaller machines (a.k.a. *shared-nothing* architecture)</dd>
-  <dt>Elastic</dt>
+  <dt>elastic</dt>
   <dd>systems that can automatically add computing resources when they detect a load increase (whereas other systems are scaled manually)</dd>
 </dl>
 
 
 > Horizontal scaling on a stateful system brings in lots of complexity.  This is why until recently, the common practice was to keep the state in one location and scale that up until the scalability requirements forces you to distribute.
 
-*There is no magic architecture.*  The way one application scales can be vastly different from another.  
+**There is no magic architecture**  - the way one application scales can be vastly different from another.  
 For example: Designing a system that handles 100,000 requests per second with requests of 1kb in size is vastly different than designing a system that handles 3 requests per minute, each 2 GB in size.  It's the same data-throughput but vastly different use-cases.
 
+---
+### Maintainability
+
 <dl>
-  <dt>Operability</dt>
+  <dt>operability</dt>
   <dd>Make it easy for operations teams to keep the system running smoothly</dd>
-  <dt>Simplicity</dt>
+  <dt>simplicity</dt>
   <dd>Make it easy for new engineers to understand the system, by removing as much complexity as possible from the system.</dd>
-  <dt>Evolvability</dt>
+  <dt>evolvability</dt>
   <dd>Make it easy for engineers to make changes to the system in the future, adapting it for unanticipated use cases as requirements change.  *(a.k.a. extensibility, modifiability, or plasticity)*</dd>
 </dl>
 
@@ -240,13 +250,13 @@ The *Agile* process is a good methodology for managing change.  Coupled with TDD
 ---
 ## Chapter 2 - Data Models and Query Languages
 
-> Data models are perhaps the most important part of developing software, because they ahve such a profound effect: not only on how the software is written, but also on how we *think about the problem* that we are solving.
+> Data models are perhaps the most important part of developing software, because they have such a profound effect: not only on how the software is written, but also on how we *think about the problem* that we are solving.
 
 Applications are built by layering one data model on top of another (abstractions).
-    1. Objects and data-structures
-    2. How to store the data structures - JSON, XML, relational, graph?
-    3. How to store the data in terms of bytes in memory, on disk, or on a network
-    4. Electrical currents, pulses of light, magnetic fields, etc.
+- 1. Objects and data-structures
+- 2. How to store the data structures - JSON, XML, relational, graph?
+- 3. How to store the data in terms of bytes in memory, on disk, or on a network
+- 4. Electrical currents, pulses of light, magnetic fields, etc.
 
 Each data-model carries with it assumption on how it will be used.  Some models fit specific use-cases better than others.
 
@@ -255,7 +265,7 @@ The *Relational Model* became the defacto general purpose model and has stayed t
 As computers became more powerful and networked, the types of workloads became increasingly diverse.  Relational databases generalized very well and so have been applied to many modern workloads.
 
 Driving forces for NoSQL
-- A need for greater scalability than relational databases can achieve easily (e.g. very large data-sets or high write througput)
+- A need for greater scalability than relational databases can achieve easily (e.g. very large data-sets or high write throughput)
 - A preference for free and open-source software over commercial products
 - Specialized query operations that aren't well supported in the relational model
 - Frustration with restrictiveness of relational schemas
@@ -266,9 +276,9 @@ Driving forces for NoSQL
 - tools have been developed to reduce the amount of boilerplate code required to address the mismatch, but there is still an **impedance mismatch**
 
 <dl>
-  <dt><a href="https://www.geeksforgeeks.org/impedance-mismatch-in-dbms/">Impedance Mismatch</a></dt>
+  <dt><a href="https://www.geeksforgeeks.org/impedance-mismatch-in-dbms/">impedance mismatch</a></dt>
   <dd>when two systems or components that are supposed to work together have different data models, structures, or interfaces that make communication difficult or inefficient</dd>
-  <dt>Shredding</dt>
+  <dt>shredding</dt>
   <dd>the relational technique of splitting a document-like structure into multiple tables</dd>
 </dl>
 
@@ -276,7 +286,19 @@ Storing complex object structures in relational vs document styles has pros and 
 - Relational style spreads the data across various tables through normalization.  Query operations become more complex
 - Document style keeps the data together in one record.  Limited query options are available here however but much simpler to retrieve and update.
 
+ORMs like NHibernate or EntityFramework are an attempt to hide the complexity and boilerplate needed to translate between a relational database and the objects in an application.  However any non-trivial queries quickly reveals their shortcomings.
 
+#### Data normalization
+
+If data needs to be standardized and consistent, for instance when powering a UI to select a value, you may need normalization.  Effectively this means giving a value an ID and the value itself will be stored as a reference in another table.  This is useful when: 
+- you need consistent style and spelling for a value
+- you need to avoid ambiguity
+- you need to update a value in one place
+- you need to support localization
+- you need to quickly search for a value
+
+> The relational model is essentially a collection of tuples (rows).
+Query optimizers in a relational database are tuned to finding the appropriate keys to identify records quickly.
 
 #### Access patterns in document databases
 Accessing data in a document-model has caveats.  You can't directly access a nested item within a document.  You have to refer to it through the parent.  This may not be a problem is the document isn't deeply nested.
@@ -290,9 +312,9 @@ If using a document database, you can emulate joins in the application code.  Th
 Document databases do not enforce any schema on the data in the documents.  This leads people to think that they are *schemaless*, but this is misleading because the application that reads and works with the data would have a schema.  The more accurate term would be *schema-on-read*.  
 
 <dl>
-  <dt>Schema-on-read</dt>
+  <dt>schema-on-read</dt>
   <dd>schema is implicitly enforced by the application that reads the data</dd>
-  <dt>Schema-on-write</dt>
+  <dt>schema-on-write</dt>
   <dd>schema is explicit and enforce on write (database ensures all data written conforms to the schema).  Most commonly seen in relational style databases</dd>
 </dl>
 
@@ -314,27 +336,61 @@ Many popular relational databases also have support for document style data stor
 ### Query Languages for Data
 
 <dl>
-  <dt><a href="https://en.wikipedia.org/wiki/Imperative_programming">Imperative language</a></dt>
+  <dt><a href="https://en.wikipedia.org/wiki/Imperative_programming">imperative language</a></dt>
   <dd>uses statements that change a program's state</dd>
-  <dt><a href="https://en.wikipedia.org/wiki/Declarative_programming">Declarative language</a></dt>
+  <dt><a href="https://en.wikipedia.org/wiki/Declarative_programming">declarative language</a></dt>
   <dd>express the logic of a computation without describing its control flow</dd>
 </dl>
 
 SQL is a declarative language because we're defining patterns as opposed to specific steps.  
 
-Declarative languages are typically better suited for parallel execution.  This is because imperative code specifies steps to be executed in a particular order whereas declarative languages only specificy the pattern of the results, not the algorithm that is used to determine the results.
+Declarative languages are typically better suited for parallel execution.  This is because imperative code specifies steps to be executed in a particular order whereas declarative languages only specificy the pattern of the results, not the algorithm that is used to determine the results.  
+- In effect, this means that there are more opportunities for a query optimizer to improve the performance of a query
 
+<dl>
+  <dt>MapReduce</dt>
+  <dd>a programming model for processing large amounts of data in bulk across many machines</dd>
+  <dt>pure function</dt>
+  <dd>a function that executes only with the inputs passed to it as arguments.  a pure function cannot create side effects</dd>
+</dl>
+
+[MapReduce](https://en.wikipedia.org/wiki/MapReduce) is neither a declarative or a fully imperative query API, but something in between.  The logic of the query is expressed with snippets of code which are called repeatedly by the processing framework.
+- the map and reduce functions are *pure* functions
 
 ### Graph-Like Data Models
 
 Used when there are many-to-many relationships are common in the system.
 
 <dl>
-  <dt>Vertices</dt>
+  <dt>vertices</dt>
   <dd>nodes or entities</dd>
-  <dt>Edges</dt>
-  <dd>relationships or arcs</dd>
+  <dt>edges</dt>
+  <dd>relationships or arcs between the vertices</dd>
 </dl>
+
+Graphs are not limited to homogenous data.  They provide a consistent way of storing completely different types of objects in a single datastore.
+- Facebook for example uses graph databases to store people, locations, events, checkins, and comments made by users.
+- Vertices represent people, locations, events, checkins, and comments, while edges indicate which people are friends, which checkin happened in which location, who commented on which post, etc
+
+#### Property Graph
+In a property graph
+- each vertex consists of: 
+  - a unique identifier
+  - a set of outgoing edges
+  - a set of incoming edges
+  - a collection of properties (key-value pairs)
+- each edge consists of: 
+  - a unique identifier
+  - the vertex at which the edge starts (the tail)
+  - the vertex at which the edge ends (the head)
+  - a label to describe the kind of relationship
+  - a collection of properties (key-value pairs)
+
+Some important aspects of a property graph
+- any vertex can have an edge connecting it with any other vertex
+- you can efficiently traverse the graph
+- by using different labels for diferent kinds of relationships, you can store different kinds of information in a single graph, while still maintaining a clean data model
+
 
 There are declarative query languages for graph databases such as: 
 - [Cypher query language](https://neo4j.com/developer/cypher/)
