@@ -564,34 +564,59 @@ Two common strategies for determining how and when the SSTables are compacted an
 
 [LSM-tree compaction in ScyllaDB](https://www.youtube.com/watch?v=Xzcj663i9DM)
 
-[Size-tiered Compaction](https://www.youtube.com/watch?v=TyTXOjFMi7k)
-- compact N similar-sized files together with result being put into the next tier
-- procrastinates compaction
-- results in a low number of SSTables where the same data is copied during compaction a fairly low number of times
-- reads can be slow if there are many modifications to the same key - O(logN)
-  - this is because multiple sstables will have values for the same key
-- obsolete data remains for a long time until merged
-- compaction requires lots of space to be available
-- best for insert-heavy workloads
-- weak against space amplification
+#### [Size-tiered Compaction](https://www.youtube.com/watch?v=TyTXOjFMi7k)
+
+What
+- a threshold of N sstables is defined to tell the system when to compact
+- compacts N similar-sized files together with the result being a larger sstable
+  - creates buckets of size tiers
+- procrastinates compaction as long as possible
+- typically the default compaction strategy
+- most generalizable strategy
+
+Pros
+- minimizes write amplification
+
+Cons
+- requires at least 50% of disk space be available
+- prone to space amplification
   - occurs because during compaction, the input sstables cannot be deleted until the output sstable is finished writing
     - in insert scenarios, it can require up 2x the space
     - in update scenarios, the same value can exist multiple times until things are compacted
+- obsolete data can remain for a long time until merged
+- reads can be slow if there are many modifications to the same key - O(logN)
+  - this is because multiple sstables will have values for the same key
+
+Best fit
+- best for insert-heavy workloads
 
 [Leveled Compaction](https://www.youtube.com/watch?v=6yJEwqseMY4)
-- a tiered (leveled) compaction strategy that at each level, specifies a maximum size  
-- as the levels go up, the number of SS tables goes up, typically an order of magnitude 
-  - in the real world, the multiplier is usually 10x
-- the goal is to promote to levels as little as possible.  high-write keys wouldn't have to be moved around often.
-- best for read-heavy workloads with occasional writes
-- regarding space-amplication
-  - most of the data is in the deepest level
-  - sstables do not overlap, so it can't have duplicate data
-- regarding read-amplication
-  - most of the reads only have to read from 1 sstable
-- regarding write-amplication
-  - very bad
-  - data at each level is written to multiple sstables in the next level during compaction
+
+What
+- defines levels of compaction where L0 is the first level where the memtable flushes to disk as an SSTable
+- L0 is just a landing area where the data will be compacted immediately
+- defines Max SStable size and compacts data until 
+it hits the limit
+- defines a Max Lx size (which is a multiplier, typically 10x, of the previous level)
+- if the Max Lx size is hit, then another compaction is triggered promoting the compacted data to the next level
+- most of the data resides in the lowest level
+
+Pros
+- each partition resides in only one SS table per level
+- reads handled by just a few SS tables
+- not pront to space-amplification because most of the data is at the deepest level
+- strong against space amplification
+- obsolete records compact out quickly
+
+Cons
+- prone to write amplification
+- very IO intensive
+- compacts more frequently
+- can't ingest data at high insert speeds
+
+Best fit
+- occasional writes but high reads
+
 
 ### B-Trees
 
