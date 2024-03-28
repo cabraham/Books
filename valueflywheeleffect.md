@@ -138,3 +138,113 @@ Time to value IS:
 - measured by how long it took to see customer feedback from the day the CEO first heard this idea
 
 
+
+
+## Chapter 9 - Environment for success
+
+Team antipatterns
+- rock star
+- tiny team
+- huge team
+- Bob's team - we tend to do this alot
+- My work
+- Johnny's bonus
+- The magic manager
+
+Work Level mismatches
+- Execution level - keep the manager happy
+- Impact level - product centric approach
+- Optics level - we don't look bad
+
+> We are trying to move to a product-centric (which inherently means customer-centric) view
+
+
+Psychological safety
+- failing fast
+- ethics
+- diversity
+
+Western Org Culture
+- Pathological
+- Bureaucratic
+- Generative
+
+
+Felt that mapping psychological safety was a bit of a stretch
+
+
+
+Chapter 10 - A Sociotechnical system for change
+
+- Sociotechnical
+    - Socio - people in the system must have a mindset of contribution, collaboration, and enablement
+- Technical
+    - technology fits the purpose (north star metric)
+- Problem prevention
+- Time to value
+
+Time to Value
+- Ship --> Sense --> Respond
+
+Intersection of People and Technology
+- take an outside in approach
+- correct tech choices will prevent teams from being slowed down by legacy decisions
+- good tech leadership will apply standards and good practice to prevent bad things from happening
+- a drive for improved time to value keeps things connected to business outcomes
+- lack of legacy tech means more time to focus
+- lightweight governance and standards 
+
+Purpose vs Function (DP1 and DP2)
+- redundancy of parts
+
+## Chapter 11 - Map your org capability
+
+
+
+
+## Chapter 12 - Case Study - Work grid
+
+
+## Chapter 13 - The Serverless-First Edge
+
+What is the simplest thing that you can do *right now* to deliver value?
+
+The technology industry is full of overused terms (e.g. services) and buzzwords.  No one seems to know what these mean anymore.
+
+### The Modern Cloud
+Aspects of applications built on the modern cloud
+- Microservices - applications are broken into components that are deployed separately containing the data that they need
+- Loosely coupled and scalable - ideally built on event-driven architecture
+- Cloud native - software is ephemeral and infrastructure as code
+- Abstracted - software is abstracted away from the OS
+- Pay per use - only pay for what you need
+- Low operational overhead - no need to log into a computer and configure/install something
+- Leverage the provider - use the services that the cloud provider offers
+
+#### Modern Cloud Interia Points
+- Legacy Cloud
+- Lack of Business Alignment
+- Fear of Vendor Lock-In
+- Serverless Is Not the Point
+    - the point is focus
+
+
+## Chapter 14 - The Frictionless Dev Experience
+
+- The tradeoff for being fast or safe doesn't have to exist with software.
+- Emphasis on code is a liability
+
+- The Miner's Canary
+
+- Remove Friction with Automation
+
+- Tie CT waiting too long to a culture of learning 
+    - software is never done
+
+## Chapter 15 - Mapping the Stack
+
+- Exercise was useful
+
+## Chapter 16 - Case Study - Liberty Mutual Insurance
+
+
