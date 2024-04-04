@@ -774,7 +774,7 @@ The performance of in-memory actually comes from not having to encode in-memory 
 </dl>
 
 
-*Characteristics of OLTP vs OLAP*
+**Characteristics of OLTP vs OLAP**
 |Property|OLTP|OLAP|
 |---|---|---|
 |Main read pattern|Small number of records per query, fetched by key|Aggregate over large number of records|
@@ -876,13 +876,16 @@ An evolving system by its definition changes over time.  In large applications, 
 
 - Client-side applications however, it is up to the user to install the update and therefore, may not update the install for some time.
 
+> **Important note: Knowing if the type of application (client vs server) side application has a direct impact on how you should plan your application evolution!**
+
 The above scenarios means that new and old version of the code will run simultaneously and must continue to run smoothly.
 
-Backward compatibility
-: newer code can read data that was written by older code
-
-Forward compatibility
-: older code can read data that was written by newer code
+<dl>
+  <dt>backward compatibility</dt>
+  <dd>newer code can read data that was written by older code</dd>
+  <dt>forward compatibility</dt>
+  <dd>older code can read data that was written by newer code</dd>
+</dl>
 
 ### Formats for Encoding Data
 
@@ -961,10 +964,11 @@ The most common ways of data flow are:
 
 A process that writes to the database encodes the data.  The process that reads the data decodes it.  
 
-Even in a single process scenario, where both writing and reading is done by the same application, the reader should still be considered as a later version of the same process.
+> **Important Note:** Even in a single process scenario, where both writing and reading is done by the same application, the reader should still be considered as a later version of the same process.
+
 Another way to think of it is *sending a message to your future self*.
 
-**Data outlives code** and therefore we should be aware of how the data will be handled in its lifetime.
+> **Important Note:** Data outlives code and therefore we should be aware of how the data will be handled in its lifetime.
 
 
 #### Dataflow Through Services: REST and RPC
@@ -1046,34 +1050,36 @@ You will still need to consider forward and backwards compatibility as message v
 
 Part 1 discussed aspects of data systems that apply when data is stored on a single machine.  Part 2 will focus on when the data is distributed among multiple machines.
 
-Reasons to distribute data across multiple machines
-Scalability
-: to be able to read/write data beyond what a single machine can handle
+Reasons to distribute data across multiple machines:
 
-Fault tolerance/high availability
-: to continue working even when a machine goes down via redundancy
+<dl>
+  <dt>scalability</dt>
+  <dd>to be able to read/write data beyond what a single machine can handle</dd>
+  <dt>fault tolerance/high availability</dt>
+  <dd>to continue working even when a machine goes down via redundancy</dd>
+  <dt>latency</dt>
+  <dd>to be geographically closer to users to reduce time in network hops</dd>
+</dl>
 
-Latency
-: to be geographically closer to users to reduce time in network hops
 
-###Two styles of scaling
+### Two styles of scaling
 
-####Scaling-up (vertical scaling)
+#### Scaling-up (vertical scaling)
 - making the machine more powerful
 - simpler to reason about
 - much more expensive to scale
 
-####Scaling-out (horizontal scaling)
+#### Scaling-out (horizontal scaling)
 - adding more nodes 
 - (a.k.a. shared-nothing architecture)
 - harder to reason about as its more complex
 
-
-Replication
-: keeping a copy of the same data on separate nodes to provide redundancy in case of failure
-
-Partioning
-: splitting up the data into smaller subsets called partitions (a.k.a. *sharding*)
+<dl>
+  <dt>replication</dt>
+  <dd>keeping a copy of the same data on separate nodes to provide redundancy in case of failure</dd>
+  <dt>partioning</dt>
+  <dd>splitting up the data into smaller subsets called partitions (a.k.a. *sharding*)</dd>
+</dl>
 
 Replication and partitioning is often used together to both achieve scaling, fault tolerance, and latency needs
 
