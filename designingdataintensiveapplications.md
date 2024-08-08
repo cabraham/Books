@@ -564,34 +564,59 @@ Two common strategies for determining how and when the SSTables are compacted an
 
 [LSM-tree compaction in ScyllaDB](https://www.youtube.com/watch?v=Xzcj663i9DM)
 
-[Size-tiered Compaction](https://www.youtube.com/watch?v=TyTXOjFMi7k)
-- compact N similar-sized files together with result being put into the next tier
-- procrastinates compaction
-- results in a low number of SSTables where the same data is copied during compaction a fairly low number of times
-- reads can be slow if there are many modifications to the same key - O(logN)
-  - this is because multiple sstables will have values for the same key
-- obsolete data remains for a long time until merged
-- compaction requires lots of space to be available
-- best for insert-heavy workloads
-- weak against space amplification
+#### [Size-tiered Compaction](https://www.youtube.com/watch?v=TyTXOjFMi7k)
+
+What
+- a threshold of N sstables is defined to tell the system when to compact
+- compacts N similar-sized files together with the result being a larger sstable
+  - creates buckets of size tiers
+- procrastinates compaction as long as possible
+- typically the default compaction strategy
+- most generalizable strategy
+
+Pros
+- minimizes write amplification
+
+Cons
+- requires at least 50% of disk space be available
+- prone to space amplification
   - occurs because during compaction, the input sstables cannot be deleted until the output sstable is finished writing
     - in insert scenarios, it can require up 2x the space
     - in update scenarios, the same value can exist multiple times until things are compacted
+- obsolete data can remain for a long time until merged
+- reads can be slow if there are many modifications to the same key - O(logN)
+  - this is because multiple sstables will have values for the same key
+
+Best fit
+- best for insert-heavy workloads
 
 [Leveled Compaction](https://www.youtube.com/watch?v=6yJEwqseMY4)
-- a tiered (leveled) compaction strategy that at each level, specifies a maximum size  
-- as the levels go up, the number of SS tables goes up, typically an order of magnitude 
-  - in the real world, the multiplier is usually 10x
-- the goal is to promote to levels as little as possible.  high-write keys wouldn't have to be moved around often.
-- best for read-heavy workloads with occasional writes
-- regarding space-amplication
-  - most of the data is in the deepest level
-  - sstables do not overlap, so it can't have duplicate data
-- regarding read-amplication
-  - most of the reads only have to read from 1 sstable
-- regarding write-amplication
-  - very bad
-  - data at each level is written to multiple sstables in the next level during compaction
+
+What
+- defines levels of compaction where L0 is the first level where the memtable flushes to disk as an SSTable
+- L0 is just a landing area where the data will be compacted immediately
+- defines Max SStable size and compacts data until 
+it hits the limit
+- defines a Max Lx size (which is a multiplier, typically 10x, of the previous level)
+- if the Max Lx size is hit, then another compaction is triggered promoting the compacted data to the next level
+- most of the data resides in the lowest level
+
+Pros
+- each partition resides in only one SS table per level
+- reads handled by just a few SS tables
+- not pront to space-amplification because most of the data is at the deepest level
+- strong against space amplification
+- obsolete records compact out quickly
+
+Cons
+- prone to write amplification
+- very IO intensive
+- compacts more frequently
+- can't ingest data at high insert speeds
+
+Best fit
+- occasional writes but high reads
+
 
 ### B-Trees
 
@@ -749,7 +774,7 @@ The performance of in-memory actually comes from not having to encode in-memory 
 </dl>
 
 
-*Characteristics of OLTP vs OLAP*
+**Characteristics of OLTP vs OLAP**
 |Property|OLTP|OLAP|
 |---|---|---|
 |Main read pattern|Small number of records per query, fetched by key|Aggregate over large number of records|
@@ -851,13 +876,16 @@ An evolving system by its definition changes over time.  In large applications, 
 
 - Client-side applications however, it is up to the user to install the update and therefore, may not update the install for some time.
 
+> **Important note: Knowing if the type of application (client vs server) side application has a direct impact on how you should plan your application evolution!**
+
 The above scenarios means that new and old version of the code will run simultaneously and must continue to run smoothly.
 
-Backward compatibility
-: newer code can read data that was written by older code
-
-Forward compatibility
-: older code can read data that was written by newer code
+<dl>
+  <dt>backward compatibility</dt>
+  <dd>newer code can read data that was written by older code</dd>
+  <dt>forward compatibility</dt>
+  <dd>older code can read data that was written by newer code</dd>
+</dl>
 
 ### Formats for Encoding Data
 
@@ -936,10 +964,11 @@ The most common ways of data flow are:
 
 A process that writes to the database encodes the data.  The process that reads the data decodes it.  
 
-Even in a single process scenario, where both writing and reading is done by the same application, the reader should still be considered as a later version of the same process.
+> **Important Note:** Even in a single process scenario, where both writing and reading is done by the same application, the reader should still be considered as a later version of the same process.
+
 Another way to think of it is *sending a message to your future self*.
 
-**Data outlives code** and therefore we should be aware of how the data will be handled in its lifetime.
+> **Important Note:** Data outlives code and therefore we should be aware of how the data will be handled in its lifetime.
 
 
 #### Dataflow Through Services: REST and RPC
@@ -1021,34 +1050,36 @@ You will still need to consider forward and backwards compatibility as message v
 
 Part 1 discussed aspects of data systems that apply when data is stored on a single machine.  Part 2 will focus on when the data is distributed among multiple machines.
 
-Reasons to distribute data across multiple machines
-Scalability
-: to be able to read/write data beyond what a single machine can handle
+Reasons to distribute data across multiple machines:
 
-Fault tolerance/high availability
-: to continue working even when a machine goes down via redundancy
+<dl>
+  <dt>scalability</dt>
+  <dd>to be able to read/write data beyond what a single machine can handle</dd>
+  <dt>fault tolerance/high availability</dt>
+  <dd>to continue working even when a machine goes down via redundancy</dd>
+  <dt>latency</dt>
+  <dd>to be geographically closer to users to reduce time in network hops</dd>
+</dl>
 
-Latency
-: to be geographically closer to users to reduce time in network hops
 
-###Two styles of scaling
+### Two styles of scaling
 
-####Scaling-up (vertical scaling)
+#### Scaling-up (vertical scaling)
 - making the machine more powerful
 - simpler to reason about
 - much more expensive to scale
 
-####Scaling-out (horizontal scaling)
+#### Scaling-out (horizontal scaling)
 - adding more nodes 
 - (a.k.a. shared-nothing architecture)
 - harder to reason about as its more complex
 
-
-Replication
-: keeping a copy of the same data on separate nodes to provide redundancy in case of failure
-
-Partioning
-: splitting up the data into smaller subsets called partitions (a.k.a. *sharding*)
+<dl>
+  <dt>replication</dt>
+  <dd>keeping a copy of the same data on separate nodes to provide redundancy in case of failure</dd>
+  <dt>partioning</dt>
+  <dd>splitting up the data into smaller subsets called partitions (a.k.a. *sharding*)</dd>
+</dl>
 
 Replication and partitioning is often used together to both achieve scaling, fault tolerance, and latency needs
 
@@ -1065,8 +1096,6 @@ Three popular algorithms for replicating changes between nodes
 2. multi-leader
 3. leaderless
 
-![leader-based replication](images/ddia/leader-based%20replication.png)
-
 ### Leaders and followers
 
 The goal is to ensure all replicas get a copy of the changeset.  The most common method of doing this is by designating one of the replicas as the *leader*.  
@@ -1077,9 +1106,30 @@ When a client wants to read from the database, it can query the leader or any of
 
 Replication can be done synchronously or asynchronously.  With a synchronous model, data may be more consistent however at the cost of availability if the replicating system goes down.  With an asynchronous model, availability is higher but at the cost of data consistency.  It is possible to mix these models as well with some nodes being synchronous while others being asynchronous.  This mixed model is called *semi-synchronous*.
 
-Failover
-: changing one of the followers to be promoted as the new leader
+<dl>
+  <dt>failover</dt>
+  <dd>changing one of the followers to be promoted as the new leader</dd>
+</dl>
 
+
+![leader-based replication ](images/ddia/leader-based_replication.png)
+
+#### Synchronous versus Asynchronous Replication
+
+![leader-based replication async](images/ddia/leader-based_replication_async.png)
+
+In Figure 5-2, "Follower 1" is synchronous while "Follower 2" is asynchronous.  
+
+Requiring all followers to be synchronous would be a bad idea.  If any of the follower nodes go down, all writes will fail.
+
+It's common to combine both synchronous and asynchronous replication.  This is called *semi-synchronous* replication.
+
+If a leader-based replication is configured to be completely asynchronous, then when there is a failure, writes that have not been replicated will be lost.  However the upside is that the system can continue to process writes, even if all the followers have fallen behind.
+
+<dl>
+  <dt>chain replication</dt>
+  <dd>a variant of synchronous replication which uses an external coordinator and a fault-tolerant consensus algorithm to detect node failures</dd>
+</dl>
 
 #### Setting up new followers
 
@@ -1235,8 +1285,10 @@ A complication to the above techniques is if you have to consider cross-device r
 
 ### Monotonic Reads
 
-monotonic read
-: a read consistency guarantee that promises after a process reads a result, it will never see an older value of the same result
+<dl>
+  <dt>monotonic read</dt>
+  <dd>a read consistency guarantee that promises after a process reads a result, it will never see an older value of the same result</dd>
+</dl>
 
 It's possible when making several reads from different replicas, that the results may seem as if things are moving *backward in time*.  
 
@@ -1247,8 +1299,11 @@ One way of achieving this is by ensuring each user always makes their reads from
 
 ### Consistent Prefix Reads
 
-consistent prefix reads
-: guarantee that if a sequence of writes happens in a certain order, then anyone reading those writes will see them appear in the same order
+<dl>
+  <dt>consistent prefix reads</dt>
+  <dd>guarantee that if a sequence of writes happens in a certain order, then **anyone** reading those writes will see them appear in the same order
+  </dd>
+</dl>
 
 Asynchronous replication can lead to violations of causality.  In a distributed and partitioned database, each partition operates independently and therefore there is no global ordering of writes.
 
@@ -1285,19 +1340,23 @@ Disadvantages
 
 ### Handling Write Conflicts
 
+Sync and async conflict resolutions are very different.  Synchronous enables you to put the the conflict in front of the user at the time of write, whereas in asynchronous, it is possible that it is too late for the user to resolve the conflict.
+
 It wouldn't make sense to have write-conflicts handled synchronously in a multi-leader configuration.  If synchronous write-conflict handling was required, then single-leader is the only viable option.
 
 ![write conflict](images/ddia/writeconflict.png)
 
+
+##### Conflict avoidance
 Avoiding conflicts is the simplest strategy.  This is typically done by routing all user-traffic to the same datacenter.  In the case of a datacenter outage, this may break down.
+
+##### Custom conflict resolution logic
 
 The database must resolve conflicts in a *convergent* way, which means that all replicas arrive at the same final value when all the changes have been replicated.  This can be achieved by the following: 
 1. Assign every write a unique ID and pick the write with the highest ID as the *winner*.  This is called *last write wins (LWW)*
 2. Give each replica a unique ID and let writes that have the higher replica number take precedence.  This implies data loss
 3. Merge the values together (concatenate them)
 4. Record the conflict in an explicit data structure and write application code that resolves the conflict later
-
-##### Custom conflict resolution logic
 
 *On write* - when the database detects a conflict in the log of replicated changes, it calls a conflict handler (custom piece of code)
 
@@ -1416,8 +1475,10 @@ To remove values, it's not enough to delete an item from a value because a sibli
 
 ## Chapter 6 - Partionining
 
-partition
-: dividing your tables and indexes into smaller pieces
+<dl>
+  <dt>partition</dt>
+  <dd>dividing your tables and indexes into smaller pieces</dd>
+</dl>
 
 In terms of a distributed database, partitions would be spread between nodes.
 
@@ -1439,8 +1500,6 @@ A real-world example of partioning by key range are encyclopedias, which are par
 
 Within each partition, we can keep the keys in sorted order which allows for fast range scans.
 
-
-
 A downside of key range partitioning is that certain access patterns can lead to hotspots.  
 For example: 
 - consider collecting sensor data from many sensors which are written to timestamp partitions
@@ -1453,11 +1512,15 @@ One way to address the above issue is to use a different value than the timestam
 
 ### Partition by Hash of Key
 
-hashing
-: the deterministic process of mapping a key to an index where the distribution of keys is uniform
+<dl>
+  <dt>hashing</dt>
+  <dd>the deterministic process of mapping a key to an index where the distribution of keys is uniform</dd>
+</dl>
 
-[consistent hashing](https://en.wikipedia.org/wiki/Consistent_hashing)
-: a hashing technique such that when a hash table is resized, only *n*/*m* keys need to be remapped on average where *n* is the number of keys and *m* is the number of slots
+<dl>
+  <dt>[consistent hashing](https://en.wikipedia.org/wiki/Consistent_hashing)</dt>
+  <dd>a hashing technique such that when a hash table is resized, only *n*/*m* keys need to be remapped on average where *n* is the number of keys and *m* is the number of slots</dd>
+</dl>
 
 Hash algorithms do not have to be cryptographically strong but they have to be deterministic and fast.
 
@@ -1764,7 +1827,7 @@ The process of acquiring a read-lock however has serious performance implication
 
 <a name="figure7-6">![Figure 7-6 - Read skew](images/ddia/read_skew.png)</a>
 
-[Figure 7.6](#figure7-6) illustrates an issue called *read skew* (a.k.a. *nonrepeatable read*).  There is a moment in time where Alice can see \$900 in her balance instead of \$1000.  Reading the data afterwards would show the right amount, however in some cases, such temprary inconsistency cannot be tolerated.
+[Figure 7.6](#figure7-6) illustrates an issue called *read skew* (a.k.a. *nonrepeatable read*).  There is a moment in time where Alice can see \$900 in her balance instead of \$1000.  Reading the data afterwards would show the right amount, however in some cases, such temporary inconsistency cannot be tolerated.
 
 ##### Backups
 Taking a backup of the entire database, which is a long-running operation, will likely overlap with continued writes to the database.  You could end up with some parts of the backup containing an older version of the data, and other parts containing the newer version.  
@@ -1911,7 +1974,7 @@ In [Figure 7.8](#figure7-8), the business rule is that at least one doctor must 
 The solutions for addressing lost update may not be available for write skew.
 - atomic single-object operations don't work as multiple objects are involved
 - write skew is not automatically detected in many database engines
-- contraints across multiple objects may not be supported
+- constraints across multiple objects may not be supported
 
 One solution option for [Figure 7.8](#figure7-8) is to explicitly lock the rows as follows:
 
@@ -2749,10 +2812,9 @@ Total order broadcast is useful for implementing a lock service that provides [f
 
 You can however build a linearizable storage on top of total order broadcast and vice-versa.
 
-
 ### Distributed Transactions and Consensus
 
-FLP result proves that ther is no algorithm that is always able to reach consensus if there is a risk that a node may crash.  It's a very restrictive model however and assumes a deterministic algorithm that cannot use clocks or timeouts.  Consensus becomes solvable if timeouts are allowed.
+[FLP Result](https://www.cs.yale.edu/homes/aspnes/pinewiki/FischerLynchPaterson.html) proves that there is no algorithm that is always able to reach consensus if there is a risk that a node may crash.  It's a very restrictive model however and assumes a deterministic algorithm that cannot use clocks or timeouts.  Consensus becomes solvable if timeouts are allowed.
 
 #### Atomic Commit and Two-Phase Commit (2PC)
 
@@ -2808,7 +2870,7 @@ Consensus algorithms must satisfy the following properties:
   <dd>Every node that does not crash eventually decides on some value</dd>
 </dl>
 
-The termination property formalizes the idea of fault tolerance.  It is a liveness property, whereas the other properties are safety properties.  The termination property makes it so that an algorithm does not have to wait indefinetely for a node to recover.
+The termination property formalizes the idea of fault tolerance.  It is a **liveness property**, whereas the other properties are **safety properties**.  The termination property makes it so that an algorithm does not have to wait indefinetely for a node to recover.
 
 The termination property assumes that fewer than half of the nodes are crashed or unreachable.  
 
@@ -2837,7 +2899,7 @@ Zookeeper and etcd are popular solutions for distributed systems.
 
 #### Zookeeper
 Implements total order broadcast (and hence consensus), but also some other properties
-- Linearizable atomic operations - whicn can be used to implement a lock
+- Linearizable atomic operations - which can be used to implement a lock
 - Total ordering of operations - used to implement fencing tokens to prevent clients from conflicting with each other
 - Failure detection - long-lived connections with heartbeats are used to determine if nodes are alive.  If the session times out, ZK can release locks held by the node
 - Change notifications - allows a client to read locks and values that were created by another client but also watches for changes.  Can be used to find out when a client joins the cluster or fails due to session timeout
