@@ -16,6 +16,7 @@ mindmap
     Budget
     Solution Implementation
 ```
+<<<<<<< HEAD
 
 Addressing business needs and quality of delivery
     - There will be competing objectives between various stakeholders
@@ -53,3 +54,5 @@ mindmap
       Usability
     Network & request/response latency
 ```
+=======
+>>>>>>> ae39e303b1e47cb4e1bf1abf987ba31840e715d4
